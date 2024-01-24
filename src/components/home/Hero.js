@@ -1,9 +1,9 @@
-import data_analysis from 'assets/img/data_analysis.jpg'
+import data_analysis from 'assets/img/data_analysis.png'
 
 function Hero(){
 
     return (
-        <main className="flex md:flex-row flex-col sm:py-16 py-6 mb-10">
+        <main className="flex md:flex-row flex-col sm:py-16 py-6 mb-0">
             <div className="flex-1 basis-1/5 flex justify-center items-start flex-col xl:px-0 sm:px-16 px-6">
                 <div className="flex flex-row justify-between items-center w-full">
                     <h1 className="flex-1 font-semibold">
@@ -14,7 +14,7 @@ function Hero(){
                 <p className="font-normal text-azul-marino-300 text-[18px] leading-[30.8px] max-w-[470px] mt-5">Aplicación web de uso interno para la extracción y validación de datos solicitados por instituciones del estado por convenio u oficio.</p>
             </div>
 
-            <div className="flex-1 flex md:my-0 my-10 relative">
+            <div className="flex-1 flex md:mt-10 md:mb-0 my-10 relative ">
                 <img src={data_analysis} alt="Imagen análisis de datos" className=' realtive z-[5] md:-ml-8' />
             </div>
         </main>

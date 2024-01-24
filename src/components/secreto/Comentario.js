@@ -12,7 +12,7 @@ function Comentario({data, nombreTarea}) {
                         <div className="text-gris-700 font-bold">
                             {data[0].fecha}
                         </div>
-                        <div className="text-slate-500">
+                        <div className="text-slate-500 text-left">
                             {data[0].texto}
                         </div>
                     </div>

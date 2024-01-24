@@ -687,7 +687,9 @@ const data ={
 function Timeline(){
    
     return (
-        <div className="sm:pl-32 py-6 py-20 sm:py-0">
+        <div className="py-20 sm:py-0 shadow-lg rounded-xl bg-white w-full">
+        <p className="px-4 pt-4 font-bold text-xl">Proceso de convenio</p>
+        <div className="sm:pl-32">
             {data.etapas.map((etapa) => (
                 <Etapa
                     key={etapa.id}
@@ -701,13 +703,14 @@ function Timeline(){
                 {/* Círculo */}           
                 <span className={`absolute flex items-center justify-center w-4 h-4 rounded-full -left-2.5 top-2 ring-4 ring-gris-300 ${data.finalizado ? "bg-naranja-sii" : "bg-gris-500"}`}/>
 
-                <h3 className={`flex items-center text-lg font-semibold ${data.finalizado ? "text-gris-800" : "text-gris-500"}`}>
+                <h3 className={`flex items-center text-lg font-semibold mb-8 ${data.finalizado ? "text-gris-800" : "text-gris-500"}`}>
                     Fin del proceso
                 </h3>
 
                 
             </li>      
-        </ol>      
+        </ol>
+        </div>      
         </div>
 
         

@@ -5,6 +5,7 @@ import ValidarArchivos from "containers/pages/ValidarArchivos"
 import BuscarQueries from "containers/pages/BuscarQueries";
 import Secreto from "containers/pages/Secreto";
 import { AnimatePresence } from "framer-motion";
+import User from "containers/pages/User";
 
 function AnimatedRoutes(){
     const location = useLocation()
@@ -17,8 +18,10 @@ function AnimatedRoutes(){
             <Route path="/" element={<Home />} />
             {/* Validador de archivos */}
             <Route path="/validador" element={<ValidarArchivos />} />
-            {/* Home display */}
+            {/* Buscador de Queries */}
             <Route path="/busqueda" element={<BuscarQueries />} />
+            {/* Login usuarios */}
+            <Route path="/usuarios" element={<User />} />
 
             {/* Sistema secreto */}
             <Route path="/secreto" element={<Secreto />} />

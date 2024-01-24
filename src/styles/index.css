@@ -6,6 +6,10 @@
     @apply border-naranja-400
 }
 
+[name|="userIcon"].active {
+    @apply text-naranja-400
+}
+
 /* width */
 ::-webkit-scrollbar {
     width: 10px;

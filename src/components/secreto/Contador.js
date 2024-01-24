@@ -15,7 +15,7 @@ function Contador({duracionTarea, plazoTarea, idTarea, duracionAcumulada, plazoA
         {duracionTarea}/{plazoTarea}
         </time>
         {duracionTarea !== null && (
-            <span class="font-semibold absolute text-center rounded bg-gris-600 p-2 text-xs text-white hidden group-hover:block w-[120px] sm:-left-32 -top-12 -left-1">
+            <span className="font-semibold absolute text-center rounded bg-gris-600 p-2 text-xs text-white hidden group-hover:block w-[120px] sm:-left-32 -top-12 -left-1">
                 Días acumulados: <span className={`${ duracionAcumulada > plazoAcumulado ? "text-rojo-400" : "text-verde-oscuro-400"}`}>{duracionAcumulada}</span>/{plazoAcumulado}
             </span>
         )}

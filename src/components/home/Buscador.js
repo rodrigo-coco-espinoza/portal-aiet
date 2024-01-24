@@ -35,7 +35,7 @@ function Buscador(){
                 <h2 className='font-semibold xs:text-[48px] text-azul-brillante-400 text-[44px] xs:leading-[76.8px] leading-[66.8px] w-full'>Buscador de queries</h2>
                 <p className='text-azul-marino-300 text-[18px] leading-[30.8px] mt-5 max-w-[470px] mb-5'>Esta herramienta permite acceder al repositorio de consultas SQL para la extracción de datos.</p>
                 <Link to="/busqueda">
-                    <button class="bg-azul-cobalto-400 hover:bg-naranja-400 text-white font-bold py-2 px-4 rounded">
+                    <button className="bg-azul-cobalto-400 hover:bg-naranja-400 text-white font-bold py-2 px-4 rounded">
                     Ingresar al buscador
                     </button>                       
                 </Link>

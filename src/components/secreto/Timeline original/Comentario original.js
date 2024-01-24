@@ -4,7 +4,7 @@ function Comentario({data}) {
                     <div className="text-slate-500 font-bold">
                         {data.fecha}
                     </div>
-                    <div class="text-slate-500">
+                    <div className="text-slate-500">
                         {data.texto}
                     </div>
         </div>

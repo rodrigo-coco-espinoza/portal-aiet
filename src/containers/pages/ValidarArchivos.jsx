@@ -16,7 +16,7 @@ function ValidarArchivos(){
                 <title>AIET | Validador de archivos</title>
             </Helmet>
             <Navbar 
-                validador={true}
+                
             />
             
             <motion.div
