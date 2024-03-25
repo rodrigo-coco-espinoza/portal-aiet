@@ -19,20 +19,12 @@ function User({
    
     useEffect(() => {
         window.scrollTo(0,0)
-    }, [])
-
-
-
-    
+    }, [])  
 
     if (isAuthenticated){
-      return(
-        <Profile />
-      ) 
+        return(<Profile />) 
    } else {  
-        return (
-            <Login />
-        )
+        return (<Login />)
     }
 }
 

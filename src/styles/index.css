@@ -34,3 +34,8 @@
     opacity: 10px;
     border-radius: 10px;
     }
+
+/* Calendar picker cursor */
+input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    }

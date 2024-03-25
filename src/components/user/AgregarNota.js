@@ -20,7 +20,6 @@ function AgregarNota({
         e.preventDefault()
         const notaData = await add_nota(formData)
         if (onAddNota){
-            console.log(notaData)
             onAddNota(notaData.nuevaNota)
         }
 

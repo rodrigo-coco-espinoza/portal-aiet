@@ -29,7 +29,7 @@ function Query({query}){
            // Assuming you have an "id" property in each nota object
           className="flex flex-col my-3 px-2 py-2 rounded-lg shadow-lg bg-white mb-2 grid"
         >
-            <div className="text-gris-600 text-xs">{query.author[0].first_name} {query.author[0].last_name}
+            <div className="text-gris-600 text-xs">{query.author.persona.nombre}
             </div>
             <div className="text-gris-800 flex items-start">
                 <span>{query.nombre}</span>
@@ -87,7 +87,6 @@ function Query({query}){
             closeModal={handleClickNotas}
             notas={query.notas}
             idQuery={query.id}
-            queryAuthor={query.author[0].id}
         />
         </>
     )

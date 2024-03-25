@@ -1,8 +1,8 @@
 /** @type {import('tailwindcss').Config} */
+const withMT = require("@material-tailwind/react/utils/withMT")
 
 
-
-module.exports = {
+module.exports = withMT({
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
@@ -12,6 +12,11 @@ module.exports = {
       serif: ["Times New Roman"]
     },
     extend: {
+      screens: {
+        'sm-sii': '1024px',
+        'md-sii': '1280px',
+        'lg-sii': '1680px',
+      },
       colors: {
         /* Primarios */
         'naranja-sii': '#E6500A',
@@ -107,4 +112,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
+})

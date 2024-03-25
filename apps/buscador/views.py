@@ -8,11 +8,9 @@ from django.conf import settings
 from apps.user.serializers import *
 import json
 from django.http import JsonResponse
+from .permissions import BuscadorPermissions
 
 #User = settings.AUTH_USER_MODEL
-
-
-
 
 class ListQueriesView(APIView):
     permission_classes = (permissions.AllowAny, )
@@ -27,21 +25,11 @@ class ListQueriesView(APIView):
                 notas = Nota.notaobjects.filter(query=query)
                 notas_data = NotaSerializer(notas, many=True).data
                 query_data['notas'] = notas_data
-
-                for nota in query_data['notas']:
-                    nota_author = UserAccount.objects.filter(id=nota['author'])
-                    nota_author_data = UserSerializer(nota_author, many=True).data
-                    nota['author'] = nota_author_data
-
-                author = UserAccount.objects.filter(id=query.author.id)
-                author_data = UserSerializer(author, many=True).data
-                query_data['author'] = author_data
-
                 result.append(query_data)
 
             return Response({'queries': result}, status=status.HTTP_200_OK)
         else: 
-            return Response({'error': 'No se han encontrado queries'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'No se han encontrado queries.'}, status=status.HTTP_404_NOT_FOUND)
         
 
 class ComboboxOptionsView(APIView):
@@ -62,7 +50,7 @@ class ComboboxOptionsView(APIView):
         
 
 class EditQueryView(APIView):
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (BuscadorPermissions, )
 
     def put(self, request, format=None):
         data = json.loads(request.body)
@@ -89,17 +77,13 @@ class EditQueryView(APIView):
             result = QuerySerializer(new_query).data
             result['notas'] = []
 
-
-            author = UserAccount.objects.filter(id=request.user.id)
-            author_data = UserSerializer(author, many=True).data
-            result['author'] = author_data
             return Response({'nuevaQuery': result}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class DeleteQueryView(APIView):
-    permission_classes = (permissions.IsAuthenticated, )   
+    permission_classes = (BuscadorPermissions, )   
 
     def delete(self, request, id, format=None):
 
@@ -114,7 +98,7 @@ class DeleteQueryView(APIView):
 
 
 class DeleteNotaView(APIView):
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (BuscadorPermissions, )
 
     def delete(self, request, id, format=None):
 
@@ -132,7 +116,7 @@ class DeleteNotaView(APIView):
             return Response({'error': 'No se ha encontrado la query.'}, status=status.HTTP_404_NOT_FOUND)
         
 class AddNota(APIView):
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (BuscadorPermissions, )
 
     def post(self, request, format=None):
         data = json.loads(request.body)
@@ -146,9 +130,7 @@ class AddNota(APIView):
             )
             new_nota.save()
 
-            nota_author_data = UserSerializer(request.user, many=False).data
             nota_data = NotaSerializer(new_nota, many=False).data          
-            nota_data['author'] = [nota_author_data]
 
             return Response({'nuevaNota': nota_data,
                              'idQuery': data['idQuery']}, status=status.HTTP_200_OK)

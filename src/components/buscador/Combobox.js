@@ -6,6 +6,7 @@ import Notas from "./Notas"
 import { Tooltip } from "react-tooltip"
 import { connect } from "react-redux"
 import AgregarNota from "components/user/AgregarNota"
+import { Alert } from "@material-tailwind/react"
 
 
 function ComboboxQuery({options, queryData, user, queries, isAuthenticated}){
@@ -22,6 +23,8 @@ function ComboboxQuery({options, queryData, user, queries, isAuthenticated}){
   const inputRef = useRef(null);
   const [isCopied, setIsCopied] = useState(false)
 
+  const [openAlertAgregar, setOpenAlertAgregar] = useState(false);
+  const [openAlertEliminar, setOpenAlertEliminar] = useState(false);
 
   const filteredOptions =
     query === ''
@@ -34,14 +37,14 @@ function ComboboxQuery({options, queryData, user, queries, isAuthenticated}){
         )
 
   const handleChange = (event) => {
-    setSelected(event)    
+    setSelected(event)  
     let selectedQuery = queryData.filter( query => {
       return query.id === event.id
     })
 
     setQueryText(selectedQuery[0].texto)
     setQueryNotes(selectedQuery[0].notas)  
-    setQueryAuthor(selectedQuery[0].author[0].id)
+    setQueryAuthor(selectedQuery[0].author.id)
     setQueryId(selectedQuery[0].id)
   }
 
@@ -70,14 +73,17 @@ function ComboboxQuery({options, queryData, user, queries, isAuthenticated}){
 
   const handleDeleteNota = (id) => {
     setQueryNotes((prevNotes) => prevNotes.filter((nota) => nota.id !== id));
+    setOpenAlertEliminar(true)
+
   }
 
   const handleAddNota = (newNote) => {
-    setQueryNotes((prevNotes) => [newNote, ...prevNotes]) 
+    setQueryNotes((prevNotes) => [newNote, ...prevNotes])
+    setOpenAlertAgregar(true)
   }
 
   return (
-    <div className="mx-42 xl:mx-72 mt-8">
+    <div className="sm-sii:mx-16 mt-8">
       <div className="top-16">
         <Combobox value={selected} onChange={handleChange} onClick={handleClick}>
           <div className="relative mt-1">
@@ -169,17 +175,36 @@ function ComboboxQuery({options, queryData, user, queries, isAuthenticated}){
         />
 
         
-        {(user && (user.is_staff || queryAuthor === user.id)) &&
+        {(user && (user.is_buscador_admin || queryAuthor === user.id)) &&
         <AgregarNota
           idQuery={queryId}
           onAddNota={handleAddNota}
         />
         }
-      </div>
-
-      
-      
-    </div>
+      </div>  
+      <Alert
+        open={openAlertAgregar}
+        onClose={() => setOpenAlertAgregar(false)}
+        animate={{
+            mount: { y: 0 },
+            unmount: { y: 100 },
+        }}
+        className="absolute max-w-[28rem] sm-sii:max-w-[40rem] top-20 mx-auto left-0 right-0 z-50 bg-verde-esmeralda-300"
+      >
+        Nota agregada correctamente.
+      </Alert>
+      <Alert
+        open={openAlertEliminar}
+        onClose={() => setOpenAlertEliminar(false)}
+        animate={{
+            mount: { y: 0 },
+            unmount: { y: 100 },
+        }}
+        className="absolute max-w-[28rem] sm-sii:max-w-[40rem] top-20 mx-auto left-0 right-0 z-50 bg-verde-esmeralda-300"
+      >
+        Nota eliminada correctamente.
+      </Alert>   
+    </div> 
   )
 }
 

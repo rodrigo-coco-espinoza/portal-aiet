@@ -7,7 +7,6 @@ import { connect } from "react-redux"
 function Nota({
     nota,
     user,
-    queryAuthor,
     onDeleteNota,
 }){
 
@@ -22,9 +21,9 @@ function Nota({
                 <div>
                     {nota.author && (
                         <div className="relative flex items-start">
-                            <p className="text-gris-600 text-xs">{nota.author[0].first_name} {nota.author[0].last_name} el {nota.fecha_creacion}: 
+                            <p className="text-gris-600 text-xs">{nota.author.persona.nombre} el {nota.fecha_creacion}: 
                             </p>
-                            {(user && (user.is_staff || queryAuthor === user.id))  && 
+                            {(user && (user.is_buscador_admin || nota.author.id === user.id))  && 
                             <div className="absolute right-0 -top-1">
                                 <a  className="anchor-eliminar"
                                     onClick={() => setShowModalEliminarNota(true)}

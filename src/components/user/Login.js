@@ -15,20 +15,26 @@ function Login({
     loading
 }){
     const [formData, setFormData] = useState({
-        email: "",
+        username: "",
         password: ""
     })
 
     const {
-        email,
+        username,
         password
     } = formData
+
+    const [isPasswordInvalid, setIsPasswordInvalid] = useState(false);
 
     const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value})
 
     const onSubmit = e => {
         e.preventDefault()
-        login(email, password)
+        login(username, password).then((success) => {
+            if (!success){
+                setIsPasswordInvalid(true)
+            }
+        })
     }
 
     useEffect(() => {
@@ -59,18 +65,17 @@ function Login({
                                 <input type="hidden" name="remember" defaultValue="true" />
                                 <div className="-space-y-px rounded-md shadow-sm">
                                 <div>
-                                    <label htmlFor="email-address" className="sr-only">
+                                    <label htmlFor="username" className="sr-only">
                                     Correo electrónico
                                     </label>
                                     <input
-                                    id="email-address"
-                                    name="email"
-                                    value={email}
-                                    type="email"
+                                    id="username"
+                                    name="username"
+                                    value={username}
                                     onChange={e=>onChange(e)}
                                     required
                                     className="relative block w-full appearance-none rounded-none rounded-t-md border border-gris-300 px-3 py-2 text-gris-900 placeholder-gris-600 focus:z-10 focus:border-naranja-300 focus:outline-none focus:ring-naranja-300 sm:text-sm"
-                                    placeholder="Correo electrónico"
+                                    placeholder="Nombre de usuario"
                                     />
                                 </div>
                                 <div>
@@ -88,6 +93,7 @@ function Login({
                                     placeholder="Contraseña"
                                     />
                                 </div>
+                                <span className="text-rojo-400 text-sm" hidden={!isPasswordInvalid}>Credenciales incorrectas.</span>
                                 </div>
 
                                 <div className="flex items-center justify-between">

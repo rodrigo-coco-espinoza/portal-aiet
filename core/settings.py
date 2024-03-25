@@ -35,6 +35,7 @@ DJANGO_APPS = [
 
 PROJECT_APPS = [
     'apps.buscador',
+    'apps.pc_isla',
     'apps.user',
 ]
 
@@ -141,7 +142,6 @@ TIME_ZONE = 'America/Santiago'
 USE_I18N = True
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
@@ -182,7 +182,7 @@ SIMPLE_JWT = {
 
 
 DJOSER = {
-    'LOGIN_FIELD': 'email',
+    'LOGIN_FIELD': 'username',
     'USER_CREATE_PASSWORD_RETYPE': True,
     'USERNAME_CHANGED_EMAIL_CONFIRMATION': True,
     'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
@@ -204,7 +204,7 @@ DJOSER = {
 
 
 AUTH_USER_MODEL = 'user.UserAccount'
-
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 CORS_ORIGIN_WHITELIST = env.list('CORS_ORIGIN_WHITELIST_DEV')
 CSRF_TRUSTED_ORIGIN = env.list('CSRF_TRUSTED_ORIGIN_DEV')
 

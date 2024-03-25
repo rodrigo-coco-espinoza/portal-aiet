@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from "react-route
 import store from "store";
 import { Provider } from "react-redux";
 import BuscarQueries from "containers/pages/BuscarQueries";
-import Secreto from "containers/pages/Secreto";
+import Secreto from "containers/pages/Convenios";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import AnimatedRoutes from "Routes";
 

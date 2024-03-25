@@ -13,7 +13,6 @@ function ModalNotas({
     closeModal,
     notas,
     idQuery,
-    queryAuthor,
     user
     
 }) {
@@ -69,7 +68,6 @@ function ModalNotas({
                                 <Nota 
                                     key={nota.id}
                                     nota={nota}
-                                    queryAuthor={queryAuthor}
                                 />
                                 ))) : (
                                     <p>Sin notas.</p>
@@ -111,8 +109,6 @@ function ModalNotas({
                     </div>
                 </div>
             </div>
-            {/* <div className="opacity-25 fixed inset-0 z-40 bg-black" onClick={() => console.log('click')}></div> */}
-
         
         </div>
             )}

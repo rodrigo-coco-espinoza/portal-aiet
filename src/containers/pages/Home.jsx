@@ -6,6 +6,7 @@ import Layout from "hocs/layouts/Layout"
 import Validador from "components/home/Validador"
 import { useEffect } from "react"
 import { motion } from 'framer-motion'
+import Isla from "components/home/Isla"
 
 function Home(){
 
@@ -27,24 +28,31 @@ function Home(){
                     exit={{opacity: 0, transition: {duration: 0}}}
                     >
                     <div className="flex justify-center items-center">
-                        <div className="xl:max-w-[1280px] w-full sm:my-16 my-24">
+                        <div className="lg:max-w-[1280px] w-full sm-sii:my-16 my-24 sm-sii:px-10">
                             <Hero />
                         </div>           
                     </div>
-                    <div className="bg-gris-400">
+                    <div className="bg-gris-400 h-[450px]">
                         <div className="sm:px-16 px-6 flex justify-center items-start">
                             <div className="xl:max-w-[1280px] w-full">
                                 <Buscador />  
                             </div>
                         </div>
-
                     </div>
-                    
-                    <div className="sm:px-16 px-6 flex justify-center items-start">
+
+                    <div className="sm:px-16 px-6 flex justify-center items-start max-h-[450px]">
                         <div className="xl:max-w-[1280px] w-full">
-                            <Validador />  
+                            <Isla />  
                         </div>
                     </div> 
+                    
+                    <div className="bg-gris-400 max-h-[450px]">
+                        <div className="sm:px-16 px-6 flex justify-center items-start">
+                            <div className="xl:max-w-[1280px] w-full">
+                                <Validador />  
+                            </div>
+                        </div> 
+                    </div>
                 </motion.div>
 
                 <Footer />   

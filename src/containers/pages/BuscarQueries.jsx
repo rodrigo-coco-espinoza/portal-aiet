@@ -29,24 +29,29 @@ function BuscarQueries({
             </Helmet>
 
             <Navbar />
-                <motion.div 
-                initial={{opacity: 0, transition: {duration: 1}}}
-                animate={{opacity: 1}}
-                exit={{opacity: 0, transition: {duration: 0}}}
-                className="pt-28 px-16">
-                    <h2 className='font-semibold sm:text-[44px] text-azul-brillante-400 text-[40px] xs:leading-[76.8px] leading-[66.8px] w-full'>Buscador de queries</h2>
-                    <p className="text-gris-600 text-xl">En esta sección podrás consultar, editar y agregar nuevas queries para la extracción de datos.</p>
-
-                    <ComboboxQuery
-                        key={'combobox_queries'}
-                        options={combobox && combobox} 
-                        queryData={queries && queries}
-                    />
-
-                    
-
-
-                </motion.div>
+            <div className="flex justify-center items-center sm-sii:px-20 px-10">
+                <div className="lg-sii:max-w-[1280px] w-full sm:my-20 my-28">
+                    <div className="flex flex-col sm:py-16 py-6">
+                        <div className="flex-col flex items-start mb-8">
+                        <motion.div 
+                            initial={{opacity: 0, transition: {duration: 1}}}
+                            animate={{opacity: 1}}
+                            exit={{opacity: 0, transition: {duration: 0}}}
+                            className="w-full"
+                        >
+                            <h2 className='font-semibold sm-sii:text-[44px] text-azul-brillante-400 text-[40px] sm-sii:leading-[76.8px] leading-[66.8px]'>Buscador de queries</h2>
+                            <p className="text-gris-600 text-xl">En esta sección podrás consultar, editar y agregar nuevas queries para la extracción de datos.</p>
+                            <ComboboxQuery
+                                key={'combobox_queries'}
+                                options={combobox && combobox} 
+                                queryData={queries && queries}
+                            />                
+                        </motion.div>
+                                </div>
+                            </div>
+                        </div>           
+                    </div>
+                        
             <Footer />
 
                   

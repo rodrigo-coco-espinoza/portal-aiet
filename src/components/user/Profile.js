@@ -62,7 +62,7 @@ function Profile({
                 <div className="w-full space-y-8 rounded-xl pb-8 shadow-lg bg-white">
                     <div className="">
                         <h2 className="mt-6 text-center text-2xl md:text-3xl font-bold tracking-tight text-gris-800 border-b-2 border-gris-500 ">
-                        Hola, {user && user.first_name } {user && user.last_name}
+                        Hola, {user && user.persona.nombre}
                         </h2>
                         <div className="flex flex-col items-center mt-5 max-w-[280px] md:max-w-xs mx-auto px-4">
                             <button
@@ -82,6 +82,8 @@ function Profile({
                     </div>
                 </div>
             
+
+            { (user && (user.is_buscador_admin || user.is_buscador_editor)) && <>
             <div className="flex items-end">
                 <span className="w-full mt-6 text-2xl font-bold tracking-tight text-gris-800 border-b-2 border-gris-500 ">
                         Gestionar queries 
@@ -95,10 +97,10 @@ function Profile({
                 <Tooltip key="tooltipAgregar" anchorSelect=".anchor-agregar" place="top">Agregar</Tooltip>
                 </div>
             </div>
+            
             <div>
-
                 {queries.map((query)=> (
-                    <>{(user && (user.is_staff || query.author[0].id === user.id)) && 
+                    <>{(user && (user.is_buscador_admin || query.author.id === user.id)) && 
                         <Query
                             key={`query_${query.id}`}
                             query={query && query}           
@@ -107,6 +109,7 @@ function Profile({
                     }</>
                 )) }
             </div>
+                
 
             <ModalPassword 
                 active={showModalPassword}
@@ -116,6 +119,7 @@ function Profile({
                 active={showModalAgregar}
                 closeModal={handleClickAgregar}
             />
+            </>}
 
             </motion.div>
             <Footer />

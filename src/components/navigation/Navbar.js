@@ -18,8 +18,14 @@ function Navbar(){
                         <img src={logo} width={140} alt="Logo SII"/>
                     </Link>
                     <div className="ml-4 mt-2 flex-shrink-0 flex items-end">
+                        <NavLink to="/convenios" className="text-gris-300 text-lg inline-flex font-medium leading-6 border-b-2 border-azul-marino-400 hover:border-b-2 hover:border-naranja-400 transition duration-300 ease-in-out mx-4">
+                            Convenios
+                        </NavLink>
                         <NavLink to="/busqueda" className="text-gris-300 text-lg inline-flex font-medium leading-6 border-b-2 border-azul-marino-400 hover:border-b-2 hover:border-naranja-400 transition duration-300 ease-in-out mx-4">
                             Buscar queries
+                        </NavLink>
+                        <NavLink to="/pc_isla" className="text-gris-300 text-lg inline-flex font-medium leading-6 border-b-2 border-azul-marino-400 hover:border-b-2 hover:border-naranja-400 transition duration-300 ease-in-out mx-4">
+                            PC Isla
                         </NavLink>
                         <NavLink to="/validador" className="text-gris-300 text-lg inline-flex font-medium leading-6 border-b-2 border-azul-marino-400 hover:border-b-2 hover:border-naranja-400 transition duration-300 ease-in-out mx-4">
                             Validar archivos
@@ -86,7 +92,13 @@ function Navbar(){
                                     <div className="overflow-hidden rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
                                     <div className="relative grid py-3 gap-2  bg-white lg:grid-cols-2">
                                     <NavLink to="/busqueda" className="text-gris-800 text-lg inline-flex font-medium leading-6 border-b-2 border-white hover:border-b-2 hover:border-naranja-400 transition duration-300 ease-in-out mx-4">
+                                        Convenios
+                                    </NavLink>
+                                    <NavLink to="/busqueda" className="text-gris-800 text-lg inline-flex font-medium leading-6 border-b-2 border-white hover:border-b-2 hover:border-naranja-400 transition duration-300 ease-in-out mx-4">
                                         Buscar queries
+                                    </NavLink>
+                                    <NavLink to="/pc_isla" className="text-gris-800 text-lg inline-flex font-medium leading-6 border-b-2 border-white hover:border-b-2 hover:border-naranja-400 transition duration-300 ease-in-out mx-4">
+                                        PC Isla
                                     </NavLink>
                                     <NavLink to="/validador" className="text-gris-800 text-lg inline-flex font-medium leading-6 border-b-2 border-white hover:border-b-2 hover:border-naranja-400 transition duration-300 ease-in-out mx-4">
                                         Validar archivos
