@@ -20,6 +20,10 @@ import {
     GET_PERSONAS_INSTITUCION_FAIL,
     ADD_PERSONA_INSTITUCION_SUCCESS,
     ADD_PERSONA_INSTITUCION_FAIL,
+    GET_BLOQUES_OCUPADOS_SUCCESS,
+    GET_BLOQUES_OCUPADOS_FAIL,
+    ADD_PROTOCOLO_SUCCESS,
+    ADD_PROTOCOLO_FAIL,
 } from './types'
 
 
@@ -292,3 +296,63 @@ export const add_persona_institucion = (formData, institucion_id) => async dispa
         })
     }
 }
+
+export const add_protocolo = (formData) => async dispatch => {
+    const config = {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `JWT ${localStorage.getItem('access')}`,
+            'Content-Type': 'multipart/form-data',
+        }
+    };
+    console.log(formData)
+
+    try {
+        const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/pc_isla/add_protocolo/`, formData, config);
+        if (res.status === 200) {
+            dispatch({
+                type: ADD_PROTOCOLO_SUCCESS,
+                payload: res.data
+            });
+        } else {
+            dispatch({
+                type: ADD_PROTOCOLO_FAIL
+            });
+        }
+    } catch(err) {
+        dispatch({
+            type: ADD_PROTOCOLO_FAIL
+        });
+    }
+
+}
+
+
+export const get_bloques_ocupados = () => async dispatch => {
+    const config = {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `JWT ${localStorage.getItem('access')}`,
+        }
+    };
+    
+    try {
+        
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/pc_isla/get_bloques_ocupados/`, config);
+        if (res.status === 200){
+            dispatch({
+                type: GET_BLOQUES_OCUPADOS_SUCCESS,
+                payload: res.data
+            });
+        } else {
+            dispatch({
+                type: GET_BLOQUES_OCUPADOS_FAIL
+            });
+        }
+
+    } catch(err){
+        dispatch({
+            type: GET_BLOQUES_OCUPADOS_FAIL
+        });
+    }
+};

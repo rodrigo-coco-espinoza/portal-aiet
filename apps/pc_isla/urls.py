@@ -12,4 +12,6 @@ urlpatterns = [
     path('aceptar_proyecto/', AceptarProyecto.as_view()),
     path('download_oficio_respuesta/<int:proyecto_id>/', DownloadOficioRespuesta.as_view()),
     path('personas_institucion/<int:institucion_id>/', ListsPersonasInstitucion.as_view()),
+    path('get_bloques_ocupados/', BloquesOcupados.as_view()),
+    path('add_protocolo/', AddProtocolo.as_view()),
 ]

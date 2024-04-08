@@ -14,7 +14,62 @@ from django.utils.text import slugify
 from django.shortcuts import get_object_or_404
 from django.http import FileResponse
 from .permissions import PcIslaPermissions
+from django.db.models import Q
+from django.utils import timezone
+from datetime import datetime
 # Create your views here.
+
+DIAS_A_DIGITO = {
+    'lunes': 0,
+    'martes': 1,
+    'miércoles': 2,
+    'jueves': 3,
+    'viernes': 4,
+}
+
+DIGITO_A_DIA = {
+    0 :'lunes',
+    1 :'martes',
+    2 :'miércoles',
+    3 :'jueves',
+    4 :'viernes',
+}
+
+def obtener_bloques_ocupados():
+    proyectos_instance = Proyecto.objects.filter(fecha_termino__gte=timezone.now()).exclude(Q(estado='finalizado') | Q(estado='rechazado'))
+
+    bloques_ocupados = {
+        'Bora Bora': {
+            'am': [False] * 5,
+            'pm': [False] * 5
+        },
+
+        'Rapa Nui': {
+            'am': [False] * 5,
+            'pm': [False] * 5
+        },
+
+        'Juan Fernández': {
+            'am': [False] * 5,
+            'pm': [False] * 5
+        }
+    }
+
+    if proyectos_instance:
+
+        for proyecto in proyectos_instance:
+            jornadas_instance = Jornada.objects.filter(proyecto=proyecto)
+            for jornada in jornadas_instance:
+                equipo = jornada.equipo
+                horario = jornada.horario
+                dia_index = DIAS_A_DIGITO[jornada.dia]
+
+                if horario == 'AM':
+                    bloques_ocupados[equipo]['am'][dia_index] = True
+                elif horario == 'PM':
+                    bloques_ocupados[equipo]['pm'][dia_index] = True
+    
+    return bloques_ocupados
 
 class AddProyecto(APIView):
     permission_classes = (permissions.IsAuthenticated, )
@@ -265,3 +320,72 @@ class ListsPersonasInstitucion(APIView):
             print(str(e))
             return Response({'error': str(e)}, status=status.HTTP_501_NOT_IMPLEMENTED)
         
+
+class BloquesOcupados(APIView):
+    permission_classes = (PcIslaPermissions, )
+
+    def get(self, request, *args, **kwargs):
+        
+        bloques_ocupados = obtener_bloques_ocupados()
+            
+        return Response({'bloquesOcupados': bloques_ocupados}, status=status.HTTP_200_OK)
+
+
+class AddProtocolo(APIView):
+    permission_classes = (PcIslaPermissions, )
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, format=None):
+        
+
+        try:
+            data = request.data
+            
+            # Agregar info al proyecto
+            proyecto = Proyecto.objects.get(id=data['proyectoId'])
+            proyecto.protocolo = data['documento']
+            proyecto.fecha_inicio = data['fecha_inicio']
+            proyecto.fecha_termino = data['fecha_termino']
+            proyecto.save()
+
+            # Agregar encargado e investigadores
+            encargado_instance = Persona.objects.get(id=data['encargado'])
+            nuevo_encargado = Rol.objects.create(
+                proyecto=proyecto,
+                persona=encargado_instance,
+                rol='encargado'
+            )
+            nuevo_encargado.save()
+
+            for investigador_id in data['investigadores']: 
+                investigador_instance = Persona.objects.get(id=investigador_id)
+                nuevo_investigador = Rol.objects.create(
+                    proyecto=proyecto,
+                    persona=investigador_instance,
+                    rol='investiagador'
+                )
+                nuevo_investigador.save()
+
+            # Agregar jornadas
+            for dia in data['jornada']['am']:
+                nueva_jornada = Jornada.objects.create(
+                    proyecto=proyecto,
+                    equipo=data['equipo'],
+                    horario='AM',
+                    dia=DIGITO_A_DIA[dia]
+                )
+
+                nueva_jornada.save()
+
+            # Resultado
+            proyecto_result = ProyectoActivoSerializer(proyecto).data
+            bloques_ocupados = obtener_bloques_ocupados()
+
+            return Response({'proyecto_actualizado': proyecto_result,
+                             'bloquesOcupados': bloques_ocupados,
+                             'id_institucion': proyecto.institucion.id}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(str(e))
+            return Response({'error': str(e)}, status=status.HTTP_501_NOT_IMPLEMENTED)
+
+

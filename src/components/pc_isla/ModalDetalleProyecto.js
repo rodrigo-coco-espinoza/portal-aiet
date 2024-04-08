@@ -1,13 +1,14 @@
-import { DocumentArrowDownIcon, PencilSquareIcon } from "@heroicons/react/20/solid";
+import { ArrowPathIcon, DocumentArrowDownIcon, PencilSquareIcon } from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Tooltip } from "react-tooltip";
 import ComboboxSelect from "./ComboboxSelect";
 import { Alert } from "@material-tailwind/react";
-import { update_encargados_sii, rechazar_proyecto, aceptar_proyecto } from "redux/actions/pc_isla/pc_isla";
+import { update_encargados_sii, rechazar_proyecto, aceptar_proyecto, get_bloques_ocupados } from "redux/actions/pc_isla/pc_isla";
 import ModalRechazarProyecto from "./ModalRechazarProyecto";
 import ProtocloInstituciones from "./ProtocoloInstituciones";
 import ProtocoloMINHACIENDA from "./ProtocoloMINHACIENDA";
+import ComboboxSelected from "./ComboboxSelected";
 
 
 function ModalDetalleProyecto({
@@ -20,8 +21,15 @@ function ModalDetalleProyecto({
     update_encargados_sii,
     showAlertRechazado,
     rechazar_proyecto,
-    aceptar_proyecto
+    aceptar_proyecto,
+    get_bloques_ocupados,
+    bloquesOcupados,
 }) {
+
+    useEffect(() => {
+        get_bloques_ocupados();
+    }, []);
+
 
     const handleCloseModal = () => {
         // Editar encargados SII
@@ -41,8 +49,8 @@ function ModalDetalleProyecto({
     const [forceRender, setForceRender] = useState(false);
     const [editarEncargadosSii, setEditarEncargadosSii] = useState(false);
     const [encargadosSiiSelections, setEncargadosSiiSelections] = useState({
-        encargadoSii: "",
-        backupSii: "",
+        encargadoSii: proyecto.encargado_sii.id,
+        backupSii: proyecto.backup_sii.id,
     });
     const encargadosSiiChange = (e, role) => {
         setEncargadosSiiSelections(prevState => ({
@@ -55,9 +63,15 @@ function ModalDetalleProyecto({
         setEditarEncargadosSii(false);
         // Resetear combobox
         setEncargadosSiiSelections({
-            encargadoSii: "",
-            backupSii: "",
+            encargadoSii: proyecto.encargado_sii.id,
+            backupSii: proyecto.backup_sii.id,
         });
+        // Ocultar validations
+        setencargadosSiiValidations({
+            encargado: true,
+            backup: true,
+            backup2: true
+        })
         setForceRender(prevState => !prevState);
     };
     const [openAlertEncargadosSii, setOpenAlertEncargadosSii] = useState(false);
@@ -118,6 +132,20 @@ function ModalDetalleProyecto({
             
         }
     }
+
+    // Editar encargados SII
+    const encargadoSiiSelected = {
+        id: proyecto.encargado_sii.id,
+        full_name: proyecto.encargado_sii.nombre
+    };
+    const backupSiiSelected = {
+        id: proyecto.backup_sii.id,
+        full_name: proyecto.backup_sii.nombre
+    }
+    const handleEditarEncargadosSii = () => {
+        // setEncargadoSiiSelected({id: 104, full_name:'pedro gandulfo'})
+        setEditarEncargadosSii(true);
+    };
 
     // Respuesta SII
     const [respuestaSiiData, setRespuestaSiiData] = useState({
@@ -216,6 +244,24 @@ function ModalDetalleProyecto({
                                         <div className="mb-2 bg-gris-300 px-6 py-4">
                                             <h1 className="text-xl text-gris-800 cursor-default">Solicitud de proyecto</h1>
                                             <div className="mt-1">
+                                                <label className="text-lg text-gris-700 text-sm" id="institucion">Institución:</label>
+                                                <p className="text-gris-900 cursor-default">{institucion.nombre} { (user && (user.is_pc_isla_admin || user.is_pc_isla_user)) && <a 
+                                                    className="anchor-editar-institucion"
+                                                >
+                                                    <ArrowPathIcon
+                                                        //onClick={() => setEditarinstitucionSii(true)} 
+                                                        className="h-6 w-6 text-gris-800 hover:text-azul-cobalto-400 inline cursor-pointer"
+                                                    />
+                                                </a>}
+                                                </p>                       
+                                                <Tooltip 
+                                                    key="tooltipEditarinstitucion" 
+                                                    anchorSelect=".anchor-editar-institucion" 
+                                                    place="top">
+                                                    Actualizar datos institución
+                                                </Tooltip>
+                                            </div>
+                                            <div className="mt-1">
                                                 <label className="text-lg text-gris-700 text-sm" id="oficio-solicitud">Descripción:</label>
                                                 <p className="text-gris-900 text-justify leading-tight cursor-default">{proyecto.objetivo}</p>
                                             </div>
@@ -236,13 +282,14 @@ function ModalDetalleProyecto({
                                                     Descargar documento
                                                 </Tooltip>
                                             </div>
+                                            {/* Mostar encargados */}
                                             <div className={`mt-1 ${editarEncargadosSii ? 'hidden' : ''}`}>
                                                 <label className="text-lg text-gris-700 text-sm" id="oficio-solicitud">Encargados:</label>
                                                 <p className="text-gris-900 cursor-default">{proyecto.encargado_sii.nombre} (encargado) - {proyecto.backup_sii.nombre} (backup) { (user && (user.is_pc_isla_admin || user.is_pc_isla_user)) && <a 
                                                     className="anchor-editar-encargados"
                                                 >
                                                     <PencilSquareIcon
-                                                        onClick={() => setEditarEncargadosSii(true)} 
+                                                        onClick={handleEditarEncargadosSii} 
                                                         className="h-6 w-6 text-gris-800 hover:text-azul-cobalto-400 inline cursor-pointer"
                                                     />
                                                 </a>}
@@ -254,28 +301,31 @@ function ModalDetalleProyecto({
                                                     Editar encargados
                                                 </Tooltip>
                                             </div> 
+                                            {/* Editar encargados */}
                                             <div className={`mt-1 ${editarEncargadosSii ? '' : 'hidden'}`}>
                                                 <div className="flex flex-col sm-sii:flex-row mb-4">
                                                     <div className="w-full sm-sii:w-2/5 sm-sii:pr-3">
                                                         <label className="text-gris-700 text-sm" id="encargado-label">Editar encargado</label>
-                                                        <ComboboxSelect
+                                                        <ComboboxSelected
                                                             key="encargado"
                                                             onChange={encargadosSiiChange}
                                                             options={encargadosSiiOptions}
                                                             label="encargadoSii"
                                                             render={forceRender}
-                                                            
+                                                            optionSelected={encargadoSiiSelected}
+                                                                    
                                                         />
                                                         <span className="text-rojo-400 text-sm" hidden={encargadosSiiValidations.encargado}>Debe seleccionar un encargado.</span>
                                                     </div>
                                                     <div className="w-full sm-sii:w-2/5">
                                                         <label className="text-gris-700 text-sm" id="backup-label">Editar backup</label> 
-                                                        <ComboboxSelect 
+                                                        <ComboboxSelected 
                                                             key="backup"
                                                             onChange={encargadosSiiChange}
                                                             options={encargadosSiiOptions}
                                                             label="backupSii"
                                                             render={forceRender}
+                                                            optionSelected={backupSiiSelected}
                                                         />
                                                         <span className="text-rojo-400 text-sm" hidden={encargadosSiiValidations.backup}>Debe seleccionar un backup.</span>
                                                         <span className="text-rojo-400 text-sm" hidden={encargadosSiiValidations.backup2}>El backup debe ser distinto del encargado.</span>
@@ -297,52 +347,64 @@ function ModalDetalleProyecto({
                                             </div>
                                         </div>
                                         {/* Respuesta SII */}
-                                        <div className={`mb-2 px-6 pb-4 pt-2 ${isAccepted ? 'hidden' : ''}`}>
-                                            <h1 className="text-xl text-gris-800 cursor-default">Respuesta SII</h1>
-                                            <form onSubmit={e => {onSubmitAceptarProyecto(e)}} method="POST" action="#">
-                                            <div className="mt-1">
-                                                <label className="text-lg text-gris-700 text-sm" id="oficio-respuesta">Adjuntar oficio de respuesta:</label>
-                                                <input
-                                                    type="file"
-                                                    id="oficioRespuesta"
-                                                    name="oficioRespuesta"
-                                                    accept=".pdf, .PDF"
-                                                    required
-                                                    onChange={handleOficioRespuesta}
-                                                    className="block w-full rounded border border-azul-marino-100 bg-clip-padding px-3 py-2 text-gris-800 transition file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid
-                                                    file:cursor-pointer
-                                                    file:border-inherit file:bg-gris-800 file:px-3 file:py-[0.32rem] file:text-white file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-gris-400 hover:file:text-gris-800 focus:border-primary focus:text-gris-800 focus:shadow-te-primary focus:outline-none"
-                                                />
-                                            </div>
-                                            <div className="flex flex-row">
-                                                <div className="mt-1 sm-sii:w-1/3 w-1/2 pr-3">
-                                                    <label className="text-lg text-gris-700 text-sm" id="fecha-respuesta">Fecha oficio:</label>
-                                                    <input 
-                                                        type="date"
-                                                        id='fecha'
-                                                        name='fecha'
-                                                        value={respuestaSiiData.fecha}
-                                                        onChange={e=>setRespuestaSiiData({...respuestaSiiData,fecha: e.target.value})}
-                                                        required
-                                                        className="block w-full py-2 px-3 text-gris-800 leading-tight focus:outline-none focus:shadow-outline shadow appearance-none border border-azul-marino-100 rounded h-9"
-                                                    /> 
+                                        {!isAccepted && 
+                                            <>                                        
+                                            { (user && (user.is_pc_isla_admin || user.is_pc_isla_user)) ? 
+                                                <div className="mb-2 px-6 pb-4 pt-2">
+                                                    <h1 className="text-xl text-gris-800 cursor-default">Respuesta SII</h1>
+                                                    <form onSubmit={e => {onSubmitAceptarProyecto(e)}} method="POST" action="#">
+                                                    <div className="mt-1">
+                                                        <label className="text-lg text-gris-700 text-sm" id="oficio-respuesta">Adjuntar oficio de respuesta:</label>
+                                                        <input
+                                                            type="file"
+                                                            id="oficioRespuesta"
+                                                            name="oficioRespuesta"
+                                                            accept=".pdf, .PDF"
+                                                            required
+                                                            onChange={handleOficioRespuesta}
+                                                            className="block w-full rounded border border-azul-marino-100 bg-clip-padding px-3 py-2 text-gris-800 transition file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid
+                                                            file:cursor-pointer
+                                                            file:border-inherit file:bg-gris-800 file:px-3 file:py-[0.32rem] file:text-white file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-gris-400 hover:file:text-gris-800 focus:border-primary focus:text-gris-800 focus:shadow-te-primary focus:outline-none"
+                                                        />
+                                                    </div>
+                                                    <div className="flex flex-row">
+                                                        <div className="mt-1 sm-sii:w-1/3 w-1/2 pr-3">
+                                                            <label className="text-lg text-gris-700 text-sm" id="fecha-respuesta">Fecha oficio:</label>
+                                                            <input 
+                                                                type="date"
+                                                                id='fecha'
+                                                                name='fecha'
+                                                                value={respuestaSiiData.fecha}
+                                                                onChange={e=>setRespuestaSiiData({...respuestaSiiData,fecha: e.target.value})}
+                                                                required
+                                                                className="block w-full py-2 px-3 text-gris-800 leading-tight focus:outline-none focus:shadow-outline shadow appearance-none border border-azul-marino-100 rounded h-9"
+                                                            /> 
+                                                        </div>
+                                                        <div className="mt-1 sm-sii:w-3/4 w-1/2 flex items-end justify-end pt-3">
+                                                            <button
+                                                                type="submit"
+                                                                className="text-verde-esmeralda-300 hover:text-verde-esmeralda-400  background-transparent font-bold uppercase py-0 text-sm outline-none focus:outline-none mr-1 mb-0 ease-linear transition-all duration-150 mr-3">
+                                                                    Aceptar
+                                                            </button>
+                                                            <button
+                                                                onClick={(e) => {changeShowModalRechazar(e)}}
+                                                                className="text-rojo-300 hover:text-rojo-400  background-transparent font-bold uppercase py-0 text-sm outline-none focus:outline-none mr-1 mb-0 ease-linear transition-all duration-150" type="button">
+                                                                    Rechazar
+                                                            </button>
+                                                        </div>   
+                                                    </div>
+                                                    </form>
                                                 </div>
-                                                <div className="mt-1 sm-sii:w-3/4 w-1/2 flex items-end justify-end pt-3">
-                                                    <button
-                                                        type="submit"
-                                                        className="text-verde-esmeralda-300 hover:text-verde-esmeralda-400  background-transparent font-bold uppercase py-0 text-sm outline-none focus:outline-none mr-1 mb-0 ease-linear transition-all duration-150 mr-3">
-                                                            Aceptar
-                                                    </button>
-                                                    <button
-                                                        onClick={(e) => {changeShowModalRechazar(e)}}
-                                                        className="text-rojo-300 hover:text-rojo-400  background-transparent font-bold uppercase py-0 text-sm outline-none focus:outline-none mr-1 mb-0 ease-linear transition-all duration-150" type="button">
-                                                            Rechazar
-                                                    </button>
-                                                </div>   
-                                            </div>
-                                            </form>
-                                        </div>
-                                        <div className={`mb-2 px-6 pb-4 pt-2 ${isAccepted ? '' : 'hidden'}`}>
+                                                :
+                                                <div className="mb-2 px-6 pb-4 pt-2 mt-1">
+                                                    <h1 className="text-xl text-gris-800 cursor-default">Respuesta SII</h1>
+                                                    <p className="text-gris-900 cursor-default">Respuesta pendiente</p>
+                                                </div>
+                                            }
+                                            </>          
+                                        }
+                                        {isAccepted && 
+                                            <div className="mb-2 px-6 pb-4 pt-2">
                                             <h1 className="text-xl text-gris-800 cursor-default">Respuesta SII</h1>
                                             <div className="mt-1">
                                                 <label className="text-lg text-gris-700 text-sm" id="oficio-respuesta">Oficio de respuesta de aprobación del proyecto:</label>
@@ -362,12 +424,17 @@ function ModalDetalleProyecto({
                                                 </Tooltip>
                                             </div>
                                         </div>
+                                        }
+                                        
+                                        
                                         {/* Protocolo de uso */}
                                         { institucion.sigla === "MINHACIENDA" ? 
                                             <ProtocoloMINHACIENDA />
                                         :
                                             <ProtocloInstituciones
                                                 institucion={institucion}
+                                                idProyecto={proyecto.id}
+                                                bloquesOcupados={bloquesOcupados}
                                             />
                                         }
                                         
@@ -417,10 +484,12 @@ function ModalDetalleProyecto({
 const mapStateToProps = state => ({
     user: state.auth.user,
     encargadosSiiOptions: state.institucion_reducer.encargadosPcIslaOptions,
+    bloquesOcupados: state.institucion_reducer.bloquesOcupados,
 })
 
 export default connect (mapStateToProps, {
     update_encargados_sii,
     rechazar_proyecto,
     aceptar_proyecto,
+    get_bloques_ocupados,
 }) (ModalDetalleProyecto);

@@ -46,13 +46,13 @@ function ModalAgregarPersona({
         e.preventDefault();
         if (validateForm()) {
             add_persona_institucion(formData, institucion_id);
-            //handleCloseModal();
+            handleCloseModal({nuevaPersona: true});
         }
     }
 
 
     // Cerrar modal
-    const handleCloseModal = () => {
+    const handleCloseModal = ({e, nuevaPersona=false}) => {
         setFormData({
             nombre: "",
             email: "",
@@ -63,7 +63,7 @@ function ModalAgregarPersona({
 
         setNombreValidation(true);
         
-        closeModal();
+        closeModal(nuevaPersona, nombre);
     };
     
 

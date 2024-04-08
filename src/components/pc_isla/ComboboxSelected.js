@@ -6,15 +6,23 @@ import { connect } from "react-redux"
 import { React } from "react"
 
 
-function ComboboxSelect({options, onChange, label, index=null,}) 
+function ComboboxSelected({options, onChange, label, render=true, index=null, optionSelected}) 
 {
 
-  const [selected, setSelected] = useState({
-    id: -1,
-    full_name: 'Escriba para buscar'
-  });
+  const [selected, setSelected] = useState(optionSelected);
   const [query, setQuery] = useState('');
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    setSelected(optionSelected);
+  }, [render]);
+
+  
+  // useEffect(() => {
+  //   setSelected(showSelected ? optionSelected : { id: -1, full_name: 'Escriba para buscar' });
+  // }, [render, showSelected, optionSelected]);
+
+
 
   const filteredOptions =
     query === ''
@@ -114,4 +122,4 @@ function ComboboxSelect({options, onChange, label, index=null,})
   )
 }
 
-export default ComboboxSelect
+export default ComboboxSelected

@@ -6,13 +6,48 @@ import os
 from django.core.files.storage import FileSystemStorage
 
 User = settings.AUTH_USER_MODEL
+MEDIA_FOLDER = 'proyectos_pc_isla'
+EQUIPO_CHOICES = (
+    ('Bora Bora', 'Bora Bora'),
+    ('Juan Fernández', 'Juan Fernández'),
+    ('Rapa Nui', 'Rapa Nui'),
+)
+ROL_CHOICES = (
+    ('encargado', 'Encargado'),
+    ('investigador', 'Investigador'),
+)
+INSTITUCION_CHOICES = (
+    ('empresa pública', 'Empresa pública'),
+    ('ministerio', 'Minsiterio'),
+    ('municipalidad', 'Municipalidad'),
+    ('servicio público', 'Servicio público'),
+    ('privado', 'Privado'),
+)
+ESTADO_CHOICES = (
+    ('solicitud recibida', 'Solicitud recibida'),
+    ('confección del protocolo', 'Confección del protocolo'),
+    ('en curso', 'En curso'),
+    ('finalizado', 'Finalizado'),
+    ('rechazado', 'Rechazado'),
+)
+HORARIO_CHOICES = (
+    ('AM', 'AM'),
+    ('PM', 'PM'),
+)
+DIAS_CHOICES = (
+    ('lunes', 'Lunes'),
+    ('martes', 'Martes'),
+    ('miércoles', 'Miércoles'),
+    ('jueves', 'Jueves'),
+    ('viernes', 'Viernes'),
+)
 
 def proyecto_upload_path(instance, filename):
     sigla = instance.institucion.sigla
     nombre = slugify(instance.nombre).replace('-', '_')
 
     # Folder path
-    folder_path = os.path.join('proyectos_pc_isla', sigla, nombre)
+    folder_path = os.path.join(MEDIA_FOLDER, sigla, nombre)
 
     # Si la carpeta no existe, crear una
     if not os.path.exists(folder_path):
@@ -28,9 +63,19 @@ def respuesta_upload_path(instance, filename):
     nombre = slugify(instance.nombre).replace('-', '_')
 
     # Folder path
-    folder_path = os.path.join('proyectos_pc_isla', sigla, nombre)
+    folder_path = os.path.join(MEDIA_FOLDER, sigla, nombre)
     date = '-'.join(reversed(instance.fecha_oficio_respuesta.split('-')))
     new_filename = f"{sigla}_oficio_respuesta_{date}.pdf"
+
+    return os.path.join(folder_path, new_filename)
+
+def protocolo_upload_path(instance, filename):
+    sigla = instance.institucion.sigla
+    nombre = slugify(instance.nombre).replace('-', '_')
+
+    # Folder path
+    folder_path = os.path.join(MEDIA_FOLDER, sigla, nombre)
+    new_filename = f"{sigla}_protocolo_de_uso.pdf"
 
     return os.path.join(folder_path, new_filename)
      
@@ -46,15 +91,7 @@ class Institucion(models.Model):
     sigla = models.CharField(max_length=255, unique=True)
     rut = models.CharField(max_length=12, null=True)
     direccion = models.CharField(max_length=255, null=True)
-
-    options = (
-        ('empresa pública', 'Empresa pública'),
-        ('ministerio', 'Minsiterio'),
-        ('municipalidad', 'Municipalidad'),
-        ('servicio público', 'Servicio público'),
-        ('privado', 'Privado')
-    )
-    tipo = models.CharField(max_length=20, choices=options, default="servicio público")
+    tipo = models.CharField(max_length=20, choices=INSTITUCION_CHOICES, default="servicio público")
     
     ministerio = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, default=None)
 
@@ -86,6 +123,7 @@ class Persona(models.Model):
         ordering = ('nombre', )
 
     nombre = models.CharField(max_length=255, null=False)
+    #TODO:RUT, NOMBRE, APELLIDO
     email = models.CharField(max_length=255, null=False)    
     telefono = models.CharField(max_length=255, null=True, blank=True)
     institucion = models.ForeignKey(Institucion, on_delete=models.SET_NULL, null=True)
@@ -119,19 +157,16 @@ class Proyecto(models.Model):
     gabinete = models.CharField(max_length=50, null=True)
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     timestamp_creacion = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    estado_options = (
-        ('solicitud recibida', 'Solicitud recibida'),
-        ('confección del protocolo', 'Confección del protocolo'),
-        ('en curso', 'En curso'),
-        ('finalizado', 'Finalizado'),
-        ('rechazado', 'Rechazado'),
-    )
-    estado = models.CharField(max_length=50, choices=estado_options, default="solicitud recibida")
+    estado = models.CharField(max_length=50, choices=ESTADO_CHOICES, default="solicitud recibida")
 
     # Respuesta SII
     oficio_respuesta = models.FileField(upload_to=respuesta_upload_path, max_length=500, null=True, blank=True)
     fecha_oficio_respuesta = models.DateField(null=True, blank=True)
 
+    # Protocolo de uso
+    protocolo = models.FileField(upload_to=proyecto_upload_path, max_length=500, null=True, blank=True)
+    fecha_inicio = models.DateField(null=True, blank=True)
+    fecha_termino = models.DateField(null=True, blank=True)
 
 
     objects = models.Manager()
@@ -139,3 +174,31 @@ class Proyecto(models.Model):
 
     def __str__(self):
         return f"{self.institucion.sigla} - {self.nombre}"
+    
+
+class Rol(models.Model):
+
+    class Meta:
+        verbose_name = "Rol"
+        verbose_name_plural = "Roles"
+
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, null=False)
+    persona = models.ForeignKey(Persona, on_delete=models.CASCADE, null=False)
+    rol = models.CharField(max_length=50, choices=ROL_CHOICES, null=False)
+
+    objects = models.Manager()
+
+    def __strt__(self):
+        return f"{self.persona.nombre} - {self.proyecto.institucion.sigla} - {self.proyecto.nombre}"
+
+
+class Jornada(models.Model):
+
+    class Meta:
+        verbose_name = "Jornada"
+        verbose_name_plural = "Jornadas"
+    
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, null=False)
+    equipo = models.CharField(max_length=50, choices=EQUIPO_CHOICES, null=False)
+    horario = models.CharField(max_length=50, choices=HORARIO_CHOICES, null=False)
+    dia = models.CharField(max_length=50, choices=DIAS_CHOICES, null=False)

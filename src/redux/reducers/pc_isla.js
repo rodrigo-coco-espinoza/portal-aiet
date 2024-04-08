@@ -17,6 +17,12 @@ import {
     ACEPTAR_PROYECTO_SUCCESS,
     GET_PERSONAS_INSTITUCION_FAIL,
     GET_PERSONAS_INSTITUCION_SUCCESS,
+    ADD_PERSONA_INSTITUCION_FAIL,
+    ADD_PERSONA_INSTITUCION_SUCCESS,
+    GET_BLOQUES_OCUPADOS_FAIL,
+    GET_BLOQUES_OCUPADOS_SUCCESS,
+    ADD_PROTOCOLO_FAIL,
+    ADD_PROTOCOLO_SUCCESS,
 } from '../actions/pc_isla/types'
 
 const initialState = {
@@ -25,6 +31,7 @@ const initialState = {
     encargadosPcIslaOptions: [],
     proyectosPcIsla: [],
     personasInstitucion: [],
+    bloquesOcupados: {},
 }
 
 export function institucion_reducer (state=initialState, action){
@@ -148,7 +155,45 @@ export function institucion_reducer (state=initialState, action){
                 ...state,
                 personasInstitucion: payload.personasInstitucion
             };
+        case ADD_PERSONA_INSTITUCION_SUCCESS:
+            const newPersona = action.payload.nuevaPersona;
+            
+            // Push the new persona into personasInstitucion array
+            const updatedPersonasInstitucion = [...state.personasInstitucion, newPersona];
+            
+            // Sort personasInstitucion array by nombre using localeCompare
+            updatedPersonasInstitucion.sort((a, b) => a.nombre.localeCompare(b.nombre));
+            
+            return {
+                ...state,
+                personasInstitucion: updatedPersonasInstitucion,
+            };
+        case GET_BLOQUES_OCUPADOS_SUCCESS:
+            return {
+                ...state,
+                bloquesOcupados: payload.bloquesOcupados
+            };
+        case ADD_PROTOCOLO_SUCCESS:
+            const proyectosPcIslaProtocolo = [...state.proyectosPcIsla];
+            // Encontrar institución
+            const institucionIndexProtocolo = proyectosPcIslaProtocolo.findIndex((inst) => inst.id_institucion === payload.id_institucion);
+            // Encontrar proyecto
+            if (institucionIndexProtocolo !== 1) {
+                const proyectoIndex = proyectosPcIslaProtocolo[institucionIndexProtocolo].proyectos.findIndex((proyecto) => proyecto.id === payload.proyecto_actualizado.id);
+                if (proyectoIndex !== 1) {
+                    proyectosPcIslaProtocolo[institucionIndexProtocolo].proyectos[proyectoIndex] = payload.proyecto_actualizado;
+                }
+            }
 
+            return {
+                ...state,
+                proyectosPcIsla: proyectosPcIslaProtocolo,
+                bloquesOcupados: payload.bloquesOcupados
+            };
+
+        case ADD_PROTOCOLO_FAIL:
+        case GET_BLOQUES_OCUPADOS_FAIL:
+        case ADD_PERSONA_INSTITUCION_FAIL:
         case GET_PERSONAS_INSTITUCION_FAIL:
         case ACEPTAR_PROYECTO_FAIL:
         case RECHAZAR_PROYECTO_FAIL:
