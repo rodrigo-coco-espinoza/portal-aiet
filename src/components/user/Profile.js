@@ -12,6 +12,7 @@ import Query from "./Query"
 import { PlusIcon } from "@heroicons/react/20/solid"
 import { Tooltip } from "react-tooltip"
 import ModalAgregar from "./ModalAgregar"
+import AsistenciaPcIsla from "./AsistenciaPcIsla"
 
 
 function Profile({
@@ -82,6 +83,11 @@ function Profile({
                     </div>
                 </div>
             
+
+            { (user && (user.is_pc_isla_admin || user.is_pc_isla_investigador)) && 
+                <AsistenciaPcIsla />
+            }
+
 
             { (user && (user.is_buscador_admin || user.is_buscador_editor)) && <>
             <div className="flex items-end">

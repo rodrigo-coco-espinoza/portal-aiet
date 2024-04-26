@@ -119,6 +119,7 @@ class AddNota(APIView):
     permission_classes = (BuscadorPermissions, )
 
     def post(self, request, format=None):
+   
         data = json.loads(request.body)
         try:
             query = Query.queryobjects.get(id=data['idQuery'])

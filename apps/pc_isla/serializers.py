@@ -11,6 +11,16 @@ DIAS = {
     'viernes': 4,
 }
 
+def capitalize_first(phrase):
+    if phrase:
+        words = phrase.split()
+        words[0] = words[0].capitalize()
+        return ' '.join(words)
+        
+    else:
+        return None
+
+
 class InstitucionSelectSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
 
@@ -35,7 +45,7 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
     encargado_sii = PersonaSerializer()
     backup_sii = PersonaSerializer()
 
-    # Formato fehcas
+    # Formato fechas
     formatted_fecha_oficio_recibido = serializers.SerializerMethodField()
     formatted_fecha_oficio_respuesta = serializers.SerializerMethodField()
     formatted_fecha_inicio = serializers.SerializerMethodField()
@@ -101,14 +111,18 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
     jornada = serializers.SerializerMethodField()
 
     def get_equipo(self, obj):
-        jornada_instance = obj.jornada_set.first()
-        if jornada_instance:
-            return jornada_instance.equipo
+        if obj.institucion.sigla == "MINHACIENDA":
+            return 'Juan Fernández'
         else:
-            return None
+            jornada_instance = obj.jornada_set.filter(extra=0, active=1).first()
+            if jornada_instance:
+                return jornada_instance.equipo
+            else:
+                return None
 
     def get_jornada(self, obj):
-        jornadas_instance = obj.jornada_set.all()
+
+        jornadas_instance = obj.jornada_set.filter(extra=0, active=1)
         if jornadas_instance:
             info = {
                 'AM': [False] * 5,
@@ -122,7 +136,37 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
                     info['PM'][DIAS[jornada.dia]] = True
             return info                
         else:
-            return {}
+            return {
+                'AM': [False] * 5,
+                'PM': [False] * 5
+                }
+        
+    # Asistencia
+    asistencia = serializers.SerializerMethodField()
+    def get_asistencia(self, obj):
+        data = []
+
+        asistencias = obj.jornada_set.all().values_list('asistencia', flat=True)
+        asistencias_pasadas = Asistencia.objects.filter(
+            id__in=asistencias,
+            fecha__lte=datetime.date.today()
+        )
+        for asistencia in asistencias_pasadas:
+            ingreso_hhmm = asistencia.datetime_ingreso.split()[1] if asistencia.datetime_ingreso else None
+            salida_hhmm = asistencia.datetime_salida.split()[1] if asistencia.datetime_salida else None
+            data.append({
+                'jornada': f'{asistencia.jornada.dia.capitalize()} {asistencia.jornada.horario}',
+                'fecha': asistencia.fecha.strftime('%d-%m-%Y'),
+                'ingreso': ingreso_hhmm,
+                'salida': salida_hhmm,
+                'motivo': capitalize_first(asistencia.motivo_salida),
+                'extra': asistencia.jornada.extra
+
+            })
+
+
+        return data
+
     class Meta:
         model = Proyecto
         fields = [
@@ -144,6 +188,7 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
             'investigadores',
             'equipo',
             'jornada',
+            'asistencia',
         ]
 
 class ProyectoNoActivoSerializer(serializers.ModelSerializer):

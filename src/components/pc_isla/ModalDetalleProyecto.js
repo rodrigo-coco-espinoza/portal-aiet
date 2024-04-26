@@ -9,6 +9,9 @@ import ModalRechazarProyecto from "./ModalRechazarProyecto";
 import ProtocloInstituciones from "./ProtocoloInstituciones";
 import ProtocoloMINHACIENDA from "./ProtocoloMINHACIENDA";
 import ComboboxSelected from "./ComboboxSelected";
+import BloquesSelected from "./BloquesSelected";
+import ModalEditarJornada from "./ModalEditarJornada";
+import TablaAsistencia from "./TablaAsistencia";
 
 
 function ModalDetalleProyecto({
@@ -22,14 +25,9 @@ function ModalDetalleProyecto({
     showAlertRechazado,
     rechazar_proyecto,
     aceptar_proyecto,
-    get_bloques_ocupados,
     bloquesOcupados,
+    jornadasHacienda,
 }) {
-
-    useEffect(() => {
-        get_bloques_ocupados();
-    }, []);
-
 
     const handleCloseModal = () => {
         // Editar encargados SII
@@ -143,7 +141,6 @@ function ModalDetalleProyecto({
         full_name: proyecto.backup_sii.nombre
     }
     const handleEditarEncargadosSii = () => {
-        // setEncargadoSiiSelected({id: 104, full_name:'pedro gandulfo'})
         setEditarEncargadosSii(true);
     };
 
@@ -196,6 +193,25 @@ function ModalDetalleProyecto({
 
     };
 
+    // Protocolo de uso
+    const [showAlertProtocolo, setShowAlertProtocolo] = useState(false);
+    const [isProtocolo, setIsProtocolo] = useState(proyecto.protocolo !== null);
+    const protocoloSaved = () => {
+        setIsProtocolo(true);
+        setShowAlertProtocolo(true);
+    };
+
+    // Editar jornada MINHACIENDA
+    const [showModalHacienda, setShowModalHacienda] = useState(false);
+    const [showAlertHacienda, setShowAlertHacineda] = useState(false);
+    const closeModalHacienda = () => {
+        setShowModalHacienda(false);
+    };
+    const haciendaUpdated = () => {
+        setShowAlertHacineda(true);
+    }
+
+
     return (
         <>
             {active && (
@@ -245,7 +261,7 @@ function ModalDetalleProyecto({
                                             <h1 className="text-xl text-gris-800 cursor-default">Solicitud de proyecto</h1>
                                             <div className="mt-1">
                                                 <label className="text-lg text-gris-700 text-sm" id="institucion">Institución:</label>
-                                                <p className="text-gris-900 cursor-default">{institucion.nombre} { (user && (user.is_pc_isla_admin || user.is_pc_isla_user)) && <a 
+                                                <p className="text-gris-900 cursor-default">{institucion.nombre} { (user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) && <a 
                                                     className="anchor-editar-institucion"
                                                 >
                                                     <ArrowPathIcon
@@ -284,8 +300,8 @@ function ModalDetalleProyecto({
                                             </div>
                                             {/* Mostar encargados */}
                                             <div className={`mt-1 ${editarEncargadosSii ? 'hidden' : ''}`}>
-                                                <label className="text-lg text-gris-700 text-sm" id="oficio-solicitud">Encargados:</label>
-                                                <p className="text-gris-900 cursor-default">{proyecto.encargado_sii.nombre} (encargado) - {proyecto.backup_sii.nombre} (backup) { (user && (user.is_pc_isla_admin || user.is_pc_isla_user)) && <a 
+                                                <label className="text-lg text-gris-700 text-sm" id="oficio-solicitud">Encargados SII:</label>
+                                                <p className="text-gris-900 cursor-default">{proyecto.encargado_sii.nombre} (encargado) - {proyecto.backup_sii.nombre} (backup) { (user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) && <a 
                                                     className="anchor-editar-encargados"
                                                 >
                                                     <PencilSquareIcon
@@ -349,7 +365,7 @@ function ModalDetalleProyecto({
                                         {/* Respuesta SII */}
                                         {!isAccepted && 
                                             <>                                        
-                                            { (user && (user.is_pc_isla_admin || user.is_pc_isla_user)) ? 
+                                            { (user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) ? 
                                                 <div className="mb-2 px-6 pb-4 pt-2">
                                                     <h1 className="text-xl text-gris-800 cursor-default">Respuesta SII</h1>
                                                     <form onSubmit={e => {onSubmitAceptarProyecto(e)}} method="POST" action="#">
@@ -412,7 +428,7 @@ function ModalDetalleProyecto({
                                                     href={`${process.env.REACT_APP_API_URL}/api/pc_isla/download_oficio_respuesta/${proyecto.id}/`}
                                                     target="_blank"
                                                  className="anchor-descargar-oficio-solicitud"><DocumentArrowDownIcon 
-                                                    className="h-6 w-6 text-gris-800 inline hover:text-azul-cobalto-400 cursor-pointer"
+                                                    className="h-6 w-6 text-gris-800 inline hover:text-azul-cobalto-400 cursor-pointer ml-1"
                                                 /></a>
                                                 </p>
                                                 <Tooltip
@@ -428,31 +444,205 @@ function ModalDetalleProyecto({
                                         
                                         
                                         {/* Protocolo de uso */}
-                                        { institucion.sigla === "MINHACIENDA" ? 
-                                            <ProtocoloMINHACIENDA />
-                                        :
-                                            <ProtocloInstituciones
-                                                institucion={institucion}
-                                                idProyecto={proyecto.id}
-                                                bloquesOcupados={bloquesOcupados}
-                                            />
+                                        {!isAccepted && 
+                                            <div className="mb-2 px-6 pb-4 pt-4 bg-gris-300">
+                                                <h1 className="text-xl text-gris-800 cursor-default">Protocolo de uso</h1>
+                                                <p className="text-gris-900 cursor-default">Respuesta pendiente</p>
+                                            </div>
+                                        }
+                                        {isAccepted && !isProtocolo && 
+                                            <>
+                                            {(user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) ?
+                                                <>
+                                                { institucion.sigla === "MINHACIENDA" ? 
+                                                    <ProtocoloMINHACIENDA 
+                                                        institucion={institucion}
+                                                        idProyecto={proyecto.id}
+                                                        bloquesOcupados={{options: bloquesOcupados['Juan Fernández']}}
+                                                        protocoloSaved={protocoloSaved}
+                                                    />
+                                                :
+                                                    <ProtocloInstituciones
+                                                        institucion={institucion}
+                                                        idProyecto={proyecto.id}
+                                                        bloquesOcupados={bloquesOcupados}
+                                                        protocoloSaved={protocoloSaved}
+                                                    />
+                                                } 
+                                                </>
+                                            :
+                                                <div className="mb-2 px-6 pb-4 pt-4 bg-gris-300">
+                                                    <h1 className="text-xl text-gris-800 cursor-default">Protocolo de uso</h1>
+                                                    <p className="text-gris-900 cursor-default">Protocolo pendiente</p>
+                                                </div> 
+                                            }   
+                                            </>
+                                        }
+                                        {isAccepted && isProtocolo && 
+                                            <>
+                                            <div className="mb-2 px-6 pb-4 pt-4 bg-gris-300">
+                                                {/* Alert jornadas HACIENDA  */}
+                                                <Alert
+                                                    open={showAlertHacienda}
+                                                    onClose={() => setShowAlertHacineda(false)}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    animate={{
+                                                        mount: { y: 0 },
+                                                        unmount: { y: 100 }
+                                                    }}
+                                                    className="relative max-w-[28rem] sm-sii:max-w-[40rem] transform -top-3 z-50 bg-verde-esmeralda-300 mx-auto"
+                                                >
+                                                    Jornadas del Ministerio de Hacienda actualizadas.
+                                                </Alert>
+                                                {/* Alert protocolo registrado */}
+                                                <Alert
+                                                    open={showAlertProtocolo}
+                                                    onClose={(prev) => setShowAlertProtocolo(false)}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    animate={{
+                                                        mount: { y: 5 },
+                                                        unmount: { y: 100 },
+                                                    }}
+                                                    className="relative max-w-[28rem] sm-sii:max-w-[40rem] transform -top-3 z-50 bg-verde-esmeralda-300 mx-auto"
+                                                >
+                                                    Se ha registrado el protocolo de uso. 
+                                                </Alert>
+
+                                                    <h1 className="text-xl text-gris-800 cursor-default">Protocolo de uso</h1>
+                                                    <div className="mt-1">
+                                                        <label className="text-lg text-gris-700 text-sm" id="documento-protocolo">Archivo protocolo de uso:</label>
+                                                        <p className="text-gris-900 cursor-default">Ver documento<a
+                                                        href={`${process.env.REACT_APP_API_URL}/api/pc_isla/download_protocolo/${proyecto.id}/`}
+                                                        target="_blank"
+                                                        className="anchor-descargar-protocolo"><DocumentArrowDownIcon 
+                                                            className="h-6 w-6 text-gris-800 inline hover:text-azul-cobalto-400 cursor-pointer ml-1"
+                                                        /></a>
+                                                        </p>
+                                                        <Tooltip
+                                                            key="descargarProtocolo"
+                                                            anchorSelect=".anchor-descargar-protocolo"
+                                                            place="top"
+                                                        >
+                                                            Descargar documento
+                                                        </Tooltip>
+                                                    </div>
+                                                    <div className="mt-1">
+                                                        <label className="text-lg text-gris-700 text-sm" id="periodo-proyecto">Periodo del proyecto:</label>
+                                                        <p className="text text-gris-900 cursor-default">Del {proyecto.formatted_fecha_inicio} al {proyecto.formatted_fecha_termino}</p>
+                                                    </div>
+                                                    <div className="mt-1">
+                                                        <label className="text-lg text-gris-700 text-sm" id="encargado-ie">Encargado del proyecto:</label>
+                                                        <p className="text text-gris-900 cursor-default">{proyecto.encargado.nombre}
+                                                        
+                                                        { (user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) && <a 
+                                                            className="anchor-actualizar-encargado"
+                                                        >
+                                                            <ArrowPathIcon
+                                                                //onClick={() => setEditarinstitucionSii(true)} 
+                                                                className="h-6 w-6 text-gris-800 hover:text-azul-cobalto-400 inline cursor-pointer ml-1"
+                                                            />
+                                                        </a>}
+                                                        
+                                                        { (user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) && <a 
+                                                        className="anchor-editar-encargadoIE"
+                                                        >
+                                                        <PencilSquareIcon
+                                                            //onClick={handleEditarEncargadoIE} 
+                                                            className="h-6 w-6 text-gris-800 hover:text-azul-cobalto-400 inline cursor-pointer"
+                                                        />
+                                                        </a>} 
+                                                        
+                                                        </p>
+                                                        <Tooltip 
+                                                            key="tooltipEditarEncargadoIE" 
+                                                            anchorSelect=".anchor-editar-encargadoIE" 
+                                                            place="top">
+                                                            Editar encargado
+                                                        </Tooltip>
+                                                        <Tooltip 
+                                                            key="tooltipEditarEncargado" 
+                                                            anchorSelect=".anchor-actualizar-encargado" 
+                                                            place="top">
+                                                            Actualizar datos de la persona
+                                                        </Tooltip>
+                                                    </div>
+                                                    <div className="mt-1">
+                                                        <label className="text-lg text-gris-700 text-sm" id="investigadores">Investiador/es del proyecto:</label>
+                                                        {proyecto.investigadores.map((investigador, index) => (
+                                                            <>
+                                                            <p key={`investigador_${index}`} className="text text-gris-900 cursor-default">{investigador.nombre} { (user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) && <a
+                                                            key={`link_actualizar_investigador_${index}`}
+                                                            className="anchor-actualizar-investigador"
+                                                        >
+                                                            <ArrowPathIcon
+                                                                //onClick={() => setEditarinstitucionSii(true)} 
+                                                                className="h-6 w-6 text-gris-800 hover:text-azul-cobalto-400 inline cursor-pointer"
+                                                            />
+                                                            </a>} 
+                                                            { (index === 0 && user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) && <a 
+                                                            className="anchor-editar-investigadores"
+                                                            >
+                                                            <PencilSquareIcon
+                                                                //onClick={handleEditarEncargadoIE} 
+                                                                className="h-6 w-6 text-gris-800 hover:text-azul-cobalto-400 inline cursor-pointer"
+                                                            />
+                                                            </a>}
+                                                                
+                                                            </p>
+                                                            <Tooltip 
+                                                                key={`tooltipEditarInvestigador_${index}`} 
+                                                                anchorSelect=".anchor-actualizar-investigador" 
+                                                                place="top">
+                                                                Actualizar datos de la persona
+                                                            </Tooltip>
+                                                            <Tooltip 
+                                                            key="tooltipEditarInvestigadores" 
+                                                            anchorSelect=".anchor-editar-investigadores" 
+                                                            place="top">
+                                                            Editar investigador/es
+                                                        </Tooltip>
+                                                            </>
+                                                        ))}
+
+                                                    </div>
+                                                    <div className="mt-1">
+                                                        <label className="text-gris-700 text-sm" id="horario-asignado">Jornada asignada:</label>
+                                                        <div className="flex sm-sii:flex-row flex-col">
+                                                            <p className="text-gris-900">{proyecto.equipo}</p>
+                                                            <div className="flex flex-row">
+                                                                <BloquesSelected 
+                                                                    bloques={proyecto.jornada}
+                                                                />
+                                                                { ( institucion.sigla === "MINHACIENDA" && user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) && <a 
+                                                                className="anchor-editar-jornada ml-2 mt-3 sm-sii:mt-0"
+                                                                >
+                                                                <PencilSquareIcon
+                                                                    onClick={() => setShowModalHacienda(true)} 
+                                                                    className="h-6 w-6 text-gris-800 hover:text-azul-cobalto-400 inline cursor-pointer"
+                                                                />
+                                                                </a>}
+                                                                <Tooltip 
+                                                                    key="tooltipEditarJornada" 
+                                                                    anchorSelect=".anchor-editar-jornada" 
+                                                                    place="top">
+                                                                    Editar jornadas
+                                                                </Tooltip>
+                                                            </div>
+                                                        </div>
+
+
+
+                                                    </div>
+
+                                            </div> 
+                                            </>
                                         }
                                         
-
+                                        {/* Registro de asistencia */}
                                         <div className="mb-4 px-6 pb-4 pt-2">
                                             <h1 className="text-xl text-gris-800 cursor-default">Registro de asistencia</h1>
-                                            <div className="mt-1">
-                                                <label className="text-lg text-gris-700 text-sm" id="oficio-solicitud">Descripción:</label>
-                                                <p className="text-gris-900 text-justify leading-tight">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vitae nulla eu mi tincidunt imperdiet. Duis tincidunt turpis in nulla convallis viverra. Integer sit amet mi tortor. Integer sed sagittis magna. Sed varius leo eu sem convallis, ut efficitur dui laoreet. Pellentesque sollicitudin tristique ante, vel sagittis elit dignissim vitae.</p>
-                                            </div>
-                                            <div className="mt-1">
-                                                <label className="text-lg text-gris-700 text-sm" id="oficio-solicitud">Oficio de solicitud de la institución externa:</label>
-                                                <p className="text-gris-900">Recibido el 30-10-2024 (GE001547) - Ver documento </p>
-                                            </div>
-                                            <div className="mt-1">
-                                                <label className="text-lg text-gris-700 text-sm" id="oficio-solicitud">Encargados:</label>
-                                                <p className="text-gris-900">Cristian Gutiérrez (encargado) - Rodrigo Espinoza (backup) </p>
-                                            </div>   
+                                            <TablaAsistencia
+                                                asistencias={proyecto.asistencia} />
                                         </div>
                                     </div>
                                 </div>
@@ -475,8 +665,15 @@ function ModalDetalleProyecto({
                 active={showModalRechazar}
                 closeModal={closeModalRechazar}
                 rechazarProyecto={rechazarProyecto}
-
             />
+
+            {jornadasHacienda && (user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) && institucion.sigla === "MINHACIENDA" && (
+                <ModalEditarJornada 
+                    active={showModalHacienda}
+                    closeModal={closeModalHacienda}
+                    jornadaUpdated={haciendaUpdated}
+                />            
+            )}
         </>
     );
 }
@@ -485,11 +682,11 @@ const mapStateToProps = state => ({
     user: state.auth.user,
     encargadosSiiOptions: state.institucion_reducer.encargadosPcIslaOptions,
     bloquesOcupados: state.institucion_reducer.bloquesOcupados,
+    jornadasHacienda: state.institucion_reducer.jornadasHacienda,
 })
 
 export default connect (mapStateToProps, {
     update_encargados_sii,
     rechazar_proyecto,
     aceptar_proyecto,
-    get_bloques_ocupados,
 }) (ModalDetalleProyecto);

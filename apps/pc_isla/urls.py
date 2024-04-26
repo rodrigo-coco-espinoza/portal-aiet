@@ -14,4 +14,10 @@ urlpatterns = [
     path('personas_institucion/<int:institucion_id>/', ListsPersonasInstitucion.as_view()),
     path('get_bloques_ocupados/', BloquesOcupados.as_view()),
     path('add_protocolo/', AddProtocolo.as_view()),
+    path('download_protocolo/<int:proyecto_id>/', DownloadProtocolo.as_view()),
+    path('jornadas_minhacienda/', JornadaMinhacienda.as_view()),
+    path('calendario_pc_isla/', HorarioPcIsla.as_view()),
+    path('get_asistencias/', AsistenciaList.as_view()),
+    path('registrar_ingreso/', RegistrarIngreso.as_view()),
+    path('registrar_salida/', RegistrarSalida.as_view()),
 ]

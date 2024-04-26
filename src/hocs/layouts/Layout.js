@@ -17,7 +17,7 @@ function Layout({
         isAuthenticated ? <></> :
         <>
 
-        {refresh()}
+        {/* {refresh()} */}
         {check_aunthenticated()}
         {load_user()}
         </>

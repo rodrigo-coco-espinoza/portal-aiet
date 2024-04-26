@@ -23,6 +23,12 @@ import {
     GET_BLOQUES_OCUPADOS_SUCCESS,
     ADD_PROTOCOLO_FAIL,
     ADD_PROTOCOLO_SUCCESS,
+    GET_JORNADAS_MINHACIENDA_SUCCESS,
+    GET_CALENDARIO_PC_ISLA_SUCCESS,
+    UPDATE_JORNADAS_MINHACIENDA_SUCCESS,
+    GET_ASISTENCIA_SUCCESS,
+    REGISTRAR_INGRESO_SUCCESS,
+    REGISTRAR_SALIDA_SUCCESS,
 } from '../actions/pc_isla/types'
 
 const initialState = {
@@ -32,7 +38,10 @@ const initialState = {
     proyectosPcIsla: [],
     personasInstitucion: [],
     bloquesOcupados: {},
-}
+    jornadasHacienda: [],
+    calendario: [],
+    asistencias: [],
+};
 
 export function institucion_reducer (state=initialState, action){
     const {type, payload} = action
@@ -182,15 +191,63 @@ export function institucion_reducer (state=initialState, action){
                 const proyectoIndex = proyectosPcIslaProtocolo[institucionIndexProtocolo].proyectos.findIndex((proyecto) => proyecto.id === payload.proyecto_actualizado.id);
                 if (proyectoIndex !== 1) {
                     proyectosPcIslaProtocolo[institucionIndexProtocolo].proyectos[proyectoIndex] = payload.proyecto_actualizado;
-                }
+                }           
+            }
+
+            // Actualizar jornadas de Hacienda si corresponde
+            let jornada_update = state.jornadasHacienda;
+            if (payload.jornada_minhacienda) {
+                jornada_update = payload.jornada_minhacienda;
             }
 
             return {
                 ...state,
                 proyectosPcIsla: proyectosPcIslaProtocolo,
-                bloquesOcupados: payload.bloquesOcupados
+                bloquesOcupados: payload.bloquesOcupados,
+                jornadasHacienda: jornada_update,
+                calendario: payload.calendario
+            };
+        case GET_JORNADAS_MINHACIENDA_SUCCESS:
+            return {
+                ...state,
+                jornadasHacienda: payload.jornadas_minhacienda
+            };
+        case GET_CALENDARIO_PC_ISLA_SUCCESS:
+            return {
+                ...state,
+                calendario: payload.calendario
+            };
+        case UPDATE_JORNADAS_MINHACIENDA_SUCCESS:
+
+            const updatedProyectosHacienda = [...state.proyectosPcIsla];
+            // Encontrar institucion en el estado
+            const haciendaIndex = updatedProyectosHacienda.findIndex((inst) => inst.id_institucion === payload.proyectos_minhacienda.id_institucion);
+            updatedProyectosHacienda[haciendaIndex] = payload.proyectos_minhacienda
+
+            return {
+                ...state,
+                proyectosPcIsla: updatedProyectosHacienda,
+                calendario: payload.calendario,
+                jornadasHacienda: payload.jornadas_minhacienda
+            };
+        case GET_ASISTENCIA_SUCCESS:
+            return {
+                ...state,
+                asistencias: payload.asistencia
+            };
+        case REGISTRAR_INGRESO_SUCCESS:
+            return {
+                ...state,
+                asistencias: payload.asistencias
+            };
+        case REGISTRAR_SALIDA_SUCCESS:
+            return {
+                ...state,
+                asistencias: payload.asistencias
             };
 
+        
+        case UPDATE_ENCARGADOS_SII_FAIL:
         case ADD_PROTOCOLO_FAIL:
         case GET_BLOQUES_OCUPADOS_FAIL:
         case ADD_PERSONA_INSTITUCION_FAIL:

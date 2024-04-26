@@ -26,6 +26,7 @@ class UserAccountManager(BaseUserManager):
         user.is_convenios_admin = True
         user.is_buscador_editor = True
         user.is_buscador_admin = True
+        user.is_pc_isla_investigador = True
 
         user.save()
 
@@ -40,6 +41,7 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_pc_isla_editor = models.BooleanField(default=False)
     is_pc_isla_admin = models.BooleanField(default=False)
+    is_pc_isla_investigador = models.BooleanField(default=False)
     is_convenios_editor = models.BooleanField(default=False)
     is_convenios_admin = models.BooleanField(default=False)
     is_buscador_editor = models.BooleanField(default=False)

@@ -20,11 +20,20 @@ class PersonaAdmin(admin.ModelAdmin):
     list_per_page = 25
 
 class RolAdmin(admin.ModelAdmin):
-    list_display = ('id', 'proyecto', 'rol')
+    list_display = ('id', 'proyecto', 'rol', 'persona')
     list_per_page = 25
 
 class JornadaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'proyecto', 'equipo', 'horario', 'dia')
+    list_display = ('id', 'proyecto', 'equipo', 'horario', 'dia', 'extra')
+    list_per_page = 25
+
+class AsistenciaAdmin(admin.ModelAdmin):
+    
+    def get_proyecto(self, obj):
+        return obj.jornada.proyecto
+    get_proyecto.short_description = "Proyecto"
+
+    list_display = ('id', 'get_proyecto', 'fecha', 'datetime_ingreso', 'datetime_salida')
     list_per_page = 25
 
 admin.site.register(Proyecto, ProyectoAdmin)
@@ -33,3 +42,4 @@ admin.site.register(Subdireccion, SubdireccionAdmin)
 admin.site.register(Persona, PersonaAdmin)
 admin.site.register(Rol, RolAdmin)
 admin.site.register(Jornada, JornadaAdmin)
+admin.site.register(Asistencia, AsistenciaAdmin)

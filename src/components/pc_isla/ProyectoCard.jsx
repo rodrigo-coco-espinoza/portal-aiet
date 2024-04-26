@@ -15,18 +15,61 @@ function ProyectoCard({data, institucion, showAlertRechazado}){
         showAlertRechazado(nombreProyecto);
     }
 
+    // Jornadas
+    const dias = ['Lun', 'Mar', 'Mier', 'Jue', 'Vie'];
+
+    const jornada_text = () => {
+        let text = [];
+        if (Object.keys(data.jornada).length !== 0) {
+            for (let i = 0; i < 5; i++) {
+                if (data.jornada.AM[i] || data.jornada.PM[i]) {
+                    text.push(`${dias[i]} ${data.jornada.AM[i] ? 'AM' : ''} ${data.jornada.PM[i] ? 'PM' : ''}`)
+                }
+            }
+        } else {
+            text.push('Sin jornada asignada')
+        }
+
+        return text;
+    };
+
 
     return (
         
     <>
         <div className="max-w-sm p-6 bg-white border border-gris-300 rounded-lg shadow h-full flex flex-col">
             <h5 className="mb-0 text-2xl font-bold tracking-tight text-gris-800 cursor-default">{institucion.sigla}</h5>
-            <p className="mb-4 font-normal text-gris-700 cursor-default">{data.nombre}</p>
+            <p className="mb-4 font-normal text-gris-700 cursor-default">{data.nombre} (cód: {data.id})</p>
             <p className="mb-1 font-normal text-sm text-gris-600 cursor-default">Encargado: {data.encargado_sii.nombre}</p>
             <p className="mb-1 font-normal text-sm text-gris-600 cursor-default">Estado: {data.estado}</p>
-            <p className="mb-1 font-normal text-sm text-gris-600 cursor-default">TODO Investigador: Solo si hay, puede ser mas de uno</p>
-            <p className="mb-1 font-normal text-sm text-gris-600 cursor-default">TODO Jornada: Bora Bora Lun AM Jue PM</p>
-            <p className="mb-5 font-normal text-sm text-gris-600 cursor-default">TODO Fecha de término: 15-04-2024</p>
+            { data.protocolo && (
+                <>
+                <div className="mb-1 font-normal text-sm text-gris-600 cursor-default flex flex-row">
+                    <span>Investigador/es:</span>
+                    <div className="ml-1 ">
+                    {
+                        data.investigadores.map((investigador, index) => (
+                            <span className="line-clamp-1" key={index}>{investigador.nombre}<br/></span>
+                        ))
+                    }
+                    </div> 
+                </div>
+                <p className="mb-1 font-normal text-sm text-gris-600 cursor-default">Equipo: {data.equipo}</p>
+                <div className="mb-1 font-normal text-sm text-gris-600 cursor-default flex flex-row">
+                    <span>Jornada/s:</span>
+                    <div className="ml-1">
+                    {
+                        jornada_text().map((jornada, index) => (
+                            <span key={index}>{jornada}<br/></span>
+                        ))
+                    }
+                    </div> 
+                </div>
+                
+                <p className="mb-5 font-normal text-sm text-gris-600 cursor-default">Fecha de término: <br className='sm-sii:hidden'/> {data.formatted_fecha_termino}</p>
+                </>
+            )
+            }
             <button  
                 className="mt-auto w-[120px] inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-azul-brillante-400 rounded-lg hover:bg-azul-marino-300"
                 onClick={openDetalleProyecto}

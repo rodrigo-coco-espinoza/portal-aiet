@@ -1,16 +1,29 @@
 import { PlusIcon } from "@heroicons/react/20/solid"
 import { Tooltip } from "react-tooltip"
 import ProyectoCard from "./ProyectoCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ModalAgregarProyecto from "./ModalAgregarProyecto";
 import { Alert } from "@material-tailwind/react";
 import { connect } from "react-redux";
 import ModalDetalleProyecto from "./ModalDetalleProyecto";
+import { get_bloques_ocupados, get_jornadas_minhacienda } from "redux/actions/pc_isla/pc_isla";
 
 function ProyectosActivos({
     proyectosPcIsla,
     user,
+    get_bloques_ocupados,
+    get_jornadas_minhacienda,
+
 }){
+
+    useEffect(() => {
+        get_jornadas_minhacienda();
+        if (user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) {
+            get_bloques_ocupados();
+            
+        }
+        
+    }, []);
 
     // Funciones Modal Agregar Proyecto
     const [showModalAgregarProyecto, setShowModalAgregarProyecto] = useState(false);
@@ -115,5 +128,6 @@ const mapStateToProps = state => ({
     user: state.auth.user,
 })
 export default connect (mapStateToProps, {
-    
+    get_bloques_ocupados,
+    get_jornadas_minhacienda
 } )(ProyectosActivos)

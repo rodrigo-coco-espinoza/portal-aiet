@@ -41,6 +41,11 @@ DIAS_CHOICES = (
     ('jueves', 'Jueves'),
     ('viernes', 'Viernes'),
 )
+SALIDA_CHOICES = (
+    ('fin jornada', 'Fin jornada'),
+    ('proceso ejecutándose', 'Proceso ejecutándose'),
+    ('otro', 'Otro')
+)
 
 def proyecto_upload_path(instance, filename):
     sigla = instance.institucion.sigla
@@ -164,7 +169,7 @@ class Proyecto(models.Model):
     fecha_oficio_respuesta = models.DateField(null=True, blank=True)
 
     # Protocolo de uso
-    protocolo = models.FileField(upload_to=proyecto_upload_path, max_length=500, null=True, blank=True)
+    protocolo = models.FileField(upload_to=protocolo_upload_path, max_length=500, null=True, blank=True)
     fecha_inicio = models.DateField(null=True, blank=True)
     fecha_termino = models.DateField(null=True, blank=True)
 
@@ -202,3 +207,22 @@ class Jornada(models.Model):
     equipo = models.CharField(max_length=50, choices=EQUIPO_CHOICES, null=False)
     horario = models.CharField(max_length=50, choices=HORARIO_CHOICES, null=False)
     dia = models.CharField(max_length=50, choices=DIAS_CHOICES, null=False)
+    extra = models.BooleanField(default=0)
+    fecha = models.DateField(null=True, blank=True)
+    active = models.BooleanField(default=1)
+
+
+class Asistencia(models.Model):
+
+    class Meta:
+        verbose_name = "Asistencia"
+        verbose_name_plural = "Asistencias"
+
+    jornada = models.ForeignKey(Jornada, on_delete=models.CASCADE, null=False)
+    fecha = models.DateField(null=False)
+    datetime_ingreso = models.CharField(max_length=20, null=True, blank=True)
+    datetime_salida = models.CharField(max_length=20, null=True, blank=True)
+    motivo_salida = models.CharField(max_length=50, choices=SALIDA_CHOICES, null=True, blank=True)
+
+    
+

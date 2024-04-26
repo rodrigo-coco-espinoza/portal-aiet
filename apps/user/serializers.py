@@ -17,6 +17,7 @@ class UserSerializer(UserCreateSerializer):
             'is_staff',
             'is_pc_isla_editor',
             'is_pc_isla_admin',
+            'is_pc_isla_investigador',
             'is_convenios_editor',
             'is_convenios_admin',
             'is_buscador_editor',

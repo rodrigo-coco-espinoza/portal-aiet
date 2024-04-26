@@ -7,6 +7,7 @@ import { Tooltip } from "react-tooltip";
 import ModalAgregarPersona from "./ModalAgregarPersona";
 import { Alert } from "@material-tailwind/react";
 import BloquesSelection from "./BloquesSelection";
+import Loading from "./Loading";
 
 let equiposOptions = [
     {id: 'Bora Bora', full_name: "Bora Bora"},
@@ -19,8 +20,8 @@ function ProtocloInstituciones({
     personasInstitucion,
     add_protocolo,
     idProyecto,
-    get_bloques_ocupados,
     bloquesOcupados,
+    protocoloSaved
 }) {
     // Obtener personas de la institucion
     useEffect(() => {
@@ -28,14 +29,12 @@ function ProtocloInstituciones({
     }, []);
 
     const [personasOptions, setpersonasOptions] = useState([]);
-
     useEffect(() => {
         // Update personasOptions when personasInstitucion changes
         setpersonasOptions(personasInstitucion.map(persona => ({ id: persona.id, full_name: persona.nombre })));
     }, [personasInstitucion]);
 
     // Form protocolo de uso
-    const [showAlertProtocolo, setShowAlertProtocolo] = useState(false);
     const [formData, setFormData] = useState({
         proyectoId: idProyecto,
         documento: "",
@@ -44,7 +43,8 @@ function ProtocloInstituciones({
         investigadores: [""],
         fecha_termino: null,
         equipo: "",
-        jornada: {}
+        jornada_am: [],
+        jornada_pm: [],
     });
 
     const {
@@ -55,7 +55,8 @@ function ProtocloInstituciones({
         investigadores,
         fecha_termino,
         equipo,
-        jornada,
+        jornada_am,
+        jornada_pm,
     } = formData;
 
     const onChange = e => {
@@ -122,13 +123,10 @@ function ProtocloInstituciones({
 
         // Validar jornada
         let jornadaValid = true;
-        if (Object.keys(jornada).length === 0) {
-            jornadaValid = false;
-        } else {
-            if (jornada.am.length === 0 && jornada.pm.length === 0) {
+        if (jornada_am.length === 0 && jornada_pm.length === 0) {
                 jornadaValid = false;
-            }
         }
+        
        
         const allValidations = Object.values({
             encargado: encargadoValid,
@@ -152,7 +150,8 @@ function ProtocloInstituciones({
         return allValidations;
     };
 
-    const onSubmit = async (e) => {
+    const [loading, setLoading] = useState(false);
+    const onSubmit = (e) => {
         e.preventDefault();
 
         if (validateProtocolo()) {
@@ -163,11 +162,20 @@ function ProtocloInstituciones({
             }
 
             try {
-                console.log(formData)
-                await add_protocolo(formData);
-                setShowAlertProtocolo(true);
+                setLoading(true);
+                add_protocolo(formData)
+                    .then(() => {
+                        setLoading(false);
+                        protocoloSaved();
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        setLoading(false);
+                    });
+                
             } catch (error) {
                 console.error('Error uploading file:', error);
+                
             }
         }
         
@@ -189,7 +197,7 @@ function ProtocloInstituciones({
                 nombre: nombrePersona
             });
         }
-    }
+    };
 
     // Combobox encargado e investigadores
     const encargadoChange = (e) => {
@@ -202,7 +210,7 @@ function ProtocloInstituciones({
         setFormData({...formData, investigadores: updatedInvestigadores});
     };
 
-    // Agregar o quitar investigadores dinamicamente 
+    // Agregar o quitar investigadores dinámicamente 
     const handleAgregarInvestigador = () => {
         setFormData({
             ...formData,
@@ -227,22 +235,23 @@ function ProtocloInstituciones({
         return `${day}-${month}-${year}`; // Return formatted date
       };
 
-      // Asignación de horarios
-      const [bloquesOptions, setBloquesOptions] = useState(null);
-      const equipoChange =  (e) => {
-        setFormData({
-            ...formData,
-            equipo: e.id
-        });
-        const equipoSelected = bloquesOcupados[e.id];
-        setBloquesOptions({options: equipoSelected});
-      };
-      const bloqueChange = (selection) => {
-        setFormData({
-            ...formData,
-            jornada: selection
-        });
-      };
+    // Asignación de horarios
+    const [bloquesOptions, setBloquesOptions] = useState(null);
+    const equipoChange =  (e) => {
+    setFormData({
+        ...formData,
+        equipo: e.id
+    });
+    const equipoSelected = bloquesOcupados[e.id];
+    setBloquesOptions({options: equipoSelected});
+    };
+    const bloqueChange = (selection) => {
+    setFormData({
+        ...formData,
+        jornada_am: selection.am,
+        jornada_pm: selection.pm
+    });
+    };
 
     return (
         <>
@@ -259,19 +268,6 @@ function ProtocloInstituciones({
                     className="relative max-w-[28rem] sm-sii:max-w-[40rem] transform -top-3 z-50 bg-verde-esmeralda-300 mx-auto"
                 >
                     Se ha agregado {showAlertNuevaPersona.nombre} a {institucion.sigla}. 
-                </Alert>
-                {/* Alert protocolo registrado */}
-                <Alert
-                    open={showAlertProtocolo}
-                    onClose={(prev) => setShowAlertProtocolo(false)}
-                    onClick={(e) => e.stopPropagation()}
-                    animate={{
-                        mount: { y: 5 },
-                        unmount: { y: 100 },
-                    }}
-                    className="relative max-w-[28rem] sm-sii:max-w-[40rem] transform -top-3 z-50 bg-verde-esmeralda-300 mx-auto"
-                >
-                    Se ha registrado el protocolo de uso. 
                 </Alert>
                 <h1 className="text-xl text-gris-800 cursor-default">Protocolo de uso</h1>
                 <form 
@@ -373,8 +369,7 @@ function ProtocloInstituciones({
                                 />
                         ))}
                         <span className="text-rojo-400 text-sm" hidden={protocoloValidations.investigadores}>Debe seleccionar él o los investigadores.</span>
-                        <span className="text-rojo-400 text-sm" hidden={protocoloValidations.investigadores2}>Los investigadores no se pueden repetir.</span> 
-                        
+                        <span className="text-rojo-400 text-sm" hidden={protocoloValidations.investigadores2}>Los investigadores no se pueden repetir.</span>                      
                     </div>
                     {/* Asignación de horario */}
                     <div className="mt-1">
@@ -402,14 +397,15 @@ function ProtocloInstituciones({
                         </div>
                     </div>
                     <div className="flex items-center justify-end">
-                            <button
-                            type="submit"
-                            className="text-verde-esmeralda-300 hover:text-verde-esmeralda-400  background-transparent font-bold uppercase py-0 text-sm outline-none focus:outline-none mr-1 mb-0 ease-linear transition-all duration-150">
-                                Agregar
-                            </button>
-                        </div>
+                        <button
+                        type="submit"
+                        className="text-verde-esmeralda-300 hover:text-verde-esmeralda-400  background-transparent font-bold uppercase py-0 text-sm outline-none focus:outline-none mr-1 mb-0 ease-linear transition-all duration-150">
+                            Agregar
+                        </button>
+                    </div>
                 </form>
             </div>
+            {loading && <Loading message={'Ingresando protocolo de uso'}/>}
             <ModalAgregarPersona 
                 active={showModalAgregarPersona}
                 closeModal={handleAgregarPersona}
