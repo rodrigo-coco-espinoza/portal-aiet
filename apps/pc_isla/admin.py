@@ -4,7 +4,7 @@ from .models import *
 # Register your models here.
 
 class ProyectoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'institucion', 'nombre', 'encargado_sii', 'backup_sii', 'author', 'timestamp_creacion', 'estado', )
+    list_display = ('id', 'institucion', 'nombre', 'encargado_sii', 'backup_sii', 'author', 'timestamp_creacion', 'extendido', 'estado', )
     list_per_page = 25
 
 class InstitucionAdmin(admin.ModelAdmin):

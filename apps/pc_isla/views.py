@@ -582,7 +582,7 @@ class AddProtocolo(APIView):
                     horario='AM',
                     dia=DIGITO_A_DIA[dia]
                 )
-                nueva_jornada.save()
+          #######      nueva_jornada.save()
             
             for dia in jornada_pm:
                 nueva_jornada = Jornada.objects.create(
@@ -591,7 +591,7 @@ class AddProtocolo(APIView):
                     horario='PM',
                     dia=DIGITO_A_DIA[dia]
                 )
-                nueva_jornada.save()
+          ########      nueva_jornada.save()
 
             # Agregar asistencias
             feriados = Chile()
@@ -606,7 +606,7 @@ class AddProtocolo(APIView):
                             jornada=jornada,
                             fecha=current_date
                         )
-                        nueva_asistencia.save()
+                  #######      nueva_asistencia.save()
 
                     current_date += timedelta(days=1)
 

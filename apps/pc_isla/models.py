@@ -18,7 +18,7 @@ ROL_CHOICES = (
 )
 INSTITUCION_CHOICES = (
     ('empresa pública', 'Empresa pública'),
-    ('ministerio', 'Minsiterio'),
+    ('ministerio', 'Ministerio'),
     ('municipalidad', 'Municipalidad'),
     ('servicio público', 'Servicio público'),
     ('privado', 'Privado'),
