@@ -173,6 +173,8 @@ class Proyecto(models.Model):
     fecha_inicio = models.DateField(null=True, blank=True)
     fecha_termino = models.DateField(null=True, blank=True)
 
+    # Extensión del proyecto
+    extendido = models.BooleanField(default=0)
 
     objects = models.Manager()
     queryobjects = ProyectoObjects()
