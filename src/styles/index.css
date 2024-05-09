@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.active{
+    @apply border-naranja-400
+}
+
+[name|="userIcon"].active {
+    @apply text-naranja-400
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+    z-index: -1;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #E6F3FB;
+    opacity: 10px;
+    border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb:hover{
+    background: #CEE7F6;
+    opacity: 10px;
+    border-radius: 10px;
+    }
+
+/* Calendar picker cursor */
+input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    }
+
+/* Typing dots animation */
+@keyframes typing {
+    0% { content: ""; }
+    25% { content: "."; }
+    50% { content: ".."; }
+    75% { content: "..."; }
+}
+
+.typing-dots::after {
+    content: "";
+    display: inline-block;
+    animation: typing 1s steps(4) infinite;
+}
