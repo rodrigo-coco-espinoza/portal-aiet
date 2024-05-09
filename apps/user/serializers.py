@@ -29,8 +29,7 @@ class EncargadosPcIslaSerializer(UserCreateSerializer):
     full_name = serializers.SerializerMethodField()
 
     def get_full_name(self, obj):
-        persona_instance = obj.persona
-        return PersonaSerializer(persona_instance).data['nombre']
+        return PersonaSerializer(obj).data['nombre']
     
     class Meta(UserCreateSerializer.Meta):
         model = User

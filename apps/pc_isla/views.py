@@ -4,7 +4,7 @@ from rest_framework import status, permissions
 from apps.user.models import UserAccount
 from django.conf import settings
 from apps.user.serializers import *
-from .serializers import InstitucionSelectSerializer,ProyectoActivoSerializer, ProyectoNoActivoSerializer
+from .serializers import InstitucionSelectSerializer,ProyectoActivoSerializer, ProyectoNoActivoSerializer, PersonaSelectSerializer
 import json
 from django.http import JsonResponse
 from .models import *
@@ -229,8 +229,8 @@ def get_calendario():
                     dia_calendario['pasado'] = True
 
             #Identificar asistencia del día
-            if fecha_calendario == fecha_actual:
-                asistencia = Asistencia.objects.filter(jornada=jornada, fecha=fecha_actual).first()
+            if fecha_calendario <= fecha_actual:
+                asistencia = Asistencia.objects.filter(jornada=jornada, fecha=fecha_calendario).first()
                 if asistencia and asistencia.datetime_ingreso:
                     dia_calendario[jornada.equipo][jornada.horario]['asistencia'] = True
                 
@@ -253,8 +253,12 @@ def obtener_asistencias(persona):
         ingreso_hhmm = asistencia.datetime_ingreso.split()[1] if asistencia.datetime_ingreso else None
         salida_hhmm = asistencia.datetime_salida.split()[1] if asistencia.datetime_salida else None
 
+        # Investigadores
+        investigadores = asistencia.jornada.proyecto.rol_set.all()
+
         data.append({
             'id': asistencia.id,
+            'codigo': asistencia.jornada.proyecto.id,
             'sigla': asistencia.jornada.proyecto.institucion.sigla,
             'nombre': asistencia.jornada.proyecto.nombre,
             'dia': asistencia.jornada.dia.capitalize(),
@@ -264,6 +268,7 @@ def obtener_asistencias(persona):
             'ingreso': ingreso_hhmm,
             'salida': salida_hhmm,
             'extra': True if asistencia.jornada.extra else False,
+            'investigadores': PersonaSelectSerializer(investigadores, many=True).data
         })
 
     return data

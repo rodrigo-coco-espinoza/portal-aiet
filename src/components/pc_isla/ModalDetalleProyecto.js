@@ -567,7 +567,7 @@ function ModalDetalleProyecto({
                                                         </Tooltip>
                                                     </div>
                                                     <div className="mt-1">
-                                                        <label className="text-lg text-gris-700 text-sm" id="investigadores">Investiador/es del proyecto:</label>
+                                                        <label className="text-lg text-gris-700 text-sm" id="investigadores">Investigador/es del proyecto:</label>
                                                         {proyecto.investigadores.map((investigador, index) => (
                                                             <>
                                                             <p key={`investigador_${index}`} className="text text-gris-900 cursor-default">{investigador.nombre} { (user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) && <a

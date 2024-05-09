@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from .models import UserAccount
+from apps.pc_isla.models import Persona
 import json
 from .serializers import EncargadosPcIslaSerializer
 
@@ -26,13 +27,13 @@ class EncargadosPcIslaView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request, format=None):
-        encargados = UserAccount.objects.filter(is_pc_isla_editor=True)
+        pc_isla_editors = UserAccount.objects.filter(is_pc_isla_editor=True)
+        personas = Persona.objects.filter(useraccount__in=pc_isla_editors)
 
-        if encargados.exists():
-            resultEncargados = [EncargadosPcIslaSerializer(encargado).data for encargado in encargados]
-
+        if personas.exists():
+            resultPersonas = EncargadosPcIslaSerializer(personas, many=True)
             return Response({
-                'encargadosPcIslaOptions': resultEncargados,
+                'encargadosPcIslaOptions': resultPersonas.data,
             }, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'No se encontraron encargados.'}, status=status.HTTP_404_NOT_FOUND)
