@@ -94,8 +94,8 @@ class Institucion(models.Model):
 
     nombre = models.CharField(max_length=255, unique=True)
     sigla = models.CharField(max_length=255, unique=True)
-    rut = models.CharField(max_length=12, null=True)
-    direccion = models.CharField(max_length=255, null=True)
+    rut = models.CharField(max_length=12, null=True, blank=True)
+    direccion = models.CharField(max_length=255, null=True, blank=True)
     tipo = models.CharField(max_length=20, choices=INSTITUCION_CHOICES, default="servicio público")
     
     ministerio = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, default=None)
