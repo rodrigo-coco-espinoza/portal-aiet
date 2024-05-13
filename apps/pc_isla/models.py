@@ -226,5 +226,12 @@ class Asistencia(models.Model):
     datetime_salida = models.CharField(max_length=20, null=True, blank=True)
     motivo_salida = models.CharField(max_length=50, choices=SALIDA_CHOICES, null=True, blank=True)
 
+class AsistenciaInvestigador(models.Model):
+
+    class Meta:
+        verbose_name = "AsistenciaInvestigador"
+        verbose_name_plural = "AsistenciasInvestigador"
     
+    asistencia = models.ForeignKey(Asistencia, on_delete=models.CASCADE, null=False)
+    investigador = models.ForeignKey(Persona, on_delete=models.CASCADE, null=False)
 

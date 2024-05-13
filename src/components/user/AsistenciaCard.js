@@ -53,19 +53,56 @@ function AsistenciaCard({
         setSelectedInvestigadores(updatedInvestigadores);
     };
 
-    // Validar investgidaroes
+    // Validar investigadores
     const [validations, setValidations] = useState({
         investigadores: true,
         investigadores2: true,
     });
 
+    const validateIngreso = () => {
+        // Todos los investigadores seleccionados
+        const investigadoresValid = !selectedInvestigadores.some(element => element === "");
+
+        // No se repiten investigadores
+        let investigadores2Valid = true;
+        if (investigadoresValid) {
+            for (let i = 0; i < investigadores.length; i++) {
+                const currentElement = selectedInvestigadores[i];
+                for (let j = i + 1; j < selectedInvestigadores.length; j++) {
+                    if (currentElement === selectedInvestigadores[j]) {
+                        investigadores2Valid = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        const allValidations = Object.values({
+            investigadores: investigadoresValid,
+            investigadores2: investigadores2Valid
+        }).every((validation) => validation);
+
+        setValidations({
+            ...validations,
+            investigadores: investigadoresValid,
+            investigadores2: investigadores2Valid
+        });
+
+        return allValidations;
+    };
+
 
 
     const handleIngreso = () => {
-        const formData = new FormData();
-        formData.append('id_asistencia', id);
-        registrar_ingreso(formData);
-        showAlert('Ingreso registrado exitosamente.')
+        if (validateIngreso()) {
+            
+            const formData = new FormData();
+            formData.append('id_asistencia', id);
+            formData.append('investigadores', selectedInvestigadores);
+            registrar_ingreso(formData);
+            showAlert('Ingreso registrado exitosamente.')
+        }
+
     };
 
     // Registrar salida
@@ -120,11 +157,11 @@ function AsistenciaCard({
             :
             <>
                 {/* Select investigadores */}
-                <div className="mt-1 sm-sii:w-1/2">
+                <div className="mt-1">
                     <div className="flex items-end">
-                        <label className="text-gris-700 text-sm">Investigador/es del proyecto:</label>
+                        <label className="text-gris-700 text-sm">Investigador/es asistente/s:</label>
                             <div className="ml-auto">
-                                {investigadores.length >= 2 &&(
+                                {selectedInvestigadores.length >= 2 && (
                                     <>
                                         <a 
                                             className="anchor-eliminarInvestigador cursor-pointer"

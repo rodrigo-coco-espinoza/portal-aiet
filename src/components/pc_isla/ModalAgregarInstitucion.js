@@ -113,7 +113,7 @@ function ModalAgregarInstitucion({
         // Validar rut
         let rutValid;
         if (data.rut !== ""){
-            rutValid =  /^(\d{2}\.\d{3}\.\d{3}-\d{1}|\d{2}\.\d{3}\.\d{3}-K)$/.test(data.rut);
+            rutValid =  /^(\d{8}-\d{1}|\d{8}-K)$/.test(data.rut);
         } else {
             rutValid = true;
         }
@@ -194,7 +194,7 @@ function ModalAgregarInstitucion({
     return (
         <>
         {active && (
-        <div className="bg-opacity-25 fixed inset-0 z-40 bg-black" onClick={handleCloseModal}>
+        <div className="bg-opacity-25 fixed inset-0 z-40 bg-black">
         <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 -top-20 outline-none focus:outline-none">
             <div className="relative sm-sii:w-full w-5/6 my-6 mx-auto max-w-3xl">
                 {/*content*/}
@@ -249,10 +249,11 @@ function ModalAgregarInstitucion({
                                         name='rut'
                                         value={rut}
                                         onChange={e=>onChange(e)}
+                                        required
                                         className="block w-full py-2 px-3 text-gris-800 leading-tight focus:outline-none focus:shadow-outline shadow appearance-none border border-azul-marino-100 rounded h-9"
                                         placeholder="12.345.678-9"
                                     />
-                                    <span className="text-rojo-400 text-sm" hidden={validations.rut}>El RUT debe tener el formato 12.345.678-K.</span>
+                                    <span className="text-rojo-400 text-sm" hidden={validations.rut}>El RUT debe tener el formato 12345678-K.</span>
                                 </div>
                             </div>
                         </div>
