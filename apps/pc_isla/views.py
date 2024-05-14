@@ -582,7 +582,7 @@ class AddProtocolo(APIView):
                     horario='AM',
                     dia=DIGITO_A_DIA[dia]
                 )
-          #######      nueva_jornada.save()
+                nueva_jornada.save()
             
             for dia in jornada_pm:
                 nueva_jornada = Jornada.objects.create(
@@ -591,7 +591,7 @@ class AddProtocolo(APIView):
                     horario='PM',
                     dia=DIGITO_A_DIA[dia]
                 )
-          ########      nueva_jornada.save()
+                nueva_jornada.save()
 
             # Agregar asistencias
             feriados = Chile()
@@ -606,7 +606,7 @@ class AddProtocolo(APIView):
                             jornada=jornada,
                             fecha=current_date
                         )
-                  #######      nueva_asistencia.save()
+                        nueva_asistencia.save()
 
                     current_date += timedelta(days=1)
 
@@ -778,11 +778,27 @@ class RegistrarIngreso(APIView):
 
     def post(self, request, format=None):
         data = request.data
-        asistencia = Asistencia.objects.get(id=data['id_asistencia'])
+        id_asistencia = data['id_asistencia']
+        
+        # Registrar ingreso assistencia
+        asistencia = Asistencia.objects.get(id=id_asistencia)
         now = datetime.now()
         formatted_datetime = now.strftime("%d/%m/%Y %H:%M") 
         asistencia.datetime_ingreso = formatted_datetime
         asistencia.save()
+
+        # Registrar investigadores asistentes
+        id_investigadores = data['investigadores'].split(',')
+        for investigador in id_investigadores:
+            investigador_instance = Persona.objects.get(id=investigador)
+            investigador_asistente = AsistenciaInvestigador(
+                asistencia=asistencia,
+                investigador=investigador_instance
+            )
+
+            investigador_asistente.save()
+
+
 
         respuesta = obtener_asistencias(request.user.persona)
         return Response({'asistencias': respuesta}, status=status.HTTP_200_OK)

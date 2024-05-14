@@ -36,6 +36,7 @@ class InstitucionSelectSerializer(serializers.ModelSerializer):
 
 class PersonaSelectSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
+    id = serializers.SerializerMethodField()
 
     class Meta:
         model = Institucion
@@ -46,6 +47,9 @@ class PersonaSelectSerializer(serializers.ModelSerializer):
 
     def get_full_name(self, instance):
         return f"{instance.persona.nombre}"
+    
+    def get_id(self, instance):
+        return instance.persona.id
     
 
 

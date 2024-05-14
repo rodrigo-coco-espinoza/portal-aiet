@@ -36,6 +36,11 @@ class AsistenciaAdmin(admin.ModelAdmin):
     list_display = ('id', 'get_proyecto', 'fecha', 'datetime_ingreso', 'datetime_salida')
     list_per_page = 25
 
+class AsistenciaInvestigadorAdmin(admin.ModelAdmin):
+
+    list_display = ('id', 'asistencia', 'investigador')
+    list_per_page = 25
+
 admin.site.register(Proyecto, ProyectoAdmin)
 admin.site.register(Institucion, InstitucionAdmin)
 admin.site.register(Subdireccion, SubdireccionAdmin)
@@ -43,3 +48,4 @@ admin.site.register(Persona, PersonaAdmin)
 admin.site.register(Rol, RolAdmin)
 admin.site.register(Jornada, JornadaAdmin)
 admin.site.register(Asistencia, AsistenciaAdmin)
+admin.site.register(AsistenciaInvestigador, AsistenciaInvestigadorAdmin)

@@ -215,7 +215,7 @@ function ModalDetalleProyecto({
     return (
         <>
             {active && (
-                <div className="bg-opacity-25 fixed inset-0 z-40 bg-black" onClick={handleCloseModal}>
+                <div className="bg-opacity-25 fixed inset-0 z-40 bg-black">
                     <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 sm-sii:-top-20 outline-none focus:outline-none">
                         <div className="relative sm-sii:w-full w-5/6 my-6 mx-auto max-w-3xl">
                         {/* Alert encargados SII */}
@@ -444,12 +444,6 @@ function ModalDetalleProyecto({
                                         
                                         
                                         {/* Protocolo de uso */}
-                                        {!isAccepted && 
-                                            <div className="mb-2 px-6 pb-4 pt-4 bg-gris-300">
-                                                <h1 className="text-xl text-gris-800 cursor-default">Protocolo de uso</h1>
-                                                <p className="text-gris-900 cursor-default">Respuesta pendiente</p>
-                                            </div>
-                                        }
                                         {isAccepted && !isProtocolo && 
                                             <>
                                             {(user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) ?
@@ -639,11 +633,13 @@ function ModalDetalleProyecto({
                                         }
                                         
                                         {/* Registro de asistencia */}
-                                        <div className="mb-4 px-6 pb-4 pt-2">
-                                            <h1 className="text-xl text-gris-800 cursor-default">Registro de asistencia</h1>
-                                            <TablaAsistencia
-                                                asistencias={proyecto.asistencia} />
-                                        </div>
+                                        {isAccepted && isProtocolo &&
+                                            <div className="mb-4 px-6 pb-4 pt-2">
+                                                <h1 className="text-xl text-gris-800 cursor-default">Registro de asistencia</h1>
+                                                <TablaAsistencia
+                                                    asistencias={proyecto.asistencia} />
+                                            </div>
+                                        }
                                     </div>
                                 </div>
 
