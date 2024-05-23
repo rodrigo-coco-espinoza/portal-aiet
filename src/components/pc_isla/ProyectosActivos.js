@@ -18,10 +18,12 @@ function ProyectosActivos({
 
     useEffect(() => {
         get_jornadas_minhacienda();
-        if (user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) {
-            get_bloques_ocupados();
+        get_bloques_ocupados();
+        // if (user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) {
             
-        }
+        //     console.log("WENAZA")
+            
+        // }
         
     }, []);
 

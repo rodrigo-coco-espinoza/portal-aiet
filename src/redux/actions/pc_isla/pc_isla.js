@@ -31,6 +31,7 @@ import {
     GET_ASISTENCIA_SUCCESS,
     REGISTRAR_INGRESO_SUCCESS,
     REGISTRAR_SALIDA_SUCCESS,
+    ADD_JORNADA_EXTRA_SUCCES,
 } from './types'
 
 
@@ -338,7 +339,6 @@ export const get_bloques_ocupados = () => async dispatch => {
     const config = {
         headers: {
             'Accept': 'application/json',
-            'Authorization': `JWT ${localStorage.getItem('access')}`,
         }
     };
     
@@ -468,4 +468,21 @@ export const registrar_salida = (formData) => async dispatch => {
         type: REGISTRAR_SALIDA_SUCCESS,
         payload: res.data
     });
-}
+};
+
+export const add_jornada_extra = (formData) => async dispatch => {
+    const config = {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `JWT ${localStorage.getItem('access')}`,
+            'Content-Type': 'multipart/form-data',
+        }
+    };
+
+    const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/pc_isla/add_jornada_extra/`, formData, config);
+    dispatch({
+        type: ADD_JORNADA_EXTRA_SUCCES,
+        payload: res.data
+    });
+
+};

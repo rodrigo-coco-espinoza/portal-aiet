@@ -62,14 +62,23 @@ function ProtocloInstituciones({
     const onChange = e => {
         
         if (e.target.name === "fecha_inicio") {
-            const fechaDocumento = new Date(e.target.value);
-            fechaDocumento.setMonth(fechaDocumento.getMonth() + 3);
-            const fin_periodo = fechaDocumento.toISOString().split('T')[0];
-            setFormData({
-                ...formData, 
-                ['fecha_inicio']: e.target.value, 
-                ['fecha_termino']: fin_periodo
-            });
+            if (e.target.value) {
+                const fechaDocumento = new Date(e.target.value);
+                fechaDocumento.setMonth(fechaDocumento.getMonth() + 3);
+                const fin_periodo = fechaDocumento.toISOString().split('T')[0];
+                setFormData({
+                    ...formData, 
+                    ['fecha_inicio']: e.target.value, 
+                    ['fecha_termino']: fin_periodo
+                });
+            } else {
+                setFormData({
+                    ...formData, 
+                    ['fecha_inicio']: e.target.value, 
+                    ['fecha_termino']: ""
+                });
+            }
+            
         } else if (e.target.name === "documentoProtocolo") {
             setFormData({
                 ...formData,
@@ -238,19 +247,19 @@ function ProtocloInstituciones({
     // Asignación de horarios
     const [bloquesOptions, setBloquesOptions] = useState(null);
     const equipoChange =  (e) => {
-    setFormData({
-        ...formData,
-        equipo: e.id
-    });
-    const equipoSelected = bloquesOcupados[e.id];
-    setBloquesOptions({options: equipoSelected});
+        setFormData({
+            ...formData,
+            equipo: e.id
+        });
+        const equipoSelected = bloquesOcupados[e.id];
+        setBloquesOptions({options: equipoSelected});
     };
     const bloqueChange = (selection) => {
-    setFormData({
-        ...formData,
-        jornada_am: selection.am,
-        jornada_pm: selection.pm
-    });
+        setFormData({
+            ...formData,
+            jornada_am: selection.am,
+            jornada_pm: selection.pm
+        });
     };
 
     return (

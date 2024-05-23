@@ -12,6 +12,7 @@ import ComboboxSelected from "./ComboboxSelected";
 import BloquesSelected from "./BloquesSelected";
 import ModalEditarJornada from "./ModalEditarJornada";
 import TablaAsistencia from "./TablaAsistencia";
+import JornadaExtra from "./JornadaExtra";
 
 
 function ModalDetalleProyecto({
@@ -211,39 +212,15 @@ function ModalDetalleProyecto({
         setShowAlertHacineda(true);
     }
 
-
+    
     return (
         <>
             {active && (
                 <div className="bg-opacity-25 fixed inset-0 z-40 bg-black">
                     <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 sm-sii:-top-20 outline-none focus:outline-none">
                         <div className="relative sm-sii:w-full w-5/6 my-6 mx-auto max-w-3xl">
-                        {/* Alert encargados SII */}
-                        <Alert
-                            open={openAlertEncargadosSii}
-                            onClose={() => setOpenAlertEncargadosSii(false)}
-                            onClick={(e) => e.stopPropagation()}
-                            animate={{
-                                mount: { y: 0 },
-                                unmount: { y: 100 }
-                            }}
-                            className="relative max-w-[28rem] sm-sii:max-w-[40rem] transform -top-3 z-50 bg-verde-esmeralda-300 mx-auto"
-                        >
-                            Encargados SII actualizados.
-                        </Alert>
-                        {/* Alert respuesta SII  */}
-                        <Alert
-                            open={openAlertRespuesta}
-                            onClose={() => setOpenAlertRespuesta(false)}
-                            onClick={(e) => e.stopPropagation()}
-                            animate={{
-                                mount: { y: 0 },
-                                unmount: { y: 100 }
-                            }}
-                            className="relative max-w-[28rem] sm-sii:max-w-[40rem] transform -top-3 z-50 bg-verde-esmeralda-300 mx-auto"
-                        >
-                            El proyecto ha sido aceptado.
-                        </Alert>
+                        
+                        
                             <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-gris-100 outline-none focus:outline-none bg-opacity-100" onClick={(e) => e.stopPropagation()}>
                                 {/*header*/}
                                 <div className="flex flex-col items-start justify-between p-5 border-b border-solid border-gris-600 rounded-t">
@@ -258,6 +235,19 @@ function ModalDetalleProyecto({
                                     <div>
                                         {/* Solicitud de proyecto */}
                                         <div className="mb-2 bg-gris-300 px-6 py-4">
+                                            {/* Alert encargados SII */}
+                                            <Alert
+                                                open={openAlertEncargadosSii}
+                                                onClose={() => setOpenAlertEncargadosSii(false)}
+                                                onClick={(e) => e.stopPropagation()}
+                                                animate={{
+                                                    mount: { y: 0 },
+                                                    unmount: { y: 100 }
+                                                }}
+                                                className="relative max-w-[28rem] sm-sii:max-w-[40rem] transform -top-3 z-50 bg-verde-esmeralda-300 mx-auto"
+                                            >
+                                                Encargados SII actualizados.
+                                            </Alert>
                                             <h1 className="text-xl text-gris-800 cursor-default">Solicitud de proyecto</h1>
                                             <div className="mt-1">
                                                 <label className="text-lg text-gris-700 text-sm" id="institucion">Institución:</label>
@@ -421,6 +411,19 @@ function ModalDetalleProyecto({
                                         }
                                         {isAccepted && 
                                             <div className="mb-2 px-6 pb-4 pt-2">
+                                            {/* Alert respuesta SII  */}
+                                            <Alert
+                                                open={openAlertRespuesta}
+                                                onClose={() => setOpenAlertRespuesta(false)}
+                                                onClick={(e) => e.stopPropagation()}
+                                                animate={{
+                                                    mount: { y: 0 },
+                                                    unmount: { y: 100 }
+                                                }}
+                                                className="relative max-w-[28rem] sm-sii:max-w-[40rem] transform -top-3 z-50 bg-verde-esmeralda-300 mx-auto"
+                                            >
+                                                El proyecto ha sido aceptado.
+                                            </Alert>
                                             <h1 className="text-xl text-gris-800 cursor-default">Respuesta SII</h1>
                                             <div className="mt-1">
                                                 <label className="text-lg text-gris-700 text-sm" id="oficio-respuesta">Oficio de respuesta de aprobación del proyecto:</label>
@@ -638,6 +641,11 @@ function ModalDetalleProyecto({
                                                 <h1 className="text-xl text-gris-800 cursor-default">Registro de asistencia</h1>
                                                 <TablaAsistencia
                                                     asistencias={proyecto.asistencia} />
+                                                <JornadaExtra
+                                                    id_proyecto={proyecto.id}
+                                                    bloquesOcupados={bloquesOcupados}
+
+                                                />
                                             </div>
                                         }
                                     </div>
