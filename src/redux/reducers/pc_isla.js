@@ -29,6 +29,7 @@ import {
     GET_ASISTENCIA_SUCCESS,
     REGISTRAR_INGRESO_SUCCESS,
     REGISTRAR_SALIDA_SUCCESS,
+    ADD_JORNADA_EXTRA_SUCCES,
 } from '../actions/pc_isla/types'
 
 const initialState = {
@@ -187,9 +188,9 @@ export function institucion_reducer (state=initialState, action){
             // Encontrar institución
             const institucionIndexProtocolo = proyectosPcIslaProtocolo.findIndex((inst) => inst.id_institucion === payload.id_institucion);
             // Encontrar proyecto
-            if (institucionIndexProtocolo !== 1) {
+            if (institucionIndexProtocolo !== -1) {
                 const proyectoIndex = proyectosPcIslaProtocolo[institucionIndexProtocolo].proyectos.findIndex((proyecto) => proyecto.id === payload.proyecto_actualizado.id);
-                if (proyectoIndex !== 1) {
+                if (proyectoIndex !== -1) {
                     proyectosPcIslaProtocolo[institucionIndexProtocolo].proyectos[proyectoIndex] = payload.proyecto_actualizado;
                 }           
             }
@@ -244,6 +245,32 @@ export function institucion_reducer (state=initialState, action){
             return {
                 ...state,
                 asistencias: payload.asistencias
+            };
+        case ADD_JORNADA_EXTRA_SUCCES:
+            const proyectosJornadaExtra = [...state.proyectosPcIsla];
+            // Encontrar institución
+            const institucionIndexJornadaExtra = proyectosJornadaExtra.findIndex((inst) => inst.id_institucion === payload.id_institucion);
+            // Encontrar proyecto
+            console.log(institucionIndexJornadaExtra);
+            if (institucionIndexJornadaExtra !== -1) {
+                const proyectoIndex = proyectosJornadaExtra[institucionIndexJornadaExtra].proyectos.findIndex((proyecto) => proyecto.id = payload.proyecto.id);
+                if (proyectoIndex !== -1) {
+                    proyectosJornadaExtra[institucionIndexJornadaExtra].proyectos[proyectoIndex] = payload.proyecto;
+                }
+            }
+
+            // Actualizar jornada de Hacienda si corresponde
+            let jornada_update_JornadaExtra = state.jornadasHacienda;
+            if (payload.jornada_minhacienda){
+                jornada_update_JornadaExtra = payload.jornada_minhacienda;
+            }
+
+            return {
+                ...state,
+                proyectosPcIsla: proyectosJornadaExtra,
+                bloquesOcupados: payload.bloques_ocupados,
+                jornadasHacienda: jornada_update_JornadaExtra,
+                calendario: payload.calendario
             };
 
         

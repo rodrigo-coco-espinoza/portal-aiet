@@ -522,9 +522,8 @@ class ListsPersonasInstitucion(APIView):
             return Response({'error': str(e)}, status=status.HTTP_501_NOT_IMPLEMENTED)
         
 
-class BloquesOcupados(APIView
-):
-    permission_classes = (PcIslaPermissions, )
+class BloquesOcupados(APIView):
+    permission_classes = (permissions.AllowAny, )
 
     def get(self, request, *args, **kwargs):
         
@@ -807,7 +806,7 @@ class RegistrarIngreso(APIView):
 class RegistrarSalida(APIView):
     permission_classes = (InvestigadorPermissions, )
 
-    def patch(self,request, format=None):
+    def patch(self, request, format=None):
         data = request.data
         asistencia = Asistencia.objects.get(id=data['id_asistencia'])
         now = datetime.now()
@@ -819,3 +818,64 @@ class RegistrarSalida(APIView):
         respuesta = obtener_asistencias(request.user.persona)
         return Response({'asistencias': respuesta}, status=status.HTTP_200_OK)
 
+
+class AddJornadaExtra(APIView):
+    permission_classes = (PcIslaPermissions, )
+
+    def post (self, request, format=None):
+        data = request.data
+        proyecto_instance = Proyecto.objects.get(id=data['id'])
+        # Agregar jornada extra
+        jornada_am = data.getlist('jornada_am[]')
+        jornada_pm = data.getlist('jornada_pm[]')
+
+        if jornada_am:
+            nueva_jornada = Jornada.objects.create(
+                proyecto=proyecto_instance,
+                equipo=data['equipo'],
+                horario='AM',
+                extra=True,
+                fecha=data['fecha'],
+                dia=DIGITO_A_DIA[jornada_am[0]]
+            )
+            nueva_jornada.save()
+        else:
+            nueva_jornada = Jornada.objects.create(
+                proyecto=proyecto_instance,
+                equipo=data['equipo'],
+                horario='PM',
+                extra=True,
+                fecha=data['fecha'],
+                dia=DIGITO_A_DIA[jornada_pm[0]]
+            )
+            nueva_jornada.save()
+
+        # Agregar asistencia correspondiente
+        nueva_asistencia = Asistencia.objects.create(
+            jornada=nueva_jornada,
+            fecha=data['fecha']
+        )
+        nueva_asistencia.save()
+
+        # Actualizar proyecto
+        proyecto = ProyectoActivoSerializer(proyecto_instance).data
+        institucion = proyecto_instance.institucion.id
+
+        # Actualizar bloques ocupados
+        bloques_ocupados = obtener_bloques_ocupados()
+        
+        # Actualizar calendario
+        calendario = get_calendario()
+
+        # Actualizar jornadas hacienda
+        if proyecto_instance.institucion.sigla == "MINHACIENDA":
+            jornada_minhacienda = obtener_jornada_minhacienda()
+        else:
+            jornada_minhacienda = None
+
+
+        return Response({'proyecto': proyecto,
+                         'bloques_ocupados': bloques_ocupados,
+                         'id_institucion': institucion,
+                         'jornada_minhacienda': jornada_minhacienda,
+                          'calendario': calendario}, status=status.HTTP_200_OK)

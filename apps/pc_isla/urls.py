@@ -20,4 +20,5 @@ urlpatterns = [
     path('get_asistencias/', AsistenciaList.as_view()),
     path('registrar_ingreso/', RegistrarIngreso.as_view()),
     path('registrar_salida/', RegistrarSalida.as_view()),
+    path('add_jornada_extra/', AddJornadaExtra.as_view()),
 ]

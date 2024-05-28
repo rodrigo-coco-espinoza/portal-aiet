@@ -251,7 +251,7 @@ function ModalAgregarInstitucion({
                                         onChange={e=>onChange(e)}
                                         required
                                         className="block w-full py-2 px-3 text-gris-800 leading-tight focus:outline-none focus:shadow-outline shadow appearance-none border border-azul-marino-100 rounded h-9"
-                                        placeholder="12.345.678-9"
+                                        placeholder="12345678-9"
                                     />
                                     <span className="text-rojo-400 text-sm" hidden={validations.rut}>El RUT debe tener el formato 12345678-K.</span>
                                 </div>

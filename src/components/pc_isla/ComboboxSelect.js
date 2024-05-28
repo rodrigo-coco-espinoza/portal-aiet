@@ -6,13 +6,22 @@ import { connect } from "react-redux"
 import { React } from "react"
 
 
-function ComboboxSelect({options, onChange, label, index=null,}) 
+function ComboboxSelect({options, onChange, label, index=null, render=true}) 
 {
 
   const [selected, setSelected] = useState({
     id: -1,
     full_name: 'Escriba para buscar'
   });
+
+  useEffect(() => {
+    setSelected({
+      id: -1,
+      full_name: 'Escriba para buscar'
+    })
+  }, [render]);
+
+
   const [query, setQuery] = useState('');
   const inputRef = useRef(null);
 
