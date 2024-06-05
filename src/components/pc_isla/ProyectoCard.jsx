@@ -1,7 +1,12 @@
 import { useState } from "react";
 import ModalDetalleProyecto from "./ModalDetalleProyecto";
 
-function ProyectoCard({data, institucion, showAlertRechazado}){
+function ProyectoCard({
+    data, institucion, 
+    showAlertRechazado,
+    informProyectoFinalizado,
+})
+{
 
     // Funciones Modal Detalle Proyecto
     const [showModalDetalleProyecto, setShowModalDetalleProyecto] = useState(false);
@@ -31,6 +36,11 @@ function ProyectoCard({data, institucion, showAlertRechazado}){
         }
 
         return text;
+    };
+
+    // Proyecto finalizado
+    const alertProyectoFinalizado = (proyecto, institucion) => {
+        informProyectoFinalizado(proyecto, institucion);
     };
 
 
@@ -86,6 +96,7 @@ function ProyectoCard({data, institucion, showAlertRechazado}){
             institucion={institucion}
             proyecto={data}
             showAlertRechazado={alertRechazado}
+            alertProyectoFinalizado={alertProyectoFinalizado}
         />
     </>
 

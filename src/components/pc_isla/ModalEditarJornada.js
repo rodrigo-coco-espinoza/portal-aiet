@@ -127,6 +127,12 @@ function ModalEditarJornada({
                         setLoading(false);
                     });
                 break;
+            } else {
+                setLoading(false);
+                // Activar alert
+                jornadaUpdated();
+                // Cerrar modal
+                closeModal();
             }
         }
 
@@ -144,7 +150,7 @@ function ModalEditarJornada({
                             <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-gris-100 outline-none focus:outline-none bg-opacity-100" onClick={(e) => e.stopPropagation()}>
                                 {/* header */}
                                 <div className="flex items-start justify-between p-5 border-b border-solid border-gris-400 rounded-t">
-                                    <h3 className="text-2xl font-semibold">Editar jornadas MINHACIENDA</h3>
+                                    <h3 className="text-2xl font-semibold">Editar jornadas Juan Fernández</h3>
                                 </div>
                                 {/* body */}
                                 <div className="relative px-6 pb-2 pt-6 flex-auto mx-auto">

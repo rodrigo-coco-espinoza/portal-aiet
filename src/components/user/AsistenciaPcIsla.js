@@ -47,7 +47,7 @@ function AsistenciaPcIsla({
             </span>
             <div className="flex flex-wrap -mx-4 mt-5">
                 {asistencias.map((asistencia) => (
-                    <div key={`div_${asistencia.id}`} className="w-full sm-sii:w-1/2 md-sii:w-1/3 px-4 mb-4">
+                    <div key={`div_${asistencia.id}`} className="w-full sm-sii:w-1/2 lg-sii:w-1/3 px-4 mb-4">
                         <AsistenciaCard 
                             key={asistencia.id}
                             data={asistencia} 

@@ -55,10 +55,21 @@ function JornadaExtra({
     };
     
     // Validaciones
+    const compararDias = (diaBloque, fechaJornada) => {
+        const fecha = new Date(fechaJornada);
+        if (diaBloque === fecha.getDay()) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+
     const [validations, setValidations] = useState({
         equipo: true,
         jornada: true,
         jornada2: true,
+        diaFecha: true,
     });
 
     const validateForm = () => {
@@ -80,17 +91,28 @@ function JornadaExtra({
             jornadaValid2 = false;
         }
 
+        // Validar fecha y día corresponden
+        let diaFechaValid = true;
+        if (jornada_am.length === 1 && jornada_pm.length === 0) {
+            diaFechaValid = compararDias(jornada_am[0], fecha);
+        }
+        else if (jornada_am.length === 0 && jornada_pm.length === 1) {
+            diaFechaValid = compararDias(jornada_pm[0], fecha);
+        }
+
         const allValidations = Object.values({
             equipo: equipoValid,
             jornada: jornadaValid,
-            jornada2: jornadaValid2
+            jornada2: jornadaValid2,
+            diaFecha: diaFechaValid,
         }).every((validation) => validation);
 
         setValidations({
             ...validations,
             equipo: equipoValid,
             jornada: jornadaValid,
-            jornada2: jornadaValid2
+            jornada2: jornadaValid2,
+            diaFecha: diaFechaValid,
         });
 
         return allValidations;
@@ -98,6 +120,7 @@ function JornadaExtra({
 
     const onSubmit = (e) => {
         e.preventDefault();
+        validateForm();
         if (validateForm()) {
             setLoading(true);
             // Registar jornada extra
@@ -128,10 +151,6 @@ function JornadaExtra({
     const [alertJornadaExtra, setAlertJornadaExtra] = useState(false);
     const [loading, setLoading] = useState(false);
     const [forceRender, setForceRender] = useState(false);
-
-
-
-
 
     return (
         <>
@@ -185,6 +204,7 @@ function JornadaExtra({
                         <span className="text-rojo-400 text-sm" hidden={validations.equipo}>Debe seleccionar un equipo.</span>
                         <span className="text-rojo-400 text-sm" hidden={validations.jornada}>Debe seleccionar una jornada.</span>
                         <span className="text-rojo-400 text-sm" hidden={validations.jornada2}>Debe seleccionar solo una jornada extra.</span>
+                        <span className="text-rojo-400 text-sm" hidden={validations.diaFecha}>La fecha no coincide con el día seleccionado.</span>
                     </div>
                 </div>
                 <div className="flex items-center justify-end">

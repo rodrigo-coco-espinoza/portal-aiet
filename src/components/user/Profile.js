@@ -57,12 +57,12 @@ function Profile({
             initial={{opacity: 0, transition: {duration: 1}}}
             animate={{opacity: 1}}
             exit={{opacity: 0, transition: {duration: 0}}}
-            className="pt-28 px-16 mx-42 xl:mx-72 mt-8">
+            className="pt-28 px-16 lg-sii:mx-64 md-sii:mx-40 sm-sii:mx-16 mt-8">
 
             <div className="flex min-h-full items-center justify-center py-12">
                 <div className="w-full space-y-8 rounded-xl pb-8 shadow-lg bg-white">
                     <div className="">
-                        <h2 className="mt-6 text-center text-2xl md:text-3xl font-bold tracking-tight text-gris-800 border-b-2 border-gris-500 ">
+                        <h2 className="mt-6 text-center text-2xl md-siii:text-3xl font-bold tracking-tight text-gris-800 border-b-2 border-gris-500 ">
                         Hola, {user && user.persona.nombre}
                         </h2>
                         <div className="flex flex-col items-center mt-5 max-w-[280px] md:max-w-xs mx-auto px-4">

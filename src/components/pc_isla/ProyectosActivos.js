@@ -1,30 +1,23 @@
-import { PlusIcon } from "@heroicons/react/20/solid"
+import { PencilSquareIcon, PlusIcon } from "@heroicons/react/20/solid"
 import { Tooltip } from "react-tooltip"
 import ProyectoCard from "./ProyectoCard";
 import { useEffect, useState } from "react";
 import ModalAgregarProyecto from "./ModalAgregarProyecto";
 import { Alert } from "@material-tailwind/react";
 import { connect } from "react-redux";
-import ModalDetalleProyecto from "./ModalDetalleProyecto";
 import { get_bloques_ocupados, get_jornadas_minhacienda } from "redux/actions/pc_isla/pc_isla";
+import ModalEditarJornada from "./ModalEditarJornada";
 
 function ProyectosActivos({
     proyectosPcIsla,
     user,
     get_bloques_ocupados,
-    get_jornadas_minhacienda,
+    jornadasHacienda,
 
 }){
 
     useEffect(() => {
-        get_jornadas_minhacienda();
-        get_bloques_ocupados();
-        // if (user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) {
-            
-        //     console.log("WENAZA")
-            
-        // }
-        
+        get_bloques_ocupados();        
     }, []);
 
     // Funciones Modal Agregar Proyecto
@@ -48,6 +41,26 @@ function ProyectosActivos({
         setShowAlertProyectoRechazado(true);
     }
 
+    // Editar Jornadas Juan Fernández
+    const [showModalHacienda, setShowModalHacienda] = useState(false);
+    const [showAlertHacienda, setShowAlertHacineda] = useState(false);
+    const closeModalHacienda = () => {
+        setShowModalHacienda(false);
+    };
+    const haciendaUpdated = () => {
+        setShowAlertHacineda(true);
+    }
+
+    // Alert proyecto finalizado
+    const [showAlertProyectoFinalizado, setShowAlertProyectoFinalizado] = useState(false);
+    const [finalizadoTexto, setFinalizadoTexto] = useState("");
+    const informProyectoFinalizado = (proyecto, institucion) => {
+        window.scrollTo(0,500);
+        setFinalizadoTexto(`Proyecto ${institucion} - ${proyecto} finalizado exitosamente.`)
+        setShowAlertProyectoFinalizado(true);
+    }
+
+
     return(
         <>  
             
@@ -56,7 +69,14 @@ function ProyectosActivos({
                         Proyectos activos
                 </span>
                 { (user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) && 
-                <div className="ml-auto">
+                <div className="ml-auto flex">
+                <a 
+                    className="anchor-editar-jornada">
+                    <PencilSquareIcon 
+                       onClick={() => setShowModalHacienda(true)}
+                       className="h-8 w-8 text-gris-600 hover:text-verde-esmeralda-400 inline border-b-2 border-gris-500"
+                    />
+                </a>
                 <a 
                     className="anchor-agregar cursor-pointer"
                     onClick={() => setShowModalAgregarProyecto(true)}
@@ -64,6 +84,12 @@ function ProyectosActivos({
                     <PlusIcon className="h-8 w-8 text-gris-600 hover:text-verde-esmeralda-400 inline border-b-2 border-gris-500" />
                 </a>
                 <Tooltip key="tooltipAgregar" anchorSelect=".anchor-agregar" place="top">Agregar proyecto</Tooltip>
+                <Tooltip 
+                    key="tooltipEditarJornada" 
+                    anchorSelect=".anchor-editar-jornada" 
+                    place="top">
+                    Editar jornadas Juan Fernández
+                </Tooltip>
                 </div>
                 }
             </div>
@@ -93,6 +119,34 @@ function ProyectosActivos({
             >
                 Proyecto {nombreNuevoProyecto} agregado exitosamente.
             </Alert>
+            {/* Alert jornadas HACIENDA  */}
+            <Alert
+                open={showAlertHacienda}
+                onClose={() => setShowAlertHacineda(false)}
+                onClick={(e) => e.stopPropagation()}
+                animate={{
+                    mount: { y: 0 },
+                    unmount: { y: 100 }
+                }}
+                className="relative max-w-[28rem] sm-sii:max-w-[40rem] transform -top-3 z-50 bg-verde-esmeralda-300 mx-auto"
+            >
+                Jornadas del Ministerio de Hacienda actualizadas.
+            </Alert>
+            {/* Alert proyecto finalizado */}
+            <Alert
+                open={showAlertProyectoFinalizado}
+                onClose={() => setShowAlertProyectoFinalizado(false)}
+                onClick={(e) => e.stopPropagation()}
+                animate={{
+                    mount: { y: 0 },
+                    unmount: { y: 100 }
+                }}
+                className="relative max-w-[28rem] sm-sii:max-w-[40rem] transform -top-3 z-50 bg-verde-esmeralda-300 mx-auto"
+            >
+                {finalizadoTexto}
+            </Alert>
+
+    
 
             <div className="flex flex-wrap -mx-4">
                 {proyectosPcIsla.map((institucion) => (
@@ -109,6 +163,7 @@ function ProyectosActivos({
                                 sigla: institucion.nombre_sigla
                                 }}
                             showAlertRechazado={openAlertProyectoRechazado}
+                            informProyectoFinalizado={informProyectoFinalizado}
                         />
                         </div>
                     ))
@@ -120,6 +175,15 @@ function ProyectosActivos({
                 closeModal={handleClickAgregar}
                 showAlertNuevo={openAlertNuevoProyecto}
             />
+            {Object.keys(jornadasHacienda).length > 0  &&
+                <ModalEditarJornada 
+                    active={showModalHacienda}
+                    closeModal={closeModalHacienda}
+                    jornadaUpdated={haciendaUpdated}
+                /> 
+
+            }
+        
             
         </>
     )
@@ -128,8 +192,8 @@ function ProyectosActivos({
 const mapStateToProps = state => ({
     proyectosPcIsla: state.institucion_reducer.proyectosPcIsla,
     user: state.auth.user,
+    jornadasHacienda: state.institucion_reducer.jornadasHacienda,
 })
 export default connect (mapStateToProps, {
     get_bloques_ocupados,
-    get_jornadas_minhacienda
 } )(ProyectosActivos)
