@@ -11,7 +11,8 @@ import Loading from "./Loading";
 
 let equiposOptions = [
     {id: 'Bora Bora', full_name: "Bora Bora"},
-    {id: 'Rapa Nui', full_name: "Rapa Nui"}
+    {id: 'Rapa Nui', full_name: "Rapa Nui"},
+    {id: 'Juan Fernández', full_name: "Juan Fernández"}
 ]
 
 function ProtocloInstituciones({

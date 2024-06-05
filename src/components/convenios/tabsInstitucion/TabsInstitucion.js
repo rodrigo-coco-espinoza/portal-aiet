@@ -1,19 +1,23 @@
 import { useState } from 'react'
 import { Tab } from '@headlessui/react'
-import ResumenConvenios from './ResumenConvenios'
-import DetalleConvenio from './DetalleConvenio'
+import DetalleConvenio from './infoConvenios/detalleConvenio/DetalleConvenio'
 import Timeline from '../Timeline'
+import ResumenConvenios from './infoConvenios/ResumenConvenios'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-function TabsInstitucion() {
+function TabsInstitucion({
+  data,
+  user,
+}) {
+
 
   return (
     <div className="w-full py-0">
       <Tab.Group>
-        <Tab.List className="flex space-x-1 rounded-xl bg-azul-marino-300 p-1">
+        <Tab.List className="flex space-x-1 rounded-xl bg-azul-marino-400 p-1">
           <Tab
             key="convenios"
             className={({ selected }) =>
@@ -60,17 +64,17 @@ function TabsInstitucion() {
 
 
         <Tab.Panels className="mt-4">
+          {/* Información de convenios */}
           <Tab.Panel
             key="conveniosPanel"
-          >
-            {/* ... Content for convenios category */}
-            <ResumenConvenios />
-            <DetalleConvenio />
-            <div className="flex-1 basis-1/5 flex justify-center items-start flex-col mt-8">
-              <Timeline />
-            </div>
+          >           
+            <ResumenConvenios 
+              data={data.convenios}
+              user={user}
+            />
           </Tab.Panel>
 
+          {/* Intercambio de información */}
           <Tab.Panel
             key="intercambioPanel"
             className={classNames(
@@ -78,7 +82,8 @@ function TabsInstitucion() {
               'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2'
             )}
           >
-            {/* ... Content for Popular category */}
+
+          {/* Tareas */}
           </Tab.Panel>
           <Tab.Panel
             key="tareasPanel"
@@ -87,7 +92,6 @@ function TabsInstitucion() {
               'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2'
             )}
           >
-            {/* ... Content for Trending category */}
           </Tab.Panel>
         </Tab.Panels>
       </Tab.Group>

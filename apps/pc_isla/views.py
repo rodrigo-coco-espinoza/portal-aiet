@@ -102,9 +102,13 @@ def obtener_jornada_minhacienda():
     }
 
     # Proyectos de MINHACIENDA
-    institucion = Institucion.objects.get(sigla="MINHACIENDA")
+    hacienda_instance = Institucion.objects.get(sigla="MINHACIENDA")
+    instituciones_hacienda = Institucion.objects.filter(
+    Q(ministerio=hacienda_instance) | Q(sigla="MINHACIENDA")
+    ).all()
+
     proyectos = Proyecto.objects.filter(
-        institucion=institucion,
+        institucion__in=instituciones_hacienda
         ).exclude(
             Q(protocolo='') | Q(estado='finalizado') | Q(estado='rechazado')
         )
@@ -116,8 +120,8 @@ def obtener_jornada_minhacienda():
             'nombre': proyecto.nombre
         })
     
-    # Obtener las jornadas los proyectos
-    jornadas = Jornada.objects.filter(proyecto__in=proyectos, extra=0, active=1)
+    # Obtener las jornadas los proyectos que son en Juan Fernández
+    jornadas = Jornada.objects.filter(proyecto__in=proyectos, extra=0, active=1, equipo="Juan Fernández")
     for jornada in jornadas:
         for item in data['horario']:
             if item['dia'] == jornada.dia:
@@ -272,6 +276,30 @@ def obtener_asistencias(persona):
         })
 
     return data
+
+def obtener_proyectos():
+    instituciones = Institucion.objects.all()
+    data = []
+
+    for institucion in instituciones:
+        proyectos = Proyecto.objects.filter(institucion=institucion)
+
+        if proyectos:
+            institucion_data = {
+                'id_institucion': institucion.id,
+                'nombre_institucion': institucion.nombre,
+                'nombre_sigla': institucion.sigla,
+                'proyectos': []
+            }
+
+            for proyecto in proyectos:
+                if proyecto.estado in ['solicitud recibida', 'confección del protocolo', 'en curso']:
+                    institucion_data['proyectos'].append(ProyectoActivoSerializer(proyecto).data)
+                else:
+                    institucion_data['proyectos'].append(ProyectoNoActivoSerializer(proyecto).data)
+
+            data.append(institucion_data)
+    return data
 class AddProyecto(APIView):
     permission_classes = (permissions.IsAuthenticated, )
     parser_classes = [MultiPartParser, FormParser]
@@ -373,27 +401,8 @@ class ListProyectosView(APIView):
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, format=None):
-        instituciones = Institucion.objects.all()
-        data = []
-
-        for institucion in instituciones:
-            proyectos = Proyecto.objects.filter(institucion=institucion)
-
-            if proyectos:
-                institucion_data = {
-                    'id_institucion': institucion.id,
-                    'nombre_institucion': institucion.nombre,
-                    'nombre_sigla': institucion.sigla,
-                    'proyectos': []
-                }
-
-                for proyecto in proyectos:
-                    if proyecto.estado in ['solicitud recibida', 'confección del protocolo', 'en curso']:
-                        institucion_data['proyectos'].append(ProyectoActivoSerializer(proyecto).data)
-                    else:
-                        institucion_data['proyectos'].append(ProyectoNoActivoSerializer(proyecto).data)
-
-                data.append(institucion_data)
+        
+        data = obtener_proyectos()
         
         return Response({'proyectosInstituciones': data}, status=status.HTTP_200_OK)
 
@@ -614,12 +623,7 @@ class AddProtocolo(APIView):
             #Resultado
             proyecto_result = ProyectoActivoSerializer(proyecto).data
             bloques_ocupados = obtener_bloques_ocupados()
-            if proyecto.institucion.sigla == "MINHACIENDA":
-                jornada_minhacienda = obtener_jornada_minhacienda()
-            else:
-                jornada_minhacienda = None
-
-            
+            jornada_minhacienda = obtener_jornada_minhacienda()           
             # Actualizar calendario
             calendario = get_calendario()
 
@@ -666,8 +670,16 @@ class JornadaMinhacienda(APIView):
             data = request.data
 
             # Obtener las jornadas actuales
-            institucion = Institucion.objects.get(sigla="MINHACIENDA")
-            proyectos_activos = Proyecto.objects.filter(institucion=institucion).exclude(Q(estado='finalizado') | Q(estado='rechazado'))
+            
+            hacienda_instance = Institucion.objects.get(sigla="MINHACIENDA")
+            instituciones_hacienda = Institucion.objects.filter(
+            Q(ministerio=hacienda_instance) | Q(sigla="MINHACIENDA")
+            ).all()
+            proyectos_activos = Proyecto.objects.filter(
+                institucion__in=instituciones_hacienda
+                ).exclude(
+                    Q(protocolo='') | Q(estado='finalizado') | Q(estado='rechazado')
+                )
             jornadas_actuales = Jornada.objects.filter(proyecto__in=proyectos_activos, extra=0, active=1)
 
             # Desactivar las jornadas actuales
@@ -723,29 +735,14 @@ class JornadaMinhacienda(APIView):
                     current_date += timedelta(days=1)
       
 
-            # Actualizar proyectos activos Hacienda
-            proyectos_minhacienda = {}
-            proyectos = Proyecto.objects.filter(institucion=institucion)
-            if proyectos:
-                proyectos_minhacienda = {
-                    'id_institucion': institucion.id,
-                    'nombre_institucion': institucion.nombre,
-                    'nombre_sigla': institucion.sigla,
-                    'proyectos': []
-                }
-                
-                for proyecto in proyectos:
-                    if proyecto.estado in ['solicitud recibida', 'confección del protocolo', 'en curso']:
-                        proyectos_minhacienda['proyectos'].append(ProyectoActivoSerializer(proyecto).data)
-                    else:
-                        proyectos_minhacienda['proyectos'].append(ProyectoNoActivoSerializer(proyecto).data)
-
+            # Actualizar todos los proyectos
+            proyectos_todos = obtener_proyectos()
             # Actualizar bloques ocupados
             calendario = get_calendario()
             # Actualizar jornadas Hacienda
             jornadas_minhacienda = obtener_jornada_minhacienda()
 
-            return Response({'proyectos_minhacienda': proyectos_minhacienda,
+            return Response({'proyectos_todos': proyectos_todos,
                              'calendario': calendario,
                              'jornadas_minhacienda': jornadas_minhacienda}, status=status.HTTP_200_OK)
         except Exception as e:
@@ -820,9 +817,10 @@ class RegistrarSalida(APIView):
 
 
 class AddJornadaExtra(APIView):
+
     permission_classes = (PcIslaPermissions, )
 
-    def post (self, request, format=None):
+    def post(self, request, format=None):
         data = request.data
         proyecto_instance = Proyecto.objects.get(id=data['id'])
         # Agregar jornada extra
@@ -879,3 +877,40 @@ class AddJornadaExtra(APIView):
                          'id_institucion': institucion,
                          'jornada_minhacienda': jornada_minhacienda,
                           'calendario': calendario}, status=status.HTTP_200_OK)
+    
+
+class FinalizarProyecto(APIView):
+    permission_classes = (PcIslaPermissions, )
+
+    def post(self, request, format=None):
+        data = request.data
+        proyecto_instance = Proyecto.objects.get(id=data['idProyecto'])
+
+        # Cambiar estado
+        proyecto_instance.estado = 'finalizado'
+        proyecto_instance.save()
+
+        # Actualizar jornada
+        jornadas_instance = Jornada.objects.filter(proyecto=proyecto_instance)
+        jornadas_instance.update(active=False)
+
+        # Eliminar asistencias
+        Asistencia.objects.filter(
+            jornada__in=jornadas_instance,
+            fecha_gte=date.now(),
+            motivo_salida__isnull=True
+        ).delete()
+
+        # Actualizar proyectos
+
+        # Actualizar jornadas minhacienda
+
+        # Actualizar bloques ocupados
+
+        # Actualizar calendario
+
+
+        return Response({
+            'ed': 2
+        }, status=status.HTTP_200_OK)
+        

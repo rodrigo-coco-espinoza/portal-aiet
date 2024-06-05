@@ -486,3 +486,18 @@ export const add_jornada_extra = (formData) => async dispatch => {
     });
 
 };
+
+export const finalizar_proyecto = (idProyecto) => async dispatch => {
+    
+    const config = {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `JWT ${localStorage.getItem('access')}`,
+            'Content-Type': 'multipart/form-data',
+        }
+    };
+
+    const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/pc_isla/finalizar_proyecto/`, {idProyecto: idProyecto}, config);
+
+
+};

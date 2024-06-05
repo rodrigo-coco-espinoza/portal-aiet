@@ -39,7 +39,7 @@ const initialState = {
     proyectosPcIsla: [],
     personasInstitucion: [],
     bloquesOcupados: {},
-    jornadasHacienda: [],
+    jornadasHacienda: {},
     calendario: [],
     asistencias: [],
 };
@@ -195,17 +195,11 @@ export function institucion_reducer (state=initialState, action){
                 }           
             }
 
-            // Actualizar jornadas de Hacienda si corresponde
-            let jornada_update = state.jornadasHacienda;
-            if (payload.jornada_minhacienda) {
-                jornada_update = payload.jornada_minhacienda;
-            }
-
             return {
                 ...state,
                 proyectosPcIsla: proyectosPcIslaProtocolo,
                 bloquesOcupados: payload.bloquesOcupados,
-                jornadasHacienda: jornada_update,
+                jornadasHacienda: payload.jornada_minhacienda,
                 calendario: payload.calendario
             };
         case GET_JORNADAS_MINHACIENDA_SUCCESS:
@@ -219,15 +213,9 @@ export function institucion_reducer (state=initialState, action){
                 calendario: payload.calendario
             };
         case UPDATE_JORNADAS_MINHACIENDA_SUCCESS:
-
-            const updatedProyectosHacienda = [...state.proyectosPcIsla];
-            // Encontrar institucion en el estado
-            const haciendaIndex = updatedProyectosHacienda.findIndex((inst) => inst.id_institucion === payload.proyectos_minhacienda.id_institucion);
-            updatedProyectosHacienda[haciendaIndex] = payload.proyectos_minhacienda
-
-            return {
+               return {
                 ...state,
-                proyectosPcIsla: updatedProyectosHacienda,
+                proyectosPcIsla: payload.proyectos_todos,
                 calendario: payload.calendario,
                 jornadasHacienda: payload.jornadas_minhacienda
             };
@@ -251,7 +239,6 @@ export function institucion_reducer (state=initialState, action){
             // Encontrar institución
             const institucionIndexJornadaExtra = proyectosJornadaExtra.findIndex((inst) => inst.id_institucion === payload.id_institucion);
             // Encontrar proyecto
-            console.log(institucionIndexJornadaExtra);
             if (institucionIndexJornadaExtra !== -1) {
                 const proyectoIndex = proyectosJornadaExtra[institucionIndexJornadaExtra].proyectos.findIndex((proyecto) => proyecto.id = payload.proyecto.id);
                 if (proyectoIndex !== -1) {
