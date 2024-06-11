@@ -76,6 +76,7 @@ def respuesta_upload_path(instance, filename):
 
 def protocolo_upload_path(instance, filename):
     sigla = instance.institucion.sigla
+    
     nombre = slugify(instance.nombre).replace('-', '_')
 
     # Folder path
@@ -84,7 +85,16 @@ def protocolo_upload_path(instance, filename):
 
     return os.path.join(folder_path, new_filename)
      
+def documento_extension_upload_path(instance, filename):
+    sigla = instance.institucion.sigla
+    nombre = slugify(instance.nombre).replace('-', '_')
 
+    folder_path = os.path.join(MEDIA_FOLDER, sigla, nombre)
+
+    date = '-'.join(reversed(instance.fecha_extension.split('-')))
+    new_filename = f"{sigla}_solicitud_extension_{date}.pdf"
+
+    return os.path.join(folder_path, new_filename)
 
 class Institucion(models.Model):
     class Meta:
@@ -175,6 +185,8 @@ class Proyecto(models.Model):
 
     # Extensión del proyecto
     extendido = models.BooleanField(default=0)
+    fecha_extension = models.DateField(null=True, blank=True)
+    documento_extension = models.FileField(upload_to=documento_extension_upload_path, max_length=500, null=True, blank=True)
 
     objects = models.Manager()
     queryobjects = ProyectoObjects()

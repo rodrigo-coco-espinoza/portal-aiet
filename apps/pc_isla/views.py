@@ -20,6 +20,7 @@ from datetime import datetime, date, timedelta
 from holidays import Chile
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from dateutil.relativedelta import relativedelta
 
 # Create your views here.
 
@@ -897,20 +898,87 @@ class FinalizarProyecto(APIView):
         # Eliminar asistencias
         Asistencia.objects.filter(
             jornada__in=jornadas_instance,
-            fecha_gte=date.now(),
+            fecha__gte=date.today(),
             motivo_salida__isnull=True
         ).delete()
 
         # Actualizar proyectos
-
+        proyecto_finalizado = ProyectoNoActivoSerializer(proyecto_instance).data
         # Actualizar jornadas minhacienda
-
+        jornadas_minhacienda = obtener_jornada_minhacienda()
         # Actualizar bloques ocupados
-
+        bloques_ocupados = obtener_bloques_ocupados()
         # Actualizar calendario
-
+        calendario = get_calendario()
 
         return Response({
-            'ed': 2
+            'id_institucion': proyecto_instance.institucion.id,
+            'proyecto_finalizado': proyecto_finalizado,
+            'jornadas_minhacienda': jornadas_minhacienda,
+            'bloques_ocupados': bloques_ocupados,
+            'calendario': calendario,
         }, status=status.HTTP_200_OK)
-        
+
+class ExtenderProyecto(APIView):
+    permission_classes = (PcIslaPermissions, )
+
+    def post(self, request, format=None):
+
+        data = request.data
+        # Encontrar proyecto
+        proyecto_instance = Proyecto.objects.get(id=data['proyectoId'])
+
+        # Actualizar parámetros proyecto
+        proyecto_instance.extendido = True
+        proyecto_instance.fecha_extension = data['fechaDocumento']
+        proyecto_instance.documento_extension = data['documento']
+
+        fecha_termino_original = proyecto_instance.fecha_termino
+        nueva_fecha_termino = fecha_termino_original + relativedelta(months=3) 
+        proyecto_instance.fecha_termino = nueva_fecha_termino
+        proyecto_instance.save()
+
+        # Agregar nuevas asistencia
+        fecha_inicio = fecha_termino_original + timedelta(days=1)
+        feriados = Chile()
+        jornadas = Jornada.objects.filter(proyecto=proyecto_instance, active=1, extra=0)
+        for jornada in jornadas:
+            current_date = fecha_inicio
+
+            while current_date <= nueva_fecha_termino:
+                if current_date.weekday() == DIAS_A_DIGITO[jornada.dia] and current_date not in feriados:
+                    nueva_asistencia = Asistencia.objects.create(
+                        jornada=jornada,
+                        fecha=current_date
+                    )
+                    nueva_asistencia.save()
+                current_date += timedelta(days=1)
+
+        # Actualizar proyectos
+        proyecto_actualizado = ProyectoActivoSerializer(proyecto_instance).data
+        # Actualizar jornadas minhacienda
+        jornadas_minhacienda = obtener_jornada_minhacienda()
+        # Actualizar bloques ocupados
+        bloques_ocupados = obtener_bloques_ocupados()
+        # Actualizar calendario
+        calendario = get_calendario()
+
+        return Response({
+            'id_institucion': proyecto_instance.institucion.id,
+            'proyecto_actualizado': proyecto_actualizado,
+            'jornadas_minhacienda': jornadas_minhacienda,
+            'bloques_ocupados': bloques_ocupados,
+            'calendario': calendario,
+        }, status=status.HTTP_200_OK)
+
+class DownloadExtension(APIView):
+    permission_classes = (permissions.AllowAny, )
+
+    def get(self, request, proyecto_id):
+        proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+
+        try:
+            response = FileResponse(proyecto.documento_extension.open('rb'))
+            return response
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)

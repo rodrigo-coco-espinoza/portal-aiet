@@ -32,6 +32,8 @@ import {
     REGISTRAR_INGRESO_SUCCESS,
     REGISTRAR_SALIDA_SUCCESS,
     ADD_JORNADA_EXTRA_SUCCES,
+    FINALIZAR_PROYECTO_SUCCESS,
+    EXTENDER_PROYECTO_SUCCESS,
 } from './types'
 
 
@@ -498,6 +500,27 @@ export const finalizar_proyecto = (idProyecto) => async dispatch => {
     };
 
     const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/pc_isla/finalizar_proyecto/`, {idProyecto: idProyecto}, config);
+    dispatch({
+        type: FINALIZAR_PROYECTO_SUCCESS,
+        payload: res.data
+    });
 
 
+};
+
+export const extender_proyecto = (formData) => async dispatch => {
+
+    const config = {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `JWT ${localStorage.getItem('access')}`,
+            'Content-Type': 'multipart/form-data',
+        }
+    };
+
+    const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/pc_isla/extender_proyecto/`, formData, config);
+    dispatch({
+        type: EXTENDER_PROYECTO_SUCCESS,
+        payload: res.data
+    });
 };

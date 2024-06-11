@@ -22,4 +22,6 @@ urlpatterns = [
     path('registrar_salida/', RegistrarSalida.as_view()),
     path('add_jornada_extra/', AddJornadaExtra.as_view()),
     path('finalizar_proyecto/', FinalizarProyecto.as_view()),
+    path('extender_proyecto/', ExtenderProyecto.as_view()),
+    path('download_extension/<int:proyecto_id>/', DownloadExtension.as_view()),
 ]
