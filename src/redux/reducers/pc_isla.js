@@ -30,6 +30,8 @@ import {
     REGISTRAR_INGRESO_SUCCESS,
     REGISTRAR_SALIDA_SUCCESS,
     ADD_JORNADA_EXTRA_SUCCES,
+    FINALIZAR_PROYECTO_SUCCESS,
+    EXTENDER_PROYECTO_SUCCESS,
 } from '../actions/pc_isla/types'
 
 const initialState = {
@@ -43,6 +45,19 @@ const initialState = {
     calendario: [],
     asistencias: [],
 };
+
+const reemplazarProyecto = (proyectosState, idInstitucion, proyectoNuevo) => {
+    // Encontrar institución
+    const result = proyectosState;
+    const institucionIndex = proyectosState.findIndex((inst) => inst.id_institucion === idInstitucion);
+    // Encontrar proyecto
+    const proyectoIndex = proyectosState[institucionIndex].proyectos.findIndex((proyecto) => proyecto.id === proyectoNuevo.id);
+    result[institucionIndex].proyectos[proyectoIndex] = proyectoNuevo;
+    return result;
+};
+
+let proyectosActualizados;
+
 
 export function institucion_reducer (state=initialState, action){
     const {type, payload} = action
@@ -108,57 +123,62 @@ export function institucion_reducer (state=initialState, action){
                 proyectosPcIsla: updatedProyectosPcIsla
             }
         case UPDATE_ENCARGADOS_SII_SUCCESS:
-            const proyectosPcIslaEncargados = [...state.proyectosPcIsla];
-            // Encontrar institución en el estado
-            const existingInstitucionIndexEncargados = proyectosPcIslaEncargados.findIndex((inst) => inst.id_institucion === payload.institucion);
-            // Encontrar proyecto
-            if (existingInstitucionIndexEncargados !== -1) {
-                const proyectoIndex = proyectosPcIslaEncargados[existingInstitucionIndexEncargados].proyectos.findIndex((proyecto) => proyecto.id === payload.proyectoActualizado.id);
+            // const proyectosPcIslaEncargados = [...state.proyectosPcIsla];
+            // // Encontrar institución en el estado
+            // const existingInstitucionIndexEncargados = proyectosPcIslaEncargados.findIndex((inst) => inst.id_institucion === payload.institucion);
+            // // Encontrar proyecto
+            // if (existingInstitucionIndexEncargados !== -1) {
+            //     const proyectoIndex = proyectosPcIslaEncargados[existingInstitucionIndexEncargados].proyectos.findIndex((proyecto) => proyecto.id === payload.proyectoActualizado.id);
         
-                // Verificar si se encontró el proyecto
-                if (proyectoIndex !== -1) {
-                    // Reemplazar el proyecto actualizado
-                    proyectosPcIslaEncargados[existingInstitucionIndexEncargados].proyectos[proyectoIndex] = payload.proyectoActualizado;
-                }
-            }
+            //     // Verificar si se encontró el proyecto
+            //     if (proyectoIndex !== -1) {
+            //         // Reemplazar el proyecto actualizado
+            //         proyectosPcIslaEncargados[existingInstitucionIndexEncargados].proyectos[proyectoIndex] = payload.proyectoActualizado;
+            //     }
+            // }
+            proyectosActualizados = reemplazarProyecto([...state.proyectosPcIsla], payload.institucion, payload.proyectoActualizado);
 
             return {
                 ...state,
-                proyectosPcIsla: proyectosPcIslaEncargados,
+                proyectosPcIsla: proyectosActualizados,
             };
         case RECHAZAR_PROYECTO_SUCCESS:
-            const proyectosPcIslaRechazado = [...state.proyectosPcIsla];
-            // Encontrar institución
-            const existingInstitucionIndexRechazado = proyectosPcIslaRechazado.findIndex((inst) => inst.id_institucion === payload.institucion);
-            // Encontrar proyecto
-            if (existingInstitucionIndexRechazado !== -1) {
-                const proyectoIndex = proyectosPcIslaRechazado[existingInstitucionIndexRechazado].proyectos.findIndex((proyecto) => proyecto.id === payload.proyectoRechazado.id);
-                // Reemplazar el proyecto rechazado
-                if (proyectoIndex !== -1) {
-                    proyectosPcIslaRechazado[existingInstitucionIndexRechazado].proyectos[proyectoIndex] = payload.proyectoRechazado;
-                }
-            }
+            // const proyectosPcIslaRechazado = [...state.proyectosPcIsla];
+            // // Encontrar institución
+            // const existingInstitucionIndexRechazado = proyectosPcIslaRechazado.findIndex((inst) => inst.id_institucion === payload.institucion);
+            // // Encontrar proyecto
+            // if (existingInstitucionIndexRechazado !== -1) {
+            //     const proyectoIndex = proyectosPcIslaRechazado[existingInstitucionIndexRechazado].proyectos.findIndex((proyecto) => proyecto.id === payload.proyectoRechazado.id);
+            //     // Reemplazar el proyecto rechazado
+            //     if (proyectoIndex !== -1) {
+            //         proyectosPcIslaRechazado[existingInstitucionIndexRechazado].proyectos[proyectoIndex] = payload.proyectoRechazado;
+            //     }
+            // }
+
+            proyectosActualizados = reemplazarProyecto([...state.proyectosPcIsla], payload.institucion, payload.proyectoRechazado);
 
             return {
                 ...state,
-                proyectosPcIsla: proyectosPcIslaRechazado
+                proyectosPcIsla: proyectosActualizados
             };
         case ACEPTAR_PROYECTO_SUCCESS:
-            const proyectosPcIslaAceptado = [...state.proyectosPcIsla];
-            // Encontrar institución
-            const existingInstitucionIndexAceptado = proyectosPcIslaAceptado.findIndex((inst) => inst.id_institucion === payload.institucion);
-            // Encontrar proyecto
-            if (existingInstitucionIndexAceptado !== -1) {
-                const proyectoIndex = proyectosPcIslaAceptado[existingInstitucionIndexAceptado].proyectos.findIndex((proyecto) => proyecto.id === payload.proyectoAceptado.id);
-                // Reemplazar el proyecto rechazado
-                if (proyectoIndex !== -1) {
-                    proyectosPcIslaAceptado[existingInstitucionIndexAceptado].proyectos[proyectoIndex] = payload.proyectoAceptado;
-                }
-            }
+            // const proyectosPcIslaAceptado = [...state.proyectosPcIsla];
+            // // Encontrar institución
+            // const existingInstitucionIndexAceptado = proyectosPcIslaAceptado.findIndex((inst) => inst.id_institucion === payload.institucion);
+            // // Encontrar proyecto
+            // if (existingInstitucionIndexAceptado !== -1) {
+            //     const proyectoIndex = proyectosPcIslaAceptado[existingInstitucionIndexAceptado].proyectos.findIndex((proyecto) => proyecto.id === payload.proyectoAceptado.id);
+            //     // Reemplazar el proyecto rechazado
+            //     if (proyectoIndex !== -1) {
+            //         proyectosPcIslaAceptado[existingInstitucionIndexAceptado].proyectos[proyectoIndex] = payload.proyectoAceptado;
+            //     }
+            // }
+
+            proyectosActualizados = reemplazarProyecto([...state.proyectosPcIsla], payload.institucion, payload.proyectoAceptado);
 
             return {
                 ...state,
-                proyectosPcIsla: proyectosPcIslaAceptado
+                proyectosPcIsla: proyectosActualizados
             }; 
         case GET_PERSONAS_INSTITUCION_SUCCESS:
             return {
@@ -184,20 +204,22 @@ export function institucion_reducer (state=initialState, action){
                 bloquesOcupados: payload.bloquesOcupados
             };
         case ADD_PROTOCOLO_SUCCESS:
-            const proyectosPcIslaProtocolo = [...state.proyectosPcIsla];
-            // Encontrar institución
-            const institucionIndexProtocolo = proyectosPcIslaProtocolo.findIndex((inst) => inst.id_institucion === payload.id_institucion);
-            // Encontrar proyecto
-            if (institucionIndexProtocolo !== -1) {
-                const proyectoIndex = proyectosPcIslaProtocolo[institucionIndexProtocolo].proyectos.findIndex((proyecto) => proyecto.id === payload.proyecto_actualizado.id);
-                if (proyectoIndex !== -1) {
-                    proyectosPcIslaProtocolo[institucionIndexProtocolo].proyectos[proyectoIndex] = payload.proyecto_actualizado;
-                }           
-            }
+            // const proyectosPcIslaProtocolo = [...state.proyectosPcIsla];
+            // // Encontrar institución
+            // const institucionIndexProtocolo = proyectosPcIslaProtocolo.findIndex((inst) => inst.id_institucion === payload.id_institucion);
+            // // Encontrar proyecto
+            // if (institucionIndexProtocolo !== -1) {
+            //     const proyectoIndex = proyectosPcIslaProtocolo[institucionIndexProtocolo].proyectos.findIndex((proyecto) => proyecto.id === payload.proyecto_actualizado.id);
+            //     if (proyectoIndex !== -1) {
+            //         proyectosPcIslaProtocolo[institucionIndexProtocolo].proyectos[proyectoIndex] = payload.proyecto_actualizado;
+            //     }           
+            // }
+
+            proyectosActualizados = reemplazarProyecto([...state.proyectosPcIsla], payload.id_institucion, payload.proyecto_actualizado);
 
             return {
                 ...state,
-                proyectosPcIsla: proyectosPcIslaProtocolo,
+                proyectosPcIsla: proyectosActualizados,
                 bloquesOcupados: payload.bloquesOcupados,
                 jornadasHacienda: payload.jornada_minhacienda,
                 calendario: payload.calendario
@@ -235,16 +257,8 @@ export function institucion_reducer (state=initialState, action){
                 asistencias: payload.asistencias
             };
         case ADD_JORNADA_EXTRA_SUCCES:
-            const proyectosJornadaExtra = [...state.proyectosPcIsla];
-            // Encontrar institución
-            const institucionIndexJornadaExtra = proyectosJornadaExtra.findIndex((inst) => inst.id_institucion === payload.id_institucion);
-            // Encontrar proyecto
-            if (institucionIndexJornadaExtra !== -1) {
-                const proyectoIndex = proyectosJornadaExtra[institucionIndexJornadaExtra].proyectos.findIndex((proyecto) => proyecto.id = payload.proyecto.id);
-                if (proyectoIndex !== -1) {
-                    proyectosJornadaExtra[institucionIndexJornadaExtra].proyectos[proyectoIndex] = payload.proyecto;
-                }
-            }
+
+            proyectosActualizados = reemplazarProyecto([...state.proyectosPcIsla], payload.id_institucion, payload.proyecto);
 
             // Actualizar jornada de Hacienda si corresponde
             let jornada_update_JornadaExtra = state.jornadasHacienda;
@@ -254,13 +268,30 @@ export function institucion_reducer (state=initialState, action){
 
             return {
                 ...state,
-                proyectosPcIsla: proyectosJornadaExtra,
+                proyectosPcIsla: proyectosActualizados,
                 bloquesOcupados: payload.bloques_ocupados,
                 jornadasHacienda: jornada_update_JornadaExtra,
                 calendario: payload.calendario
             };
+        case FINALIZAR_PROYECTO_SUCCESS:
+            proyectosActualizados = reemplazarProyecto([...state.proyectosPcIsla], payload.id_institucion, payload.proyecto_finalizado);
+            return {
+                ...state,
+                proyectosPcIsla: proyectosActualizados,
+                bloquesOcupados: payload.bloques_ocupados,
+                jornadasHacienda: payload.jornadas_minhacienda,
+                calendario: payload.calendario,
+            };
+        case EXTENDER_PROYECTO_SUCCESS:
+            proyectosActualizados = reemplazarProyecto([...state.proyectosPcIsla], payload.id_institucion, payload.proyecto_actualizado);
 
-        
+            return {
+                ...state,
+                proyectosPcIsla: proyectosActualizados,
+                bloquesOcupados: payload.bloques_ocupados,
+                jornadasHacienda: payload.jornadas_minhacienda,
+                calendario: payload.calendario,
+            };
         case UPDATE_ENCARGADOS_SII_FAIL:
         case ADD_PROTOCOLO_FAIL:
         case GET_BLOQUES_OCUPADOS_FAIL:

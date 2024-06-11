@@ -499,7 +499,7 @@ function ModalDetalleProyecto({
                                                     </div>
                                                     <div className="mt-1">
                                                         <label className="text-lg text-gris-700 text-sm" id="periodo-proyecto">Periodo del proyecto:</label>
-                                                        <p className="text text-gris-900 cursor-default">Del {proyecto.formatted_fecha_inicio} al {proyecto.formatted_fecha_termino}</p>
+                                                        <p className="text text-gris-900 cursor-default">Del {proyecto.formatted_fecha_inicio} al {proyecto.formatted_fecha_termino} {proyecto.extendido ? '(plazo extendido)' : ''}</p>
                                                     </div>
                                                     <div className="mt-1">
                                                         <label className="text-lg text-gris-700 text-sm" id="encargado-ie">Encargado del proyecto:</label>
@@ -601,11 +601,13 @@ function ModalDetalleProyecto({
                                                 <h1 className="text-xl text-gris-800 cursor-default">Registro de asistencia</h1>
                                                 <TablaAsistencia
                                                     asistencias={proyecto.asistencia} />
+
+                                                { (user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) &&
                                                 <JornadaExtra
                                                     id_proyecto={proyecto.id}
                                                     bloquesOcupados={bloquesOcupados}
-
                                                 />
+                                                }
                                             </div>
                                         }
 
@@ -617,12 +619,14 @@ function ModalDetalleProyecto({
                                         }
 
                                         {/* Finalizar o extender proyecto */}
-                                        {isAccepted && isProtocolo &&
+                                        { (user && (user.is_pc_isla_admin || user.is_pc_isla_editor)) && isAccepted && isProtocolo &&
                                             <div className="mb-4 px-6 pb-4 pt-2">
                                                 <h1 className="text-xl text-gris-800 cursor-default">Extender o finalizar proyecto</h1>
                                                 <ExtenderFinalizar 
                                                     idProyecto={proyecto.id}
                                                     proyectoFinalizado={proyectoFinalizado}
+                                                    extendido={proyecto.extendido}
+                                                    fechaExtension={proyecto.formatted_fecha_extension}
                                                 />
                                             </div>
                                         }

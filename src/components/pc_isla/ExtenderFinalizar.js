@@ -1,10 +1,18 @@
 import { useState } from "react";
 import { connect } from "react-redux";
 import ModalFinalizarProyecto from "./ModalFinalizarProyecto";
+import { extender_proyecto } from "redux/actions/pc_isla/pc_isla";
+import { Alert } from "@material-tailwind/react";
+import Loading from "./Loading";
+import { DocumentArrowDownIcon } from "@heroicons/react/20/solid";
+import { Tooltip } from "react-tooltip";
 
 function ExtenderFinalizar({
     idProyecto,
     proyectoFinalizado,
+    extender_proyecto,
+    extendido,
+    fechaExtension,
 }) 
 {
     // Form extender proyecto
@@ -27,9 +35,27 @@ function ExtenderFinalizar({
         });
         
     };
+    
+    const [alertExtendido, setAlertExtendido] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const onSubmit = (e) => {
         e.preventDefault();
+        setLoading(true);
+        const formDataToSend = new FormData();
+        for (const key in formData) {
+            formDataToSend.append(key, formData[key]);
+        }
+
+        extender_proyecto(formDataToSend)
+            .then(() => {
+                setLoading(false);
+                setAlertExtendido(true);
+            })
+            .catch((error) => {
+                console.log(error);
+                setLoading(false);
+            });
     };
 
     // Finalizar proyecto
@@ -43,8 +69,35 @@ function ExtenderFinalizar({
 
     return (
         <>
+        <Alert 
+            open={alertExtendido}
+            onClose={() => setAlertExtendido(false)}
+            onClick={(e) => e.stopPropagation()}
+            animate={{
+                mount: { y: 20 },
+                unmount: { y: 100 },
+            }}
+            className="relative max-w-[28rem] sm-sii:max-w-[40rem] transform -top-3 z-50 bg-verde-esmeralda-300 mx-auto"
+        >
+            El plazo del proyecto ha sido extendido.
+        </Alert>
+        { extendido ?
+        <>
+            <h1 className="font-bold text-gris-800 cursor-default mt-4">Plazo del proyecto extendido</h1>
+            <p className="text-gris-900 cursor-default">
+                Recibido el {fechaExtension} <a href={`${process.env.REACT_APP_API_URL}/api/pc_isla/download_extension/${proyectoId}/`} target="_blank" className="anchor-descargar-extension"><DocumentArrowDownIcon className="h-6 w-6 text-gris-800 inline hover:text-azul-cobalto-400 cursor-pointer" /></a>
+            </p>
+            <Tooltip
+                key="descargarExtension"
+                anchorSelect=".anchor-descargar-extension"
+                place="top"
+            >
+                Descargar documento
+            </Tooltip>
+        </>
+        :
         <form onSubmit={e => {onSubmit(e)}} method="POST" action="#">
-            <h1 className="font-bold text-gris-800 cursor-default mt-4">Agregar jornada extra</h1>
+            <h1 className="font-bold text-gris-800 cursor-default mt-4">Extender plazo del proyecto</h1>
             <div className="">
                 <label className="text-lg text-gris-700 text-sm">Adjuntar documento:</label>
                 <input 
@@ -80,6 +133,7 @@ function ExtenderFinalizar({
                 </button>
             </div>          
         </form>
+        }
         <h1 className="font-bold text-gris-800 cursor-default mt-4">Finalizar proyecto</h1>
         <div className="flex items-center justify-end">
             <button
@@ -88,6 +142,7 @@ function ExtenderFinalizar({
                 Finalizar proyecto
             </button>
         </div>
+        {loading && <Loading message={'Extendiendo jornada.'} />}
         <ModalFinalizarProyecto 
             idProyecto={proyectoId}
             closeModal={handleFinalizarProyecto}
@@ -98,8 +153,9 @@ function ExtenderFinalizar({
 }
 
 const mapStateToProps = state => ({
+    
 
 });
 export default connect(mapStateToProps, {
-
+    extender_proyecto
 })(ExtenderFinalizar);

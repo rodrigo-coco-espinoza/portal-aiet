@@ -69,6 +69,7 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
     formatted_fecha_oficio_respuesta = serializers.SerializerMethodField()
     formatted_fecha_inicio = serializers.SerializerMethodField()
     formatted_fecha_termino = serializers.SerializerMethodField()
+    formatted_fecha_extension = serializers.SerializerMethodField()
 
     def get_formatted_fecha_oficio_recibido(self, obj):
         
@@ -169,7 +170,7 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
         asistencias_pasadas = Asistencia.objects.filter(
             id__in=asistencias,
             fecha__lte=datetime.date.today()
-        )
+        ).order_by('fecha')
         
         for asistencia in asistencias_pasadas:
             ingreso_hhmm = asistencia.datetime_ingreso.split()[1] if asistencia.datetime_ingreso else None
@@ -184,11 +185,19 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
 
             })
 
-
-        # Sort data by 'fecha' (date) in ascending order
-        sorted_data = sorted(data, key=itemgetter('fecha'))
-
-        return sorted_data
+        return data
+    
+    # Extendido
+    def get_formatted_fecha_extension(self, obj):
+        fecha_extension = obj.fecha_extension
+        if fecha_extension:
+            # Convert to datetime if it's a string
+            if isinstance(fecha_extension, str):
+                fecha_extension = timezone.make_aware(datetime.datetime.strptime(fecha_extension, "%Y-%m-%d"))
+            formatted_date = fecha_extension.strftime('%d-%m-%Y')
+        else:
+            formatted_date = None
+        return formatted_date
 
     class Meta:
         model = Proyecto
@@ -212,6 +221,8 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
             'equipo',
             'jornada',
             'asistencia',
+            'extendido',
+            'formatted_fecha_extension',
         ]
 
 class ProyectoNoActivoSerializer(serializers.ModelSerializer):
