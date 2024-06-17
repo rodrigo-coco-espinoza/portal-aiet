@@ -245,9 +245,11 @@ def get_calendario():
 def obtener_asistencias(persona):
     proyectos_encargado = Rol.objects.filter(
         persona=persona,
-        rol='encargado',
         proyecto__estado='en curso'
+    ).filter(
+        Q(rol='encargado') | Q(rol='investigador')
     ).values_list('proyecto_id', flat=True)
+
     asistencias_del_dia = Asistencia.objects.filter(
         jornada__proyecto_id__in=proyectos_encargado,
         fecha=date.today()
