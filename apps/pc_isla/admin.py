@@ -32,8 +32,9 @@ class AsistenciaAdmin(admin.ModelAdmin):
     def get_proyecto(self, obj):
         return obj.jornada.proyecto
     get_proyecto.short_description = "Proyecto"
+    get_proyecto.admin_order_field = 'jornada__proyecto'
 
-    list_display = ('id', 'get_proyecto', 'fecha', 'datetime_ingreso', 'datetime_salida')
+    list_display = ('id', 'get_proyecto', 'jornada', 'fecha', 'datetime_ingreso', 'datetime_salida')
     list_per_page = 25
 
 class AsistenciaInvestigadorAdmin(admin.ModelAdmin):

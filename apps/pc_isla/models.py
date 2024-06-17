@@ -192,7 +192,7 @@ class Proyecto(models.Model):
     queryobjects = ProyectoObjects()
 
     def __str__(self):
-        return f"{self.institucion.sigla} - {self.nombre}"
+        return f"{self.id} {self.institucion.sigla} - {self.nombre}"
     
 
 class Rol(models.Model):
@@ -207,7 +207,7 @@ class Rol(models.Model):
 
     objects = models.Manager()
 
-    def __strt__(self):
+    def __str__(self):
         return f"{self.persona.nombre} - {self.proyecto.institucion.sigla} - {self.proyecto.nombre}"
 
 
@@ -225,6 +225,9 @@ class Jornada(models.Model):
     fecha = models.DateField(null=True, blank=True)
     active = models.BooleanField(default=1)
 
+    def __str__(self):
+        return f"({self.id}) Proyecto: {self.proyecto.id} {self.equipo} {self.dia} {self.horario} {'[Extra]' if self.extra else ''}"
+
 
 class Asistencia(models.Model):
 
@@ -237,6 +240,11 @@ class Asistencia(models.Model):
     datetime_ingreso = models.CharField(max_length=20, null=True, blank=True)
     datetime_salida = models.CharField(max_length=20, null=True, blank=True)
     motivo_salida = models.CharField(max_length=50, choices=SALIDA_CHOICES, null=True, blank=True)
+
+    def __str__(self):
+        return f"({self.id}) {self.fecha} - {self.jornada.equipo} {self.jornada.dia} {self.jornada.horario} Proyecto {self.jornada.proyecto.id}"
+
+
 
 class AsistenciaInvestigador(models.Model):
 
