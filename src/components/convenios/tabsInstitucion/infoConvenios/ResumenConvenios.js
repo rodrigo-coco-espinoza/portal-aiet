@@ -20,7 +20,7 @@ function ResumenConvenios({
   // Convenio seleccionado
   const [convenioSelected, setConvenioSelected] = useState(false);
   const convenioClick = (indiceConvenio) => {
-    setConvenioSelected(data[indiceConvenio])
+    setConvenioSelected(data[indiceConvenio]);
   };
 
   return(
@@ -39,6 +39,7 @@ function ResumenConvenios({
     <DetalleConvenio
       data={convenioSelected} 
       user={user}
+      setConvenio={convenioClick}
     />
     <div className="flex-1 basis-1/5 flex justify-center items-start flex-col mt-8">
       <Timeline />
