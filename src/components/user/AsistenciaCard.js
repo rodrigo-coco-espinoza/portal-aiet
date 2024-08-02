@@ -17,6 +17,7 @@ function AsistenciaCard({
     const salida_options = [
         {id: 'fin jornada', full_name: 'Fin jornada'},
         {id: 'proceso ejecutándose', full_name: 'Proceso ejecutándose'},
+        {id: 'extracción de datos', full_name: 'Extracción de datos'},
         {id: 'otro', full_name: 'Otro'}
     ]
 

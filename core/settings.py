@@ -37,6 +37,7 @@ PROJECT_APPS = [
     'apps.buscador',
     'apps.pc_isla',
     'apps.user',
+    'apps.informes',
 ]
 
 THIRD_PARTY_APPS = [

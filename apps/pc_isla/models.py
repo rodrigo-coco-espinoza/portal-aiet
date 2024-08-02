@@ -44,6 +44,7 @@ DIAS_CHOICES = (
 SALIDA_CHOICES = (
     ('fin jornada', 'Fin jornada'),
     ('proceso ejecutándose', 'Proceso ejecutándose'),
+    ('extracción de datos', 'Extracción de datos'),
     ('otro', 'Otro')
 )
 
@@ -138,7 +139,8 @@ class Persona(models.Model):
         ordering = ('nombre', )
 
     nombre = models.CharField(max_length=255, null=False)
-    #TODO:RUT, NOMBRE, APELLIDO
+    apellido = models.CharField(max_length=255, null=True, blank=True)
+    rut = models.CharField(max_length=10, null=True, blank=True)
     email = models.CharField(max_length=255, null=False)    
     telefono = models.CharField(max_length=255, null=True, blank=True)
     institucion = models.ForeignKey(Institucion, on_delete=models.SET_NULL, null=True)
@@ -147,7 +149,7 @@ class Persona(models.Model):
     cargo = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.nombre} - {self.institucion.sigla}"
+        return f"{self.nombre} {self.apellido} - {self.institucion.sigla}"
 
   
 # Create your models here.
@@ -225,6 +227,9 @@ class Jornada(models.Model):
     fecha = models.DateField(null=True, blank=True)
     active = models.BooleanField(default=1)
 
+    def __str__(self):
+        return f"({self.id}) Proyecto: {self.proyecto.id} {self.equipo} {self.dia} {self.horario} {'[Extra]' if self.extra else ''}"
+
 
 class Asistencia(models.Model):
 
@@ -241,11 +246,6 @@ class Asistencia(models.Model):
 
     def __str__(self):
         return f"({self.id}) {self.fecha} - {self.jornada.equipo} {self.jornada.dia} {self.jornada.horario} Proyecto {self.jornada.proyecto.id}"
-
-
-    def __str__(self):
-        return f"({self.id}) {self.fecha} - {self.jornada.equipo} {self.jornada.dia} {self.jornada.horario} Proyecto {self.jornada.proyecto.id}"
-
 
 
 class AsistenciaInvestigador(models.Model):

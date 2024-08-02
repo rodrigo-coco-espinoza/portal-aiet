@@ -169,7 +169,11 @@ const institucionesInfo = [
             },
             
         ],
-        intercambioInformacion: [],
+        intercambioInformacion: {
+            infoRecibida: [
+                
+            ]
+        },
         tareas: [],
     },
     {

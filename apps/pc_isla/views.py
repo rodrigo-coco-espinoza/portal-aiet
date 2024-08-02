@@ -4,7 +4,7 @@ from rest_framework import status, permissions
 from apps.user.models import UserAccount
 from django.conf import settings
 from apps.user.serializers import *
-from .serializers import InstitucionSelectSerializer,ProyectoActivoSerializer, ProyectoNoActivoSerializer, PersonaSelectSerializer
+from .serializers import InstitucionSelectSerializer,ProyectoActivoSerializer, ProyectoNoActivoSerializer, PersonaSelectSerializer, InformeAsistenciaSerializer, MESES_NOMBRE
 import json
 from django.http import JsonResponse
 from .models import *
@@ -21,6 +21,7 @@ from holidays import Chile
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from dateutil.relativedelta import relativedelta
+
 
 # Create your views here.
 
@@ -132,12 +133,9 @@ def obtener_jornada_minhacienda():
     return data
 
 def get_calendario():
-    calendario = []
 
-    # Obtener todos los proyectos activos
-    proyectos_activos = Proyecto.objects.filter(estado='en curso')
-    # Obtener las jornadas de esos proyectos
-    jornadas = Jornada.objects.filter(proyecto__in=proyectos_activos, active=1)
+    calendario = []
+    feriados = Chile()
 
     # Fecha inicio y término del calendario
     fecha_actual = datetime.now().date()
@@ -146,11 +144,25 @@ def get_calendario():
     while fin.weekday() != 4:  # 4 representa el viernes
         fin += timedelta(days=1)
 
-    feriados = Chile()
+    # Obtener todos los proyectos activos y sus asistencias
+    proyectos_activos = Proyecto.objects.filter(estado='en curso')
+    asistencias = Asistencia.objects.filter(
+        jornada__proyecto__in=proyectos_activos,
+        fecha__range=(inicio, fin)
+        )
 
-    cuenta_dia = inicio
 
+    # BORRAR
+    #jornadas = Jornada.objects.filter(proyecto__in=proyectos_activos, active=1)
+
+    
+
+
+    
     # Generar los días del calendario
+    cuenta_dia = inicio
+    fecha_to_index = {}
+    index_dia = 0
     while cuenta_dia <= fin:
         # Agregar solo días laborales
         dia_int = cuenta_dia.weekday()
@@ -161,7 +173,7 @@ def get_calendario():
                 'dia': DIGITO_A_DIA[str(dia_int)].capitalize(),
                 'fecha': cuenta_dia.strftime("%d-%m-%Y"),
                 'feriado': cuenta_dia in feriados,
-                'pasado': False,
+                'pasado': True if cuenta_dia < fecha_actual else False,
                 'Bora Bora': {
                     'AM': {
                         'institucion': None,
@@ -207,37 +219,53 @@ def get_calendario():
 
             })
 
-    
+            fecha_to_index[cuenta_dia] = index_dia
+            index_dia += 1
+
         cuenta_dia += timedelta(days=1)
 
     # Rellenar el calendario con las jornada
-    for jornada in jornadas:
+    for asistencia in asistencias:
+        indice = fecha_to_index[asistencia.fecha]
+        equipo = asistencia.jornada.equipo
+        horario = asistencia.jornada.horario
+        sigla = asistencia.jornada.proyecto.institucion.sigla
+        nombre = asistencia.jornada.proyecto.nombre
+       
+        calendario[indice][equipo][horario]['institucion'] = sigla
+        calendario[indice][equipo][horario]['proyecto'] = nombre
+        calendario[indice][equipo][horario]['extra'] = True if asistencia.jornada.extra else False
+        calendario[indice][equipo][horario]['asistencia'] = True if asistencia.datetime_ingreso else False
+           
+        
 
-        for dia_calendario in calendario:
-            fecha_calendario = datetime.strptime(dia_calendario['fecha'],"%d-%m-%Y").date() 
+    # BORRAR
+   # for jornada in jornadas:
+        # for dia_calendario in calendario:
+        #     fecha_calendario = datetime.strptime(dia_calendario['fecha'],"%d-%m-%Y").date() 
             
-            # Identificar jornada extra
-            if jornada.extra and fecha_calendario == jornada.fecha:
-                dia_calendario[jornada.equipo][jornada.horario]['extra'] = True
-                dia_calendario[jornada.equipo][jornada.horario]['institucion'] = jornada.proyecto.institucion.sigla
-                dia_calendario[jornada.equipo][jornada.horario]['proyecto'] = jornada.proyecto.nombre
+        #     # Identificar jornada extra
+        #     if jornada.extra and fecha_calendario == jornada.fecha:
+        #         dia_calendario[jornada.equipo][jornada.horario]['extra'] = True
+        #         dia_calendario[jornada.equipo][jornada.horario]['institucion'] = jornada.proyecto.institucion.sigla
+        #         dia_calendario[jornada.equipo][jornada.horario]['proyecto'] = jornada.proyecto.nombre
                 
-            # Identificar días pasados
-            if fecha_calendario < fecha_actual:
-                dia_calendario['pasado'] = True
+        #     # Identificar días pasados
+        #     if fecha_calendario < fecha_actual:
+        #         dia_calendario['pasado'] = True
             
-            if not jornada.extra and  jornada.dia.capitalize() == dia_calendario['dia'] and jornada.proyecto.fecha_inicio <= fecha_calendario and jornada.proyecto.fecha_termino >= fecha_calendario:
-                dia_calendario[jornada.equipo][jornada.horario]['institucion'] = jornada.proyecto.institucion.sigla
-                dia_calendario[jornada.equipo][jornada.horario]['proyecto'] = jornada.proyecto.nombre
-                # Identificar días pasados
-                if fecha_calendario < fecha_actual:
-                    dia_calendario['pasado'] = True
+        #     if not jornada.extra and  jornada.dia.capitalize() == dia_calendario['dia'] and jornada.proyecto.fecha_inicio <= fecha_calendario and jornada.proyecto.fecha_termino >= fecha_calendario:
+        #         dia_calendario[jornada.equipo][jornada.horario]['institucion'] = jornada.proyecto.institucion.sigla
+        #         dia_calendario[jornada.equipo][jornada.horario]['proyecto'] = jornada.proyecto.nombre
+        #         # Identificar días pasados
+        #         if fecha_calendario < fecha_actual:
+        #             dia_calendario['pasado'] = True
 
-            #Identificar asistencia del día
-            if fecha_calendario <= fecha_actual:
-                asistencia = Asistencia.objects.filter(jornada=jornada, fecha=fecha_calendario).first()
-                if asistencia and asistencia.datetime_ingreso:
-                    dia_calendario[jornada.equipo][jornada.horario]['asistencia'] = True
+        #     #Identificar asistencia del día
+        #     if fecha_calendario <= fecha_actual:
+        #         asistencia = Asistencia.objects.filter(jornada=jornada, fecha=fecha_calendario).first()
+        #         if asistencia and asistencia.datetime_ingreso:
+        #             dia_calendario[jornada.equipo][jornada.horario]['asistencia'] = True
                 
     
     return calendario
@@ -751,7 +779,7 @@ class JornadaMinhacienda(APIView):
         except Exception as e:
             print(e)
             return Response({'error': str(e)}, status=status.HTTP_501_NOT_IMPLEMENTED)
-        
+
 
 class HorarioPcIsla(APIView):
     permission_classes = (permissions.AllowAny, )
@@ -974,6 +1002,7 @@ class ExtenderProyecto(APIView):
         }, status=status.HTTP_200_OK)
 
 class DownloadExtension(APIView):
+
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, proyecto_id):
@@ -984,3 +1013,22 @@ class DownloadExtension(APIView):
             return response
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class InformeAsistencia(APIView):
+    permission_classes = (permissions.AllowAny, )
+
+    def get(self,  request, proyecto_id, mes):
+
+        proyecto_instance = Proyecto.objects.get(id=proyecto_id)
+        data_informe = InformeAsistenciaSerializer(proyecto_instance, context={'mes': mes}).data
+
+
+
+
+        return Response({
+            'proyecto_id': proyecto_id,
+            'mes': MESES_NOMBRE[mes - 1],
+            'data_informe': data_informe
+        }, status=status.HTTP_200_OK)
+

@@ -24,4 +24,5 @@ urlpatterns = [
     path('finalizar_proyecto/', FinalizarProyecto.as_view()),
     path('extender_proyecto/', ExtenderProyecto.as_view()),
     path('download_extension/<int:proyecto_id>/', DownloadExtension.as_view()),
+    path('informe_asistencia/<int:proyecto_id>/<int:mes>/', InformeAsistencia.as_view()),
 ]

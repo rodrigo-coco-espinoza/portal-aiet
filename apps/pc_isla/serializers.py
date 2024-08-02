@@ -3,6 +3,8 @@ from .models import *
 from django.utils import timezone
 import datetime
 from operator import itemgetter
+from django.db.models.functions import TruncMonth
+from math import trunc
 
 DIAS = {
     'lunes': 0,
@@ -11,6 +13,20 @@ DIAS = {
     'jueves': 3,
     'viernes': 4,
 }
+
+MESES_NOMBRE = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+]
+
+APELLIDOS_COMPUESTOS = [
+    "de", "del", "de la", "de las", "de los", "la", "san", "santa"
+]
+
+INICIO_JORNADA_AM = datetime.time(9,0)
+FIN_JORNADA_AM = datetime.time(12, 30)
+INICIO_JORNADA_PM = datetime.time(14, 30)
+FIN_JORNADA_PM = datetime.time(17, 0)
 
 def capitalize_first(phrase):
     if phrase:
@@ -21,6 +37,217 @@ def capitalize_first(phrase):
     else:
         return None
 
+
+def extraer_hora_de_fecha(datetime_string):
+    return datetime_string.split()[1] if datetime_string else None
+
+def calcular_minutos_entre_horas(hora_inicio, hora_fin):
+    datetime_ingreso = datetime.datetime.combine(datetime.datetime.min, hora_inicio) 
+    datetime_salida = datetime.datetime.combine(datetime.datetime.min, hora_fin)
+    time_diference = datetime_salida - datetime_ingreso
+    return time_diference.total_seconds() / 60
+
+def minutos_a_hhmm(minutos):
+    horas = trunc(minutos // 60)
+    minutos_restantes = trunc(minutos % 60)
+    return f"{horas:02}:{minutos_restantes:02}"
+
+def cacular_estadisticas_de_asistencia_del_mes(asistencias):
+    jornadas_del_mes_cuenta = asistencias.count()
+    asistencias_del_mes = asistencias.exclude(datetime_ingreso="").exclude(datetime_ingreso__isnull=True)
+    asistencias_del_mes_cuenta = asistencias_del_mes.count()
+
+    minutos_utilizados = 0
+    minutos_extra = 0
+
+    for asistencia in asistencias_del_mes:
+        hora_minuto_string = extraer_hora_de_fecha(asistencia.datetime_ingreso)
+        hora_minuto_ingreso = hora_minuto_string.split(":")
+        hora_ingreso = datetime.time(int(hora_minuto_ingreso[0]), int(hora_minuto_ingreso[1])
+        )
+        
+        if asistencia.datetime_salida:
+            hora_minuto_string = extraer_hora_de_fecha(asistencia.datetime_salida)
+            hora_minuto_salida = hora_minuto_string.split(":")
+            hora_salida = datetime.time(int(hora_minuto_salida[0]), int(hora_minuto_salida[1]))
+        else: 
+            hora_salida = datetime.time(17, 0)
+
+        
+        # Calcular tiempo de uso
+        minutos = calcular_minutos_entre_horas(hora_ingreso, hora_salida)
+        minutos_utilizados += minutos
+
+        
+        # Calcular tiempo extra
+        extra = 0
+        if asistencia.jornada.horario == "AM":          
+            
+            if hora_ingreso < INICIO_JORNADA_AM:
+                extra += calcular_minutos_entre_horas(hora_ingreso, INICIO_JORNADA_AM)
+            if hora_salida > FIN_JORNADA_AM:
+                extra += calcular_minutos_entre_horas(FIN_JORNADA_AM, hora_salida)
+            
+        elif asistencia.jornada.horario == "PM":
+
+            # Calcular tiempo extra
+            if hora_ingreso < INICIO_JORNADA_PM:
+                extra += calcular_minutos_entre_horas(hora_ingreso, INICIO_JORNADA_PM)
+            if hora_salida > FIN_JORNADA_PM:
+                extra += calcular_minutos_entre_horas(FIN_JORNADA_PM, hora_salida)
+        
+        minutos_extra += extra
+    
+    return {
+        'asistencia': asistencias_del_mes_cuenta,
+        'jornadasAsignadas': jornadas_del_mes_cuenta,
+        'porcentajeAsistencia': f"{trunc((asistencias_del_mes_cuenta / jornadas_del_mes_cuenta) * 100)}%",
+        'horasUtilizadas': round(minutos_utilizados / 60, 1),
+        'horasAsignadas': 2.5 * jornadas_del_mes_cuenta,
+        'horasExtra': minutos_a_hhmm(minutos_extra),
+        'para_totales': {
+            'minutos': minutos_utilizados,
+            'extra': minutos_extra,
+            'jornadas_del_mes': jornadas_del_mes_cuenta,
+            'asistencias_del_mes': asistencias_del_mes_cuenta
+
+        }
+    }
+
+def obtener_asistencia_total_proyecto(proyecto):
+    asistencias = Asistencia.objects.filter(
+        jornada__proyecto=proyecto, 
+        fecha__lte=datetime.date.today(),
+        jornada__extra=0,
+        )
+
+    info_mensual = []
+
+    jornadas_total = 0
+    asistencias_total = 0
+    minutos_utilizados_total = 0
+    minutos_extra_total = 0
+
+
+    meses_asistencias = asistencias.annotate(month=TruncMonth('fecha')).values('month').distinct()
+    for mes in meses_asistencias:
+        mes_id = mes['month'].month
+        asistencias_del_mes = asistencias.filter(fecha__month=mes_id)
+        data_mes = cacular_estadisticas_de_asistencia_del_mes(asistencias_del_mes)
+
+        # Actualizar totales
+        jornadas_total += data_mes['para_totales']['jornadas_del_mes']
+        asistencias_total += data_mes['para_totales']['asistencias_del_mes']
+        minutos_utilizados_total += data_mes['para_totales']['minutos']
+        minutos_extra_total += data_mes['para_totales']['extra']
+
+        # Eliminar para_totales
+        data_mes.pop('para_totales')
+        info_mensual.append(data_mes)
+
+
+        # jornadas_del_mes = asistencias.filter(fecha__month=mes_id).count()
+        # asistencias_del_mes = asistencias.filter(fecha__month=mes_id).exclude(datetime_ingreso="").exclude(datetime_ingreso__isnull=True)
+        # asistencias_del_mes_cuenta = asistencias_del_mes.count()
+
+        # !!!jornadas_total += jornadas_del_mes
+        # !!!!asistencias_total += asistencias_del_mes_cuenta
+
+        # minutos_utilizados = 0
+        # minutos_extra = 0
+
+        # for asistencia in asistencias_del_mes:
+        #     hora_minuto_string = extraer_hora_de_fecha(asistencia.datetime_ingreso)
+        #     hora_minuto_ingreso = hora_minuto_string.split(":")
+        #     hora_ingreso = datetime.time(int(hora_minuto_ingreso[0]), int(hora_minuto_ingreso[1]))
+            
+        #     if asistencia.datetime_salida:
+        #         hora_minuto_string = extraer_hora_de_fecha(asistencia.datetime_salida)
+        #         hora_minuto_salida = hora_minuto_string.split(":")
+        #         hora_salida = datetime.time(int(hora_minuto_salida[0]), int(hora_minuto_salida[1]))
+        #     else: 
+        #         hora_salida = datetime.time(17, 0)
+
+            
+        #     # Calcular tiempo de uso
+        #     minutos = calcular_minutos_entre_horas(hora_ingreso, hora_salida)
+        #     minutos_utilizados += minutos
+
+        #     !!!!minutos_utilizados_total += minutos
+
+            
+        #     # Calcular tiempo extra
+        #     extra = 0
+        #     if asistencia.jornada.horario == "AM":          
+                
+        #         if hora_ingreso < INICIO_JORNADA_AM:
+        #             extra += calcular_minutos_entre_horas(hora_ingreso, INICIO_JORNADA_AM)
+        #         if hora_salida > FIN_JORNADA_AM:
+        #             extra += calcular_minutos_entre_horas(FIN_JORNADA_AM, hora_salida)
+                
+        #     elif asistencia.jornada.horario == "PM":
+
+        #         # Calcular tiempo extra
+        #         if hora_ingreso < INICIO_JORNADA_PM:
+        #             extra += calcular_minutos_entre_horas(hora_ingreso, INICIO_JORNADA_PM)
+        #         if hora_salida > FIN_JORNADA_PM:
+        #             extra += calcular_minutos_entre_horas(FIN_JORNADA_PM, hora_salida)
+            
+        #     minutos_extra += extra
+        #     !!!!minutos_extra_total += extra
+
+
+        # info_mensual.append({
+        #     'mes': MESES_NOMBRE[mes_id - 1],
+        #     'asistencia': asistencias_del_mes_cuenta,
+        #     'jornadasAsignadas': jornadas_del_mes,
+        #     'porcentajeAsistencia': f"{trunc((asistencias_del_mes_cuenta / jornadas_del_mes) * 100)}%",
+        #     'horasUtilizadas': round(minutos_utilizados / 60, 1),
+        #     'horasAsignadas': 2.5 * jornadas_del_mes,
+        #     'horasExtra': minutos_a_hhmm(minutos_extra)
+        # })
+
+    if asistencias:
+
+        info_total = {
+            'porcentajeAsistenciaTotal': f"{trunc((asistencias_total / jornadas_total) * 100)}%",
+            'usoHorasAsignadasTotal': f"{round(minutos_utilizados_total / 60, 1)} / {2.5 * jornadas_total}",
+            'horasExtraTotal': f"{minutos_a_hhmm(minutos_extra_total)} hrs"
+        }
+
+    else:
+        info_total = {
+            'porcentajeAsistenciaTotal': None,
+            'usoHorasAsignadasTotal': None,
+            'horasExtraTotal': None
+        }
+
+    return {
+        'mensual': info_mensual,
+        'total': info_total
+    }
+
+def obtener_apellido(persona):
+    if not persona.apellido:
+        return None
+    
+    apellidos = persona.apellido.split()
+    apellido_completo = apellidos[0]
+    for compuesto in APELLIDOS_COMPUESTOS:
+        compuesto_split = compuesto.split()
+        if apellidos[:len(compuesto_split)] == compuesto_split:
+            apellido_completo = ' '.join(compuesto_split)
+            break
+
+    return apellido_completo
+
+def obtener_investigadores_asistentes(asistencia):
+    investigadores = asistencia.asistenciainvestigador_set.all()
+    asistentes = []
+    for investigador in investigadores:
+        nombre = investigador.investigador.nombre.split()[0]
+        asistentes.append(f"{nombre[0]}. {obtener_apellido(investigador.investigador)}")
+    return ', '.join(asistentes)
 
 class InstitucionSelectSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
@@ -47,7 +274,7 @@ class PersonaSelectSerializer(serializers.ModelSerializer):
         ]
 
     def get_full_name(self, instance):
-        return f"{instance.persona.nombre}"
+        return f"{instance.persona.nombre.split()[0]} {obtener_apellido(instance.persona)}"
     
     def get_id(self, instance):
         return instance.persona.id
@@ -55,9 +282,36 @@ class PersonaSelectSerializer(serializers.ModelSerializer):
 
 
 class PersonaSerializer(serializers.ModelSerializer):
+    nombre_completo = serializers.SerializerMethodField()
+    nombre_corto = serializers.SerializerMethodField()
+
+    def get_nombre_completo(self, obj):
+        return f"{obj.nombre.split()[0]} {obtener_apellido(obj)}"
+    
+    def get_nombre_corto(self, obj):
+        nombre = obj.nombre.split()[0]
+        return f"{nombre[0]}. {obtener_apellido(obj)}"
+
     class Meta:
         model = Persona
-        fields = '__all__'
+        fields = [
+            'id',
+            'nombre',
+            'apellido',
+            'nombre_completo',
+            'nombre_corto',
+            'rut',
+            'email',
+            'telefono',
+            'institucion',
+            'subdireccion',
+            'area',
+            'cargo',
+        ]
+
+    
+    
+    
 
 
 class ProyectoActivoSerializer(serializers.ModelSerializer):
@@ -173,13 +427,11 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
         ).order_by('fecha')
         
         for asistencia in asistencias_pasadas:
-            ingreso_hhmm = asistencia.datetime_ingreso.split()[1] if asistencia.datetime_ingreso else None
-            salida_hhmm = asistencia.datetime_salida.split()[1] if asistencia.datetime_salida else None
             data.append({
                 'jornada': f'{asistencia.jornada.dia.capitalize()} {asistencia.jornada.horario}',
                 'fecha': asistencia.fecha.strftime('%d-%m-%Y'),
-                'ingreso': ingreso_hhmm,
-                'salida': salida_hhmm,
+                'ingreso': extraer_hora_de_fecha(asistencia.datetime_ingreso),
+                'salida': extraer_hora_de_fecha(asistencia.datetime_salida),
                 'motivo': capitalize_first(asistencia.motivo_salida),
                 'extra': asistencia.jornada.extra
 
@@ -198,6 +450,33 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
         else:
             formatted_date = None
         return formatted_date
+    
+    # Estadísticas de uso
+    estadisticas_uso = serializers.SerializerMethodField()
+    def get_estadisticas_uso(self, obj):
+
+        data_estadisticas = obtener_asistencia_total_proyecto(obj)
+        data = {
+            'mesesInforme': [],
+            'asistenciaMensual': data_estadisticas['mensual'],
+            'estadisticasTotal': data_estadisticas['total']
+
+        }
+
+        asistencias = Asistencia.objects.filter(jornada__proyecto=obj, fecha__lte=datetime.date.today())
+        asistencias_por_mes = asistencias.annotate(month=TruncMonth('fecha')).values('month').distinct()
+        for mes in asistencias_por_mes:
+            mes_fecha = mes['month']
+            mes_id = mes_fecha.month
+            mes_nombre = MESES_NOMBRE[mes_id - 1]
+            full_name = f"{mes_nombre} {mes_fecha.year}"
+
+            data['mesesInforme'].append({
+                'id': mes_id,
+                'full_name': full_name 
+            }) 
+
+        return data
 
     class Meta:
         model = Proyecto
@@ -223,6 +502,7 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
             'asistencia',
             'extendido',
             'formatted_fecha_extension',
+            'estadisticas_uso',
         ]
 
 class ProyectoNoActivoSerializer(serializers.ModelSerializer):
@@ -231,5 +511,84 @@ class ProyectoNoActivoSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'nombre',
-            'estado'
+            'estado',
         ]
+
+
+class InformeAsistenciaSerializer(serializers.ModelSerializer):
+    data_total = serializers.SerializerMethodField()
+    data_mes = serializers.SerializerMethodField()
+
+    def get_data_total(self, obj):
+        data_estadisticas = obtener_asistencia_total_proyecto(obj)
+        data = {
+            'asistenciaMensual': data_estadisticas['mensual'],
+            'estadisticasTotal': data_estadisticas['total']
+        }
+
+        return data
+
+    
+    def get_data_mes(self, obj):
+
+        data_asignadas = []
+
+        mes = self.context.get('mes')
+        asistencias = obj.jornada_set.all().values_list('asistencia', flat=True)
+        asistencias_mes = Asistencia.objects.filter(
+            id__in=asistencias,
+            fecha__month=mes,
+        ).order_by('fecha')
+
+        # Dejar solo las asistencias que no son extras
+        asistencias_asignadas = asistencias_mes.filter(jornada__extra=0)
+
+        for asistencia in asistencias_asignadas:
+            # Obtener investigadores asistentes
+            investigadores = asistencia.asistenciainvestigador_set.all()
+
+            data_asignadas.append({
+                'fecha': asistencia.fecha.strftime('%d-%m-%Y'),
+                'ingreso': extraer_hora_de_fecha(asistencia.datetime_ingreso),
+                'salida': extraer_hora_de_fecha(asistencia.datetime_salida),
+                'asistentes': obtener_investigadores_asistentes(asistencia)
+            })
+
+        data_extras = []
+        asistencias_extras = asistencias_mes.filter(jornada__extra=1)
+        for asistencia in asistencias_extras:
+
+
+            data_extras.append({
+                'fecha': asistencia.fecha.strftime('%d-%m-%Y'),
+                'ingreso': extraer_hora_de_fecha(asistencia.datetime_ingreso),
+                'salida': extraer_hora_de_fecha(asistencia.datetime_salida),
+                'asistentes': obtener_investigadores_asistentes(asistencia)
+            })
+
+        estadisticas_mes_data = cacular_estadisticas_de_asistencia_del_mes(asistencias_asignadas)
+
+        estadisticas_mes = {
+            'porcentajeAsistenciaMes': estadisticas_mes_data['porcentajeAsistencia'],
+            'usoHorasAsignadasMes': f"{estadisticas_mes_data['horasUtilizadas']} / {estadisticas_mes_data['horasAsignadas']}",
+            'horasExtraMes': estadisticas_mes_data['horasExtra']
+        }
+        
+
+        return {
+            'asignadas': data_asignadas,
+            'extras': data_extras,
+            'estadisticasMes': estadisticas_mes
+        }
+    class Meta:
+        model = Proyecto
+        fields = [
+            'id',
+            'nombre',
+            'fecha_inicio',
+            'fecha_termino',
+            'extendido',
+            'data_mes',
+            'data_total',
+        ]
+

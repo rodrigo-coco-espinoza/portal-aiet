@@ -16,7 +16,7 @@ class SubdireccionAdmin(admin.ModelAdmin):
     list_per_page = 25
 
 class PersonaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nombre', 'email', 'telefono', 'institucion', 'subdireccion', 'area', 'cargo' )
+    list_display = ('id', 'nombre', 'apellido', 'email', 'institucion', 'subdireccion', 'area', 'cargo' )
     list_per_page = 25
 
 class RolAdmin(admin.ModelAdmin):
