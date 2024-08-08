@@ -172,11 +172,11 @@ def obtener_apellido(persona):
     
     apellidos = persona.apellido.split()
     apellido_completo = apellidos[0]
-    for compuesto in APELLIDOS_COMPUESTOS:
-        compuesto_split = compuesto.split()
-        if apellidos[:len(compuesto_split)] == compuesto_split:
-            apellido_completo = ' '.join(compuesto_split)
-            break
+
+    if apellido_completo.lower() in APELLIDOS_COMPUESTOS:
+        apellido_completo = ' '.join(apellidos[:2])
+        if apellido_completo.lower() in APELLIDOS_COMPUESTOS:
+            apellido_completo = ' '.join(apellidos[:3])
 
     return apellido_completo
 

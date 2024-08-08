@@ -169,12 +169,14 @@ def get_calendario():
                 'Bora Bora': {
                     'AM': {
                         'institucion': None,
+                        'id_proyecto': None,
                         'proyecto': None,
                         'extra': False,
                         'asistencia': False,
                     },
                     'PM': {
                         'institucion': None,
+                        'id_proyecto': None,
                         'proyecto': None,
                         'extra': False,
                         'asistencia': False,
@@ -183,12 +185,14 @@ def get_calendario():
                 'Rapa Nui': {
                     'AM': {
                         'institucion': None,
+                        'id_proyecto': None,
                         'proyecto': None,
                         'extra': False,
                         'asistencia': False,
                     },
                     'PM': {
                         'institucion': None,
+                        'id_proyecto': None,
                         'proyecto': None,
                         'extra': False,
                         'asistencia': False,
@@ -197,12 +201,14 @@ def get_calendario():
                 'Juan Fernández': {
                     'AM': {
                         'institucion': None,
+                        'id_proyecto': None,
                         'proyecto': None,
                         'extra': False,
                         'asistencia': False,
                     },
                     'PM': {
                         'institucion': None,
+                        'id_proyecto': None,
                         'proyecto': None,
                         'extra': False,
                         'asistencia': False,
@@ -224,8 +230,8 @@ def get_calendario():
         sigla = asistencia.jornada.proyecto.institucion.sigla
         nombre = asistencia.jornada.proyecto.nombre
        
-        calendario[indice][equipo][horario]['institucion'] = sigla
-        calendario[indice][equipo][horario]['proyecto'] = nombre
+        calendario[indice][equipo][horario]['institucion'] = f"{sigla} ({asistencia.jornada.proyecto.id})"
+        calendario[indice][equipo][horario]['proyecto'] = nombre 
         calendario[indice][equipo][horario]['extra'] = True if asistencia.jornada.extra else False
         calendario[indice][equipo][horario]['asistencia'] = True if asistencia.datetime_ingreso else False            
     
