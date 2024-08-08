@@ -53,3 +53,13 @@ input::-webkit-calendar-picker-indicator {
     display: inline-block;
     animation: typing 1s steps(4) infinite;
 }
+
+.a4 {
+    width: 794px;
+    height: 1123px;
+    
+     /* Adjust padding as needed */
+    box-sizing: border-box;
+    background-color: white; /* Ensure the background is white for printing */
+
+  }

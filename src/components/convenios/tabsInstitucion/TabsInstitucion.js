@@ -3,6 +3,7 @@ import { Tab } from '@headlessui/react'
 import DetalleConvenio from './infoConvenios/detalleConvenio/DetalleConvenio'
 import Timeline from '../Timeline'
 import ResumenConvenios from './infoConvenios/ResumenConvenios'
+import IntercambioInformacion from './intercambioInformacion/IntercambioInformacion'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -46,7 +47,7 @@ function TabsInstitucion({
             Intercambio de información
           </Tab>
 
-          <Tab
+          {/* <Tab
             key="tareas"
             className={({ selected }) =>
               classNames(
@@ -58,7 +59,7 @@ function TabsInstitucion({
             }
           >
             Tareas
-          </Tab>
+          </Tab> */}
 
         </Tab.List>
 
@@ -77,22 +78,21 @@ function TabsInstitucion({
           {/* Intercambio de información */}
           <Tab.Panel
             key="intercambioPanel"
-            className={classNames(
-              'rounded-xl bg-white p-3',
-              'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2'
-            )}
           >
+            <IntercambioInformacion 
+              data={data.intercambioInformacion}
+            />
+          </Tab.Panel>
 
           {/* Tareas */}
-          </Tab.Panel>
-          <Tab.Panel
+          {/* <Tab.Panel
             key="tareasPanel"
             className={classNames(
               'rounded-xl bg-white p-3',
               'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2'
             )}
           >
-          </Tab.Panel>
+          </Tab.Panel> */}
         </Tab.Panels>
       </Tab.Group>
     </div>

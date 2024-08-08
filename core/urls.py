@@ -13,6 +13,7 @@ urlpatterns = [
     
     path('api/pc_isla/', include("apps.pc_isla.urls")),
     path('api/buscador/', include("apps.buscador.urls")),
+    path('api/informes/', include("apps.informes.urls")),
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

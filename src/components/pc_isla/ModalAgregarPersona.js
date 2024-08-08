@@ -13,6 +13,8 @@ function ModalAgregarPersona({
     // Change form
     const [formData, setFormData] = useState({
         nombre: "",
+        apellido: "",
+        rut: "",
         email: "",
         telefono: "",
         area: "",
@@ -21,6 +23,8 @@ function ModalAgregarPersona({
 
     const {
         nombre,
+        apellido,
+        rut,
         email,
         telefono,
         area,
@@ -32,14 +36,36 @@ function ModalAgregarPersona({
     };
 
     // Submit form
-    const [nombreValidation, setNombreValidation] = useState(true);
+    const [validations, setValidations] = useState({
+        nombre: true,
+        rut: true
+    });
     const validateForm = () => {
-        // Validar nombre
+        // Validar nombre completo
         const trimmedNombre = nombre.trim().toLocaleLowerCase();
-        const nombreValid = personasInstitucion.some(persona => persona.nombre.toLocaleLowerCase() === trimmedNombre);
+        const trimmedApellido = apellido.trim().toLocaleLowerCase();
+        const nombreValid = personasInstitucion.some(persona => persona.nombre_completo.toLocaleLowerCase() === trimmedNombre + " " + trimmedApellido);
+        console.log(trimmedNombre + " " + trimmedApellido, nombreValid);
 
-        setNombreValidation(!nombreValid);
-        return !nombreValid;
+        // Validate rut
+        let rutValid = true;
+        if (rut !== "") {
+            rutValid = /^(\d{8}-\d{1}|\d{8}-K)$/.test(rut);
+        }
+
+        const allValidations = Object.values({
+            nombre: !nombreValid,
+            rut: rutValid,
+        }).every(validation => validation);
+
+        setValidations({
+            ...validations,
+            nombre: !nombreValid,
+            rut: rutValid,
+        });
+
+
+        return allValidations;
     }
 
     const onSubmit = async (e) => {
@@ -55,15 +81,20 @@ function ModalAgregarPersona({
     const handleCloseModal = ({e, nuevaPersona=false}) => {
         setFormData({
             nombre: "",
+            apellido: "",
+            rut: "",
             email: "",
             telefono: "",
             area: "",
             cargo: ""
         });
 
-        setNombreValidation(true);
+        setValidations({
+            nombre: true,
+            rut: true,
+        });
         
-        closeModal(nuevaPersona, nombre);
+        closeModal(nuevaPersona, nombre, apellido);
     };
     
 
@@ -84,19 +115,53 @@ function ModalAgregarPersona({
                                 </div>
                                 {/* body */}
                                 <div className="relative px-6 pt-6 flex-auto">
-                                    <div className="mb-4">
-                                        <label htmlFor="nombre" id="nombre-label" className="text-gris-700 text-sm ">Nombre</label>
-                                        <input 
-                                            id="nombre"
-                                            name="nombre"
-                                            value={nombre}
-                                            onChange={e => onChange(e)}
-                                            required
-                                            className="block w-full py-2 px-3 text-gris-800 leading-tight focus:outline-none focus:shadow-outline shadow appearance-none border border-azul-marino-100 rounded"
-                                            placeholder="Ingrese nombre de la persona"
-                                        />
-                                        <span className="text-rojo-400 text-sm" hidden={nombreValidation}>Esta persona ya está registrada en esta institución.</span>
+                                    <div className={`flex flex-row ${!validations.nombre ? '' : 'mb-4'}`}>
+
+                                        <div className="w-1/2 pr-2">
+                                            <label htmlFor="nombre" id="nombre-label" className="text-gris-700 text-sm ">Nombre</label>
+                                            <input 
+                                                id="nombre"
+                                                name="nombre"
+                                                value={nombre}
+                                                onChange={e => onChange(e)}
+                                                required
+                                                className="block w-full py-2 px-3 text-gris-800 leading-tight focus:outline-none focus:shadow-outline shadow appearance-none border border-azul-marino-100 rounded"
+                                                placeholder="Ingrese nombre de la persona"
+                                            />
+                                            
+                                        </div>
+
+                                        <div className="w-1/2">
+                                            <label htmlFor="apellido" id="apellido-label" className="text-gris-700 text-sm ">Apellido</label>
+                                            <input 
+                                                id="apellido"
+                                                name="apellido"
+                                                value={apellido}
+                                                onChange={e => onChange(e)}
+                                                required
+                                                className="block w-full py-2 px-3 text-gris-800 leading-tight focus:outline-none focus:shadow-outline shadow appearance-none border border-azul-marino-100 rounded"
+                                                placeholder="Ingrese apellido de la persona"
+                                            />
+                                        </div>
                                     </div>
+                                    <div className="mb-4" hidden={validations.nombre}>
+                                        <span className="text-rojo-400 text-sm">Esta persona ya está registrada en esta institución.</span>
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <label htmlFor="rut" id="rut-label" className="text-gris-700 text-sm ">RUT</label>
+                                        <input 
+                                            id="rut"
+                                            name="rut"
+                                            value={rut}
+                                            onChange={e => onChange(e)}
+                                            className="block w-full py-2 px-3 text-gris-800 leading-tight focus:outline-none focus:shadow-outline shadow appearance-none border border-azul-marino-100 rounded"
+                                            placeholder="Ingrese RUT de la persona en formato 12345678-9"
+                                        />
+                                        <span className="text-rojo-400 text-sm" hidden={validations.rut}>El RUT debe estar en formato 12345678-9.</span>
+
+                                    </div>
+
 
                                     <div className="mb-4">
                                         <label htmlFor="email" id="email-label" className="text-gris-700 text-sm ">Correo electrónico</label>

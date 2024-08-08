@@ -63,7 +63,7 @@ function Profile({
                 <div className="w-full space-y-8 rounded-xl pb-8 shadow-lg bg-white">
                     <div className="">
                         <h2 className="mt-6 text-center text-2xl md-siii:text-3xl font-bold tracking-tight text-gris-800 border-b-2 border-gris-500 ">
-                        Hola, {user && user.persona.nombre}
+                        Bienvenido/a
                         </h2>
                         <div className="flex flex-col items-center mt-5 max-w-[280px] md:max-w-xs mx-auto px-4">
                             <button

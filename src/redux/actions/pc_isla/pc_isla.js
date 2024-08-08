@@ -524,3 +524,16 @@ export const extender_proyecto = (formData) => async dispatch => {
         payload: res.data
     });
 };
+
+export const informe_asistencia = (idProyecto, mes) => async dispatch => {
+    const config = {
+        headers: {
+            'Accept': 'application/json',
+        }
+    };
+
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/pc_isla/informe_asistencia/${idProyecto}/${mes}/`, config);
+
+    return res.data;
+    
+}

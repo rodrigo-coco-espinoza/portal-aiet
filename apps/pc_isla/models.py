@@ -1,9 +1,11 @@
 from django.db import models
 from django.conf import settings
 from django.db.models.query import QuerySet
+from django.utils import timezone
 from django.utils.text import slugify
 import os
 from django.core.files.storage import FileSystemStorage
+from datetime import timedelta
 
 User = settings.AUTH_USER_MODEL
 MEDIA_FOLDER = 'proyectos_pc_isla'
@@ -44,6 +46,7 @@ DIAS_CHOICES = (
 SALIDA_CHOICES = (
     ('fin jornada', 'Fin jornada'),
     ('proceso ejecutándose', 'Proceso ejecutándose'),
+    ('extracción de datos', 'Extracción de datos'),
     ('otro', 'Otro')
 )
 
@@ -138,7 +141,8 @@ class Persona(models.Model):
         ordering = ('nombre', )
 
     nombre = models.CharField(max_length=255, null=False)
-    #TODO:RUT, NOMBRE, APELLIDO
+    apellido = models.CharField(max_length=255, null=True, blank=True)
+    rut = models.CharField(max_length=10, null=True, blank=True)
     email = models.CharField(max_length=255, null=False)    
     telefono = models.CharField(max_length=255, null=True, blank=True)
     institucion = models.ForeignKey(Institucion, on_delete=models.SET_NULL, null=True)
@@ -147,7 +151,7 @@ class Persona(models.Model):
     cargo = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.nombre} - {self.institucion.sigla}"
+        return f"{self.nombre} {self.apellido} - {self.institucion.sigla}"
 
   
 # Create your models here.
@@ -190,6 +194,12 @@ class Proyecto(models.Model):
 
     objects = models.Manager()
     queryobjects = ProyectoObjects()
+
+    def es_fecha_termino_menor_o_igual_a_2_semanas(self):
+        if self.fecha_termino is None:
+            return False
+        fecha_limite = timezone.now().date() + timedelta(weeks=2)
+        return self.fecha_termino <= fecha_limite
 
     def __str__(self):
         return f"{self.id} {self.institucion.sigla} - {self.nombre}"
@@ -239,11 +249,11 @@ class Asistencia(models.Model):
     fecha = models.DateField(null=False)
     datetime_ingreso = models.CharField(max_length=20, null=True, blank=True)
     datetime_salida = models.CharField(max_length=20, null=True, blank=True)
-    motivo_salida = models.CharField(max_length=50, choices=SALIDA_CHOICES, null=True, blank=True)
+    motivo_salida = models.CharField(max_length=50, choices=SALIDA_CHOICES,null=True, blank=True)
+
 
     def __str__(self):
         return f"({self.id}) {self.fecha} - {self.jornada.equipo} {self.jornada.dia} {self.jornada.horario} Proyecto {self.jornada.proyecto.id}"
-
 
 
 class AsistenciaInvestigador(models.Model):

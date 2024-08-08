@@ -15,12 +15,12 @@ function InfoInstitucion({
                 { (user && (user.is_convenios_admin || user.is_convenios_editor)) && 
                 <div className="ml-auto">
                 <a 
-                    className="anchor-editar cursor-pointer"
+                    className="anchor-editar-institucion cursor-pointer"
                     //onClick={() => setShowModalAgregarProyecto(true)}
                 >      
                     <PencilSquareIcon className="h-6 w-6 text-gris-600 hover:text-verde-esmeralda-400 inline" />
                 </a>
-                <Tooltip key="tooltipAgregar" anchorSelect=".anchor-editar" place="top">Editar institución</Tooltip>
+                <Tooltip key="tooltipAgregar" anchorSelect=".anchor-editar-institucion" place="top">Editar institución</Tooltip>
                 </div>
                 }
             </div>   

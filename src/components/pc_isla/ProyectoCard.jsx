@@ -50,7 +50,7 @@ function ProyectoCard({
         <div className="max-w-sm p-6 bg-white border border-gris-300 rounded-lg shadow h-full flex flex-col">
             <h5 className="mb-0 text-2xl font-bold tracking-tight text-gris-800 cursor-default">{institucion.sigla}</h5>
             <p className="mb-4 font-normal text-gris-700 cursor-default">{data.nombre} (cód: {data.id})</p>
-            <p className="mb-1 font-normal text-sm text-gris-600 cursor-default">Encargado: {data.encargado_sii.nombre}</p>
+            <p className="mb-1 font-normal text-sm text-gris-600 cursor-default">Encargado: {data.encargado_sii.nombre_completo}</p>
             <p className="mb-1 font-normal text-sm text-gris-600 cursor-default">Estado: {data.estado}</p>
             { data.protocolo && (
                 <>
@@ -59,7 +59,7 @@ function ProyectoCard({
                     <div className="ml-1 ">
                     {
                         data.investigadores.map((investigador, index) => (
-                            <span className="line-clamp-1" key={index}>{investigador.nombre}<br/></span>
+                            <span className="line-clamp-1" key={index}>{investigador.nombre_completo}<br/></span>
                         ))
                     }
                     </div> 
@@ -76,7 +76,7 @@ function ProyectoCard({
                     </div> 
                 </div>
                 
-                <p className="mb-5 font-normal text-sm text-gris-600 cursor-default">Fecha de término: <br className='sm-sii:hidden'/> {data.formatted_fecha_termino} {data.extendido ? '(extendido)' : ''}</p>
+                <p className="mb-5 font-normal text-sm text-gris-600 cursor-default">Fecha de término: <br className='sm-sii:hidden'/> <span className={`${data.pronto_a_terminar ? 'text-red-400' : 'text-gris-600'}`}>{data.formatted_fecha_termino} {data.extendido ? '(extendido)' : ''}</span></p>
                 </>
             )
             }
