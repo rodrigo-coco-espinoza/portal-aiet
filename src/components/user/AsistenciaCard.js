@@ -26,6 +26,8 @@ function AsistenciaCard({
         codigo,
         sigla,
         nombre,
+        extendido,
+        pronto_a_terminar,
         dia,
         fecha,
         equipo,
@@ -123,7 +125,18 @@ function AsistenciaCard({
     return (
         <div className="max-w-sm p-4 bg-white border border-gris-300 rounded-lg shadow h-full flex flex-col">
             <h5 className="mb-0 text-xl font-bold tracking-tight text-gris-800 cursor-default">{sigla}</h5>
-            <p className="mb-4 font-normal text-gris-700 cursor-default">{nombre} (cód: {codigo})</p>
+            <div className="mb-3">
+            <p className="mb-1 font-normal text-gris-700 cursor-default">{nombre} (cód: {codigo})</p>
+            {extendido &&
+                <p className="mb-0 font-normal text-sm text-gris-600 cursor-default">Plazo extendido</p>
+            }
+            {pronto_a_terminar &&
+                <p className="mb-0 font-normal text-sm text-rosa-400 cursor-default">Projecto próximo a terminar. {!extendido && <span>Recuerde pedir extensión del plazo con anticipación.</span>}</p>
+            }
+
+            
+
+            </div>
             <p className="mb-1 font-normal text-sm text-gris-600">{dia} {fecha} {extra ? "(jornada extra)" : ""}</p>
             <p className="mb-1 font-normal text-sm text-gris-600">{equipo} - Horario {jornada}</p>
             { 

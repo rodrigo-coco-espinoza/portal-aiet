@@ -150,14 +150,6 @@ def get_calendario():
         jornada__proyecto__in=proyectos_activos,
         fecha__range=(inicio, fin)
         )
-
-
-    # BORRAR
-    #jornadas = Jornada.objects.filter(proyecto__in=proyectos_activos, active=1)
-
-    
-
-
     
     # Generar los días del calendario
     cuenta_dia = inicio
@@ -235,42 +227,13 @@ def get_calendario():
         calendario[indice][equipo][horario]['institucion'] = sigla
         calendario[indice][equipo][horario]['proyecto'] = nombre
         calendario[indice][equipo][horario]['extra'] = True if asistencia.jornada.extra else False
-        calendario[indice][equipo][horario]['asistencia'] = True if asistencia.datetime_ingreso else False
-           
-        
-
-    # BORRAR
-   # for jornada in jornadas:
-        # for dia_calendario in calendario:
-        #     fecha_calendario = datetime.strptime(dia_calendario['fecha'],"%d-%m-%Y").date() 
-            
-        #     # Identificar jornada extra
-        #     if jornada.extra and fecha_calendario == jornada.fecha:
-        #         dia_calendario[jornada.equipo][jornada.horario]['extra'] = True
-        #         dia_calendario[jornada.equipo][jornada.horario]['institucion'] = jornada.proyecto.institucion.sigla
-        #         dia_calendario[jornada.equipo][jornada.horario]['proyecto'] = jornada.proyecto.nombre
-                
-        #     # Identificar días pasados
-        #     if fecha_calendario < fecha_actual:
-        #         dia_calendario['pasado'] = True
-            
-        #     if not jornada.extra and  jornada.dia.capitalize() == dia_calendario['dia'] and jornada.proyecto.fecha_inicio <= fecha_calendario and jornada.proyecto.fecha_termino >= fecha_calendario:
-        #         dia_calendario[jornada.equipo][jornada.horario]['institucion'] = jornada.proyecto.institucion.sigla
-        #         dia_calendario[jornada.equipo][jornada.horario]['proyecto'] = jornada.proyecto.nombre
-        #         # Identificar días pasados
-        #         if fecha_calendario < fecha_actual:
-        #             dia_calendario['pasado'] = True
-
-        #     #Identificar asistencia del día
-        #     if fecha_calendario <= fecha_actual:
-        #         asistencia = Asistencia.objects.filter(jornada=jornada, fecha=fecha_calendario).first()
-        #         if asistencia and asistencia.datetime_ingreso:
-        #             dia_calendario[jornada.equipo][jornada.horario]['asistencia'] = True
-                
+        calendario[indice][equipo][horario]['asistencia'] = True if asistencia.datetime_ingreso else False            
     
     return calendario
 
 def obtener_asistencias(persona):
+    hoy = date.today()
+
     proyectos_encargado = Rol.objects.filter(
         persona=persona,
         proyecto__estado='en curso'
@@ -280,7 +243,7 @@ def obtener_asistencias(persona):
 
     asistencias_del_dia = Asistencia.objects.filter(
         jornada__proyecto_id__in=proyectos_encargado,
-        fecha=date.today()
+        fecha=hoy
     )
 
     data = []
@@ -291,11 +254,24 @@ def obtener_asistencias(persona):
         # Investigadores
         investigadores = asistencia.jornada.proyecto.rol_set.all()
 
+        # true si quedan 2 semanas menos entre la fecha actual y la fecha de término del proyecto, false si no
+        # termino_proyecto = datetime.strptime(asistencia.jornada.proyecto.fecha_termino, "%Y-%m-%d").date()
+        # termino_proyecto = termino_proyecto - relativedelta(weeks=2)
+        # termino_proyecto = termino_proyecto.strftime("%Y-%m-%d")
+        # termino_proyecto = datetime.strptime(termino_proyecto, "%Y-%m-%d").date()
+        # termino_proyecto = True if hoy <= termino_proyecto else False
+
+
+
+        
+
         data.append({
             'id': asistencia.id,
             'codigo': asistencia.jornada.proyecto.id,
             'sigla': asistencia.jornada.proyecto.institucion.sigla,
             'nombre': asistencia.jornada.proyecto.nombre,
+            'extendido': asistencia.jornada.proyecto.extendido,
+            'pronto_a_terminar': asistencia.jornada.proyecto.es_fecha_termino_menor_o_igual_a_2_semanas(),
             'dia': asistencia.jornada.dia.capitalize(),
             'fecha': asistencia.fecha.strftime('%d-%m-%Y'),
             'equipo': asistencia.jornada.equipo,
@@ -546,6 +522,8 @@ class ListsPersonasInstitucion(APIView):
             institucion_instance = Institucion.objects.get(id=institucion_id)
             persona = Persona(
                 nombre=data['nombre'].strip(),
+                apellido=data['apellido'].strip(),
+                rut=data['rut'],
                 email=data['email'],
                 telefono=data['telefono'] if data['telefono'] != "" else None,
                 area=data['area']  if data['area'] != "" else None,

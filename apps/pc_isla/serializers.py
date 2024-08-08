@@ -20,7 +20,7 @@ MESES_NOMBRE = [
 ]
 
 APELLIDOS_COMPUESTOS = [
-    "de", "del", "de la", "de las", "de los", "la", "san", "santa"
+    "de", "del", "de la", "de las", "de los", "la", "san", "santa", 'van', 'von', 'di', 'da', 'dos', 
 ]
 
 INICIO_JORNADA_AM = datetime.time(9,0)
@@ -99,6 +99,7 @@ def cacular_estadisticas_de_asistencia_del_mes(asistencias):
         minutos_extra += extra
     
     return {
+        'mes': MESES_NOMBRE[asistencias.first().fecha.month - 1],
         'asistencia': asistencias_del_mes_cuenta,
         'jornadasAsignadas': jornadas_del_mes_cuenta,
         'porcentajeAsistencia': f"{trunc((asistencias_del_mes_cuenta / jornadas_del_mes_cuenta) * 100)}%",
@@ -308,10 +309,7 @@ class PersonaSerializer(serializers.ModelSerializer):
             'area',
             'cargo',
         ]
-
-    
-    
-    
+   
 
 
 class ProyectoActivoSerializer(serializers.ModelSerializer):

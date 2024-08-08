@@ -199,12 +199,12 @@ function ProtocloInstituciones({
         open: false,
         nombre: "" 
     });
-    const handleAgregarPersona = (isNuevaPersona, nombrePersona) => {
+    const handleAgregarPersona = (isNuevaPersona, nombrePersona, apellidoPersona) => {
         setShowModalAgregarPersona(false);
         if (isNuevaPersona) {
             setShowAlertNuevaPerson({
                 open: true,
-                nombre: nombrePersona
+                nombre: `${nombrePersona} ${apellidoPersona}`
             });
         }
     };
