@@ -230,7 +230,7 @@ function ModalDetalleProyecto({
                     Detalle del proyecto
                   </h3>
                   <p className="text-xl font-semibold leading-tight text-gris-800 cursor-default">
-                    {institucion.sigla}: {proyecto.nombre}
+                    {institucion.sigla} ({proyecto.id}): {proyecto.nombre}
                   </p>
                 </div>
 
@@ -333,8 +333,8 @@ function ModalDetalleProyecto({
                           Encargados SII:
                         </label>
                         <p className="text-gris-900 cursor-default">
-                          {proyecto.encargado_sii.nombre} (encargado) -{" "}
-                          {proyecto.backup_sii.nombre} (backup){" "}
+                          {proyecto.encargado_sii.nombre_completo} (encargado) -{" "}
+                          {proyecto.backup_sii.nombre_completo} (backup){" "}
                           {user &&
                             (user.is_pc_isla_admin ||
                               user.is_pc_isla_editor) && (
@@ -655,7 +655,7 @@ function ModalDetalleProyecto({
                               Encargado del proyecto:
                             </label>
                             <p className="text text-gris-900 cursor-default">
-                              {proyecto.encargado.nombre}
+                              {proyecto.encargado.nombre_completo}
 
                               {user &&
                                 (user.is_pc_isla_admin ||
@@ -708,7 +708,7 @@ function ModalDetalleProyecto({
                                     key={`investigador_${index}`}
                                     className="text text-gris-900 cursor-default"
                                   >
-                                    {investigador.nombre}{" "}
+                                    {investigador.nombre_completo}{" "}
                                     {user &&
                                       (user.is_pc_isla_admin ||
                                         user.is_pc_isla_editor) && (
