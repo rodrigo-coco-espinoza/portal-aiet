@@ -254,16 +254,7 @@ def obtener_asistencias(persona):
         # Investigadores
         investigadores = asistencia.jornada.proyecto.rol_set.all()
 
-        # true si quedan 2 semanas menos entre la fecha actual y la fecha de término del proyecto, false si no
-        # termino_proyecto = datetime.strptime(asistencia.jornada.proyecto.fecha_termino, "%Y-%m-%d").date()
-        # termino_proyecto = termino_proyecto - relativedelta(weeks=2)
-        # termino_proyecto = termino_proyecto.strftime("%Y-%m-%d")
-        # termino_proyecto = datetime.strptime(termino_proyecto, "%Y-%m-%d").date()
-        # termino_proyecto = True if hoy <= termino_proyecto else False
-
-
-
-        
+      
 
         data.append({
             'id': asistencia.id,

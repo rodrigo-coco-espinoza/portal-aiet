@@ -76,7 +76,7 @@ function ProyectoCard({
                     </div> 
                 </div>
                 
-                <p className="mb-5 font-normal text-sm text-gris-600 cursor-default">Fecha de término: <br className='sm-sii:hidden'/> {data.formatted_fecha_termino} {data.extendido ? '(extendido)' : ''}</p>
+                <p className="mb-5 font-normal text-sm text-gris-600 cursor-default">Fecha de término: <br className='sm-sii:hidden'/> <span className={`${data.pronto_a_terminar ? 'text-red-400' : 'text-gris-600'}`}>{data.formatted_fecha_termino} {data.extendido ? '(extendido)' : ''}</span></p>
                 </>
             )
             }

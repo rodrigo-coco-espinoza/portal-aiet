@@ -146,68 +146,6 @@ def obtener_asistencia_total_proyecto(proyecto):
         data_mes.pop('para_totales')
         info_mensual.append(data_mes)
 
-
-        # jornadas_del_mes = asistencias.filter(fecha__month=mes_id).count()
-        # asistencias_del_mes = asistencias.filter(fecha__month=mes_id).exclude(datetime_ingreso="").exclude(datetime_ingreso__isnull=True)
-        # asistencias_del_mes_cuenta = asistencias_del_mes.count()
-
-        # !!!jornadas_total += jornadas_del_mes
-        # !!!!asistencias_total += asistencias_del_mes_cuenta
-
-        # minutos_utilizados = 0
-        # minutos_extra = 0
-
-        # for asistencia in asistencias_del_mes:
-        #     hora_minuto_string = extraer_hora_de_fecha(asistencia.datetime_ingreso)
-        #     hora_minuto_ingreso = hora_minuto_string.split(":")
-        #     hora_ingreso = datetime.time(int(hora_minuto_ingreso[0]), int(hora_minuto_ingreso[1]))
-            
-        #     if asistencia.datetime_salida:
-        #         hora_minuto_string = extraer_hora_de_fecha(asistencia.datetime_salida)
-        #         hora_minuto_salida = hora_minuto_string.split(":")
-        #         hora_salida = datetime.time(int(hora_minuto_salida[0]), int(hora_minuto_salida[1]))
-        #     else: 
-        #         hora_salida = datetime.time(17, 0)
-
-            
-        #     # Calcular tiempo de uso
-        #     minutos = calcular_minutos_entre_horas(hora_ingreso, hora_salida)
-        #     minutos_utilizados += minutos
-
-        #     !!!!minutos_utilizados_total += minutos
-
-            
-        #     # Calcular tiempo extra
-        #     extra = 0
-        #     if asistencia.jornada.horario == "AM":          
-                
-        #         if hora_ingreso < INICIO_JORNADA_AM:
-        #             extra += calcular_minutos_entre_horas(hora_ingreso, INICIO_JORNADA_AM)
-        #         if hora_salida > FIN_JORNADA_AM:
-        #             extra += calcular_minutos_entre_horas(FIN_JORNADA_AM, hora_salida)
-                
-        #     elif asistencia.jornada.horario == "PM":
-
-        #         # Calcular tiempo extra
-        #         if hora_ingreso < INICIO_JORNADA_PM:
-        #             extra += calcular_minutos_entre_horas(hora_ingreso, INICIO_JORNADA_PM)
-        #         if hora_salida > FIN_JORNADA_PM:
-        #             extra += calcular_minutos_entre_horas(FIN_JORNADA_PM, hora_salida)
-            
-        #     minutos_extra += extra
-        #     !!!!minutos_extra_total += extra
-
-
-        # info_mensual.append({
-        #     'mes': MESES_NOMBRE[mes_id - 1],
-        #     'asistencia': asistencias_del_mes_cuenta,
-        #     'jornadasAsignadas': jornadas_del_mes,
-        #     'porcentajeAsistencia': f"{trunc((asistencias_del_mes_cuenta / jornadas_del_mes) * 100)}%",
-        #     'horasUtilizadas': round(minutos_utilizados / 60, 1),
-        #     'horasAsignadas': 2.5 * jornadas_del_mes,
-        #     'horasExtra': minutos_a_hhmm(minutos_extra)
-        # })
-
     if asistencias:
 
         info_total = {
@@ -475,6 +413,12 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
             }) 
 
         return data
+    
+    # Proyeto pronto a terminar
+    pronto_a_terminar = serializers.SerializerMethodField()
+    def get_pronto_a_terminar(self, obj):
+        return obj.es_fecha_termino_menor_o_igual_a_2_semanas()
+
 
     class Meta:
         model = Proyecto
@@ -499,6 +443,7 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
             'jornada',
             'asistencia',
             'extendido',
+            'pronto_a_terminar',
             'formatted_fecha_extension',
             'estadisticas_uso',
         ]
