@@ -998,9 +998,6 @@ class InformeAsistencia(APIView):
         proyecto_instance = Proyecto.objects.get(id=proyecto_id)
         data_informe = InformeAsistenciaSerializer(proyecto_instance, context={'mes': mes}).data
 
-
-
-
         return Response({
             'proyecto_id': proyecto_id,
             'mes': MESES_NOMBRE[mes - 1],

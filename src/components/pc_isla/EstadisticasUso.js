@@ -28,7 +28,6 @@ function EstadsiticasUso({
         // Fetch data del mes
         informe_asistencia(idProyecto, e.id)
         .then( response => {
-            console.log(response);
             // Asignar data del mes a estado
             setContenidoInforme(response);
         })

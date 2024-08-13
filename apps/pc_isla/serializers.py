@@ -523,6 +523,10 @@ class InformeAsistenciaSerializer(serializers.ModelSerializer):
             'extras': data_extras,
             'estadisticasMes': estadisticas_mes
         }
+    
+    pronto_a_terminar = serializers.SerializerMethodField()
+    def get_pronto_a_terminar(self, obj):
+        return obj.es_fecha_termino_menor_o_igual_a_2_semanas()
     class Meta:
         model = Proyecto
         fields = [
@@ -531,6 +535,7 @@ class InformeAsistenciaSerializer(serializers.ModelSerializer):
             'fecha_inicio',
             'fecha_termino',
             'extendido',
+            'pronto_a_terminar',
             'data_mes',
             'data_total',
         ]
