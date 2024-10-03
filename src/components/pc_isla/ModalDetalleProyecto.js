@@ -16,7 +16,6 @@ import {
 } from "redux/actions/pc_isla/pc_isla";
 import ModalRechazarProyecto from "./ModalRechazarProyecto";
 import ProtocloInstituciones from "./ProtocoloInstituciones";
-import ProtocoloMINHACIENDA from "./ProtocoloMINHACIENDA";
 import ComboboxSelected from "./ComboboxSelected";
 import BloquesSelected from "./BloquesSelected";
 import ModalEditarJornada from "./ModalEditarJornada";

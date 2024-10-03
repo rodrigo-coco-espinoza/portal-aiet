@@ -23,6 +23,9 @@ function EstadsiticasUso({
     const [contenidoInforme, setContenidoInforme] = useState(false);
 
     const [mesInforme, setMesInforme] = useState();
+
+    const [documentTitle, setDocumentTitle] = useState('');
+
     const mesChange = (e) => {
         setMesInforme(e.id);
         // Fetch data del mes
@@ -30,17 +33,12 @@ function EstadsiticasUso({
         .then( response => {
             // Asignar data del mes a estado
             setContenidoInforme(response);
+            setDocumentTitle(`Informe de asistencia mensual ${response.mes}  proyecto ${idProyecto}`);
         })
         .catch(error => {
             console.error("There was an error fetching the data", error);
-        });
-
-
-        
+        });       
     };
-
-
-
 
     return (
         <>
@@ -68,12 +66,12 @@ function EstadsiticasUso({
             <div id="estadisticas-total" className='flex sm-sii:flex-row flex-col my-10 text-gris-800'>
                 <div className='sm-sii:w-1/3 text-center flex flex-col sm-sii:mr-4 mb-5 sm-sii:mb-0'>
                     <span className='font-bold text-lg'>Asistencia del proyecto</span>
-                    <span className='text-3xl text-gris-900'>{data.estadisticasTotal.porcentajeAsistenciaTotal}</span>
+                    <span className='text-3xl text-gris-900'>{data.estadisticasTotal.porcentajeAsistenciaTotal}%</span>
                 </div>
 
                 <div className='sm-sii:w-1/3 text-center flex flex-col sm-sii:mr-4 mb-5 sm-sii:mb-0'>
                     <span className='font-bold text-lg text-gris-800'>Uso de horas asignadas</span>
-                    <span className='text-3xl text-gris-900'>{data.estadisticasTotal.usoHorasAsignadasTotal}</span>
+                    <span className='text-3xl text-gris-900'>{data.estadisticasTotal.usoHorasAsignadasTotal}%</span>
                 </div>
 
                 <div className='sm-sii:w-1/3 text-center flex flex-col sm-sii:mr-4'>
@@ -100,6 +98,7 @@ function EstadsiticasUso({
                         trigger={() => <button 
                         className="anchor-imprimir"><PrinterIcon className="h-11 w-11 text-gris-800 inline hover:text-azul-cobalto-400 cursor-pointer ml-1"/></button>}
                         content={() => componentRef.current}
+                        documentTitle={documentTitle}
                     />
 
                 }

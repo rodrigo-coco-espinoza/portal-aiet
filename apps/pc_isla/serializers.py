@@ -102,7 +102,7 @@ def cacular_estadisticas_de_asistencia_del_mes(asistencias):
         'mes': MESES_NOMBRE[asistencias.first().fecha.month - 1],
         'asistencia': asistencias_del_mes_cuenta,
         'jornadasAsignadas': jornadas_del_mes_cuenta,
-        'porcentajeAsistencia': f"{trunc((asistencias_del_mes_cuenta / jornadas_del_mes_cuenta) * 100)}%",
+        'porcentajeAsistencia': trunc((asistencias_del_mes_cuenta / jornadas_del_mes_cuenta) * 100),
         'horasUtilizadas': round(minutos_utilizados / 60, 1),
         'horasAsignadas': 2.5 * jornadas_del_mes_cuenta,
         'horasExtra': minutos_a_hhmm(minutos_extra),
@@ -120,7 +120,7 @@ def obtener_asistencia_total_proyecto(proyecto):
         jornada__proyecto=proyecto, 
         fecha__lte=datetime.date.today(),
         jornada__extra=0,
-        )
+    ).order_by('fecha')
 
     info_mensual = []
 
@@ -149,9 +149,9 @@ def obtener_asistencia_total_proyecto(proyecto):
     if asistencias:
 
         info_total = {
-            'porcentajeAsistenciaTotal': f"{trunc((asistencias_total / jornadas_total) * 100)}%",
-            'usoHorasAsignadasTotal': f"{round(minutos_utilizados_total / 60, 1)} / {2.5 * jornadas_total}",
-            'horasExtraTotal': f"{minutos_a_hhmm(minutos_extra_total)} hrs"
+            'porcentajeAsistenciaTotal': trunc((asistencias_total / jornadas_total) * 100),
+            'usoHorasAsignadasTotal': trunc((minutos_utilizados_total / 60) / (2.5 * jornadas_total) * 100),
+            'horasExtraTotal': f"{minutos_a_hhmm(minutos_extra_total)}"
         }
 
     else:
@@ -461,6 +461,9 @@ class ProyectoNoActivoSerializer(serializers.ModelSerializer):
 class InformeAsistenciaSerializer(serializers.ModelSerializer):
     data_total = serializers.SerializerMethodField()
     data_mes = serializers.SerializerMethodField()
+    formatted_fecha_inicio = serializers.SerializerMethodField()
+    formatted_fecha_termino = serializers.SerializerMethodField()
+    pronto_a_terminar = serializers.SerializerMethodField()
 
     def get_data_total(self, obj):
         data_estadisticas = obtener_asistencia_total_proyecto(obj)
@@ -513,7 +516,7 @@ class InformeAsistenciaSerializer(serializers.ModelSerializer):
 
         estadisticas_mes = {
             'porcentajeAsistenciaMes': estadisticas_mes_data['porcentajeAsistencia'],
-            'usoHorasAsignadasMes': f"{estadisticas_mes_data['horasUtilizadas']} / {estadisticas_mes_data['horasAsignadas']}",
+            'usoHorasAsignadasMes': trunc(estadisticas_mes_data['horasUtilizadas'] / estadisticas_mes_data['horasAsignadas'] * 100),
             'horasExtraMes': estadisticas_mes_data['horasExtra']
         }
         
@@ -524,16 +527,38 @@ class InformeAsistenciaSerializer(serializers.ModelSerializer):
             'estadisticasMes': estadisticas_mes
         }
     
-    pronto_a_terminar = serializers.SerializerMethodField()
+    def get_formatted_fecha_inicio(self, obj):
+        fecha_inicio = obj.fecha_inicio
+        if fecha_inicio:
+            if isinstance(fecha_inicio, str):
+                fecha_inicio = timezone.make_aware(datetime.datetime.strptime(fecha_inicio, "%Y-%m-%d"))
+            formatted_date = fecha_inicio.strftime('%d-%m-%Y')
+        else:
+            formatted_date = None
+        return formatted_date
+
+    def get_formatted_fecha_termino(self, obj):
+        fecha_termino = obj.fecha_termino
+        if fecha_termino:
+            if isinstance(fecha_termino, str):
+                fecha_termino = timezone.make_aware(datetime.datetime.strptime(fecha_termino, "%Y-%m-%d"))
+            formatted_date = fecha_termino.strftime('%d-%m-%Y')
+        else:
+            formatted_date = None
+        return formatted_date
+
+    
     def get_pronto_a_terminar(self, obj):
         return obj.es_fecha_termino_menor_o_igual_a_2_semanas()
+    
+
     class Meta:
         model = Proyecto
         fields = [
             'id',
             'nombre',
-            'fecha_inicio',
-            'fecha_termino',
+            'formatted_fecha_inicio',
+            'formatted_fecha_termino',
             'extendido',
             'pronto_a_terminar',
             'data_mes',

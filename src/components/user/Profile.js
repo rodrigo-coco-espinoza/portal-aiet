@@ -31,13 +31,18 @@ function Profile({
 
 
     const [showModalPassword, setShowModalPassword] = useState(false)   
+    const openModalPassword = () => {
+        console.log("abriendo modal")
+        setShowModalPassword(true);
+    }
+
     const handleClickPassword = () => {
         setShowModalPassword(false)
     }
 
-    const [showModalAgregar, setshowModalAgregar] = useState(false)
+    const [showModalAgregar, setShowModalAgregar] = useState(false)
     const handleClickAgregar = () => {
-        setshowModalAgregar(false)
+        setShowModalAgregar(false)
     }
 
    
@@ -67,7 +72,7 @@ function Profile({
                         </h2>
                         <div className="flex flex-col items-center mt-5 max-w-[280px] md:max-w-xs mx-auto px-4">
                             <button
-                                onClick={() => setShowModalPassword(true)}
+                                onClick={openModalPassword}
                                 className="w-full text-white bg-azul-cobalto-400 hover:bg-azul-cobalto-300 focus:outline-none focus:ring-2 focus:ring-azul-cobalto-400 focus:ring-offset-2 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-4"
                             >
                                 Cambiar contraseña
@@ -97,7 +102,7 @@ function Profile({
                 <div className="ml-auto">
                 <a 
                     className="anchor-agregar"
-                    onClick={() => setshowModalAgregar(true)}>      
+                    onClick={() => setShowModalAgregar(true)}>      
                     <PlusIcon className="h-8 w-8 text-gris-600 hover:text-verde-esmeralda-400 inline border-b-2 border-gris-500" />
                 </a>
                 <Tooltip key="tooltipAgregar" anchorSelect=".anchor-agregar" place="top">Agregar</Tooltip>
@@ -116,6 +121,7 @@ function Profile({
                 )) }
             </div>
                 
+            </>}
 
             <ModalPassword 
                 active={showModalPassword}
@@ -125,7 +131,6 @@ function Profile({
                 active={showModalAgregar}
                 closeModal={handleClickAgregar}
             />
-            </>}
 
             </motion.div>
             <Footer />

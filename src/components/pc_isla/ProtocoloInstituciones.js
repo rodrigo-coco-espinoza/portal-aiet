@@ -32,7 +32,7 @@ function ProtocloInstituciones({
     const [personasOptions, setpersonasOptions] = useState([]);
     useEffect(() => {
         // Update personasOptions when personasInstitucion changes
-        setpersonasOptions(personasInstitucion.map(persona => ({ id: persona.id, full_name: persona.nombre })));
+        setpersonasOptions(personasInstitucion.map(persona => ({ id: persona.id, full_name: persona.nombre_completo })));
     }, [personasInstitucion]);
 
     // Form protocolo de uso

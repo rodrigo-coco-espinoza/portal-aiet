@@ -140,6 +140,8 @@ def get_calendario():
     # Fecha inicio y término del calendario
     fecha_actual = datetime.now().date()
     inicio = fecha_actual - timedelta(days=fecha_actual.weekday() + 1)
+    
+
     fin = inicio + timedelta(days=30)
     while fin.weekday() != 4:  # 4 representa el viernes
         fin += timedelta(days=1)
@@ -1001,6 +1003,7 @@ class InformeAsistencia(APIView):
         return Response({
             'proyecto_id': proyecto_id,
             'mes': MESES_NOMBRE[mes - 1],
+            'sigla': proyecto_instance.institucion.sigla,
             'data_informe': data_informe
         }, status=status.HTTP_200_OK)
 
