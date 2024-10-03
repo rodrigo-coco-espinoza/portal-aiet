@@ -1,12 +1,19 @@
 import React, { forwardRef } from 'react';
+import TablaAsistenciaMes from './TablaAsistenciaMes';
+import TablaAsistenciaTotal from './TablaAsistenciaTotal';
+import TablaJornadasExtra from './TablaJornadasExtra';
+import EstadisticasAsistencia from './EstadisticasAsistencia';
+import Plazos from './Plazos';
+import Titulo from './Titulo';
+import NotasInforme from './NotasInforme';
 
 const InformeAsistenciaMensual = forwardRef(({content}, ref) => {
 
     const {
         id,
         nombre,
-        fecha_inicio,
-        fecha_termino,
+        formatted_fecha_inicio,
+        formatted_fecha_termino,
         extendido,
         pronto_a_terminar,
         data_mes,
@@ -16,128 +23,99 @@ const InformeAsistenciaMensual = forwardRef(({content}, ref) => {
 
     return (
     <div ref={ref} className="">
-        <div className='a4 pt-[40px] px-[40px]'>
-            <p className="text-xl">Informe de asistencia mensual {content.mes}</p>
-            <p className='text-2xl font-bold border-solid border-b-4 border-gris-700'>{nombre} ({id})</p>
+        {/* Primera hoja */}
+        <div className='a4'>
+        
+            <div className='bg-gris-100'>
+                <div className='pt-[40px] px-[40px]'>
+                    <Titulo
+                        nombre={nombre}
+                        sigla={content.sigla}
+                        id={id}
+                        mes={content.mes}
+                    />
 
-            <div id="data-proyecto" className='mt-5 mb-[50px]'>
-                <p>Fecha de inicio del proyecto: 01-02-2024</p>
-                <p>Fecha de término del proyecto: 01-08-2024 {extendido && '(plazo extendido)'}</p>
-                {pronto_a_terminar &&
-                    <p>Proyecto próximo a terminar. {!content.extendido && <span>Recuerde solicitar extensión del plazo con anticipación.</span>} </p>
-
-                }
+                    <Plazos
+                        fecha_inicio={formatted_fecha_inicio}
+                        fecha_termino={formatted_fecha_termino}
+                        extendido={extendido}
+                        pronto_a_terminar={pronto_a_terminar}
+                    />
+                </div>
             </div>
 
-            <div id="estadisticas-mes" className='mb-[60px] flex flex-row'>
-                <div className='w-1/3 text-center flex flex-col mr-4'>
-                    <span className='font-bold text-2xl'>Asistencia del mes</span>
-                    <span className='text-3xl'>{data_mes.estadisticasMes.porcentajeAsistenciaMes}</span>
+            <div className='px-[40px]'>
+                <p className='font-bold text-3xl mb-[10px] text-gris-800'>I. Información asistencia mes de {content.mes}</p>
+
+                <div id="estadisticas-mes" className='mb-[30px] flex flex-row'>
+                    <EstadisticasAsistencia
+                        porcentajeAsistencia={data_mes.estadisticasMes.porcentajeAsistenciaMes}
+                        horasAsignadas={data_mes.estadisticasMes.usoHorasAsignadasMes} 
+                        horasExtras={data_mes.estadisticasMes.horasExtraMes}
+                    />
                 </div>
 
-                <div className='w-1/3 text-center flex flex-col mr-4'>
-                    <span className='font-bold text-2xl'>Uso de horas asignadas</span>
-                    <span className='text-3xl'>{data_mes.estadisticasMes.usoHorasAsignadasMes}</span>
-                </div>
-
-                <div className='w-1/3 text-center flex flex-col mr-4'>
-                    <span className='font-bold text-2xl'>Uso fuera de horario</span>
-                    <span className='text-3xl'>{data_mes.estadisticasMes.horasExtraMes} horas</span>
-                </div>
-
-            </div>
-
-            <div id="asistencia-mes" className='mb-[70px]'>
-                <p className='font-bold text-xl mb-[10px]'>Asistencia Enero</p>
-                <div className='flex flex-row'>
-                    <span className='mr-2 w-[100px]'>Fecha</span>
-                    <span className='mr-2 w-[80px]'>Ingreso</span>
-                    <span className='mr-2 w-[80px]'>Salida</span>
-                    <span className=''>Asistentes</span>
-                </div>
-
-                {data_mes.asignadas.map((infoAsistencia, index) => (
-                    <div className='flex flex-row border-solid border-b border-gris-400' key={`tabla_asistencia_${index}`}>
-                        <span className='mr-2 w-[100px]'>{infoAsistencia.fecha}</span>
-                        <span className='mr-2 w-[80px]'>{infoAsistencia.ingreso}</span>
-                        <span className='mr-2 w-[80px]'>{infoAsistencia.salida}</span>
-                        <span className='mr-2'>{infoAsistencia.asistentes}</span>
-                    </div>
-                ))}               
-            </div>     
-
-            <div id="jornadas-extra-mes" className='mt-8'>
-                <p className='font-bold text-xl mb-[10px]'>Jornadas extras Enero</p>
-                {data_mes.extras.length !== 0 ?
-
+                <div id="asistencia-mes" className='mb-[70px]'>
+                    <p className='font-bold text-2xl mb-[10px] text-gris-800'>a. Detalle asistencia del mes</p>
+                    <TablaAsistenciaMes
+                        data={data_mes.asignadas} 
+                    />                                        
+                </div>     
                 
-                <div>
+                {data_mes.asignadas.length <= 15 && data_mes.extras.length <= 5 &&
 
-                    <div className='flex flex-row'>
-                        <span className='mr-2 w-[100px]'>Fecha</span>
-                        <span className='mr-2 w-[80px]'>Ingreso</span>
-                        <span className='mr-2 w-[80px]'>Salida</span>
-                        <span className=''>Asistentes</span>
-                    </div>
-
-                    {data_mes.extras.map((infoExtra, index) => (
-                        <div className='flex flex-row border-solid border-b border-gris-400' key={`tabla_jornadas_extra_${index}`}>
-                            <span className='mr-2 w-[100px]'>{infoExtra.fecha}</span>
-                            <span className='mr-2 w-[80px]'>{infoExtra.ingreso}</span>
-                            <span className='mr-2 w-[80px]'>{infoExtra.salida}</span>
-                            <span className='mr-2'>{infoExtra.asistentes}</span>
-                        </div>
-                    ))}
-                </div>
+                <div id="jornadas-extra-mes" className='mt-8'>
+                    <p className='font-bold text-2xl mb-[10px] text-gris-800'>b. Jornadas extras del mes</p>
+                    {data_mes.extras.length !== 0 ?              
+                    <TablaJornadasExtra
+                        data={data_mes.extras}
+                    />
                 :
-                <p>No hay jornadas extras en este mes.</p>
-                }
+                    <p>No hay jornadas extras en este mes.</p>
+                    }
+                </div>       
+                }          
             </div>
+
         </div>
 
-        <div className='a4 mt-10 pt-[45px] px-[40px] flex flex-col justify-between'>
-
-            <div id="asistencia-total" className='mb-[70px]'>
-                <h1 className="text-2xl font-bold mb-[10px]">Asistencia total del proyecto</h1>
-                <div className='flex flex-row'>
-                    <span className='mr-2 w-[100px]'>Mes</span>
-                    <span className='mr-2 w-[120px]'>Asistencia</span>
-                    <span className='mr-2 w-[120px]'>Horas de uso</span>
-                    <span className=''>Uso fuera de horario</span>
+        {/* Segunda hoja */}
+        <div className='a4 mt-10 flex flex-col justify-between'>
+            {( (data_mes.asignadas.length > 15) || (data_mes.asignadas.legnth <= 15 && data_mes.extras.legnth > 5) ) &&
+                <div id="jornadas-extra-mes" className='mb-10 pt-[45px] px-[40px]'>
+                    <p className='font-bold text-2xl mb-[10px] text-gris-800'>b. Jornadas extras del mes</p>
+                    {data_mes.extras.length !== 0 ?
+                    <TablaJornadasExtra
+                        data={data_mes.extras}
+                    />
+                    :
+                    <p>No hay jornadas extras en este mes.</p>
+                    }
                 </div>
-
-                {data_total.asistenciaMensual.map((infoMes, index) => (
-                    <div className='flex flex-row border-solid border-b border-gris-400' key={`tabla_asistencia_${index}`}>
-                        <span className='mr-2 w-[100px]'>{infoMes.mes}</span>
-                        <span className='mr-2 w-[120px]'>{infoMes.asistencia} / {infoMes.jornadasAsignadas} ({infoMes.porcentajeAsistencia})</span>
-                        <span className='mr-2 w-[120px]'>{infoMes.horasUtilizadas} / {infoMes.horasAsignadas}</span>
-                        <span className='mr-2'>{infoMes.horasExtra}</span>
+            }
+            
+            <div className='bg-gris-100'>
+                <div className='px-[40px] pt-[45px]'>
+                    <p className='font-bold text-3xl mb-[10px] text-gris-800'>II. Información asistencia total del proyecto</p>
+                    <div id="estadisticas-total" className='flex flex-row mb-[70px]'>
+                        <EstadisticasAsistencia 
+                            porcentajeAsistencia={data_total.estadisticasTotal.porcentajeAsistenciaTotal}
+                            horasAsignadas={data_total.estadisticasTotal.usoHorasAsignadasTotal}
+                            horasExtras={data_total.estadisticasTotal.horasExtraTotal}
+                            crossFill='#F5F5F5'
+                        />
                     </div>
 
-                ))}   
+                    <div id="asistencia-total" className='mb-[250px]'>
+                        <h1 className="text-2xl font-bold mb-[10px] text-gris-800">a. Detalle asistencia total</h1>
+                        <TablaAsistenciaTotal
+                            data={data_total.asistenciaMensual}
+                        />
+                    </div>
+                </div>
             </div>
-
-            <div id="estadisticas-total" className='flex flex-row mb-[300px]'>
-                <div className='w-1/3 text-center flex flex-col mr-4'>
-                    <span className='font-bold text-2xl'>Asistencia del proyecto</span>
-                    <span className='text-3xl'>{data_total.estadisticasTotal.porcentajeAsistenciaTotal}</span>
-                </div>
-
-                <div className='w-1/3 text-center flex flex-col mr-4'>
-                    <span className='font-bold text-2xl'>Uso de horas asignadas</span>
-                    <span className='text-3xl'>{data_total.estadisticasTotal.usoHorasAsignadasTotal}</span>
-                </div>
-
-                <div className='w-1/3 text-center flex flex-col mr-4'>
-                    <span className='font-bold text-2xl'>Uso fuera de horario</span>
-                    <span className='text-3xl'>{data_total.estadisticasTotal.horasExtraTotal} horas</span>
-                </div>
-
-            </div>
-
-            <div id="notas" className='mt-auto mb-[70px]'>
-            <h1 className="text-xl font-bold">Notas</h1>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+            <div id="notas" className='mt-auto pt-[25px] pb-[25px] px-[40px]'>
+                <NotasInforme />
             </div>
 
         </div>
