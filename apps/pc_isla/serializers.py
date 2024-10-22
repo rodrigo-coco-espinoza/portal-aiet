@@ -120,7 +120,7 @@ def obtener_asistencia_total_proyecto(proyecto):
         jornada__proyecto=proyecto, 
         fecha__lte=datetime.date.today(),
         jornada__extra=0,
-    ).order_by('fecha')
+    )
 
     info_mensual = []
 
