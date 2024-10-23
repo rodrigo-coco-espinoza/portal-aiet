@@ -38,6 +38,7 @@ PROJECT_APPS = [
     'apps.pc_isla',
     'apps.user',
     'apps.informes',
+    'apps.base',
 ]
 
 THIRD_PARTY_APPS = [

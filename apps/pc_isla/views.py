@@ -1,10 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
+from ..base.models import Persona
 from apps.user.models import UserAccount
 from django.conf import settings
 from apps.user.serializers import *
-from .serializers import InstitucionSelectSerializer,ProyectoActivoSerializer, ProyectoNoActivoSerializer, PersonaSelectSerializer, InformeAsistenciaSerializer, MESES_NOMBRE
+from apps.base.serializers import InstitucionSelectSerializer, PersonaSelectSerializer, PersonaSerializer
+from .serializers import ProyectoActivoSerializer, ProyectoNoActivoSerializer, InformeAsistenciaSerializer, MESES_NOMBRE
 import json
 from django.http import JsonResponse
 from .models import *

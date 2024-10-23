@@ -1,10 +1,10 @@
 import { useState } from "react";
-import ComboboxSelect from "./ComboboxSelect";
+import ComboboxSelect from "../formularios/ComboboxSelect";
 import { Alert, select } from "@material-tailwind/react";
 import BloquesSelection from "./BloquesSelection";
 import { connect } from "react-redux";
 import { add_jornada_extra } from "redux/actions/pc_isla/pc_isla";
-import Loading from "./Loading";
+import Loading from "../formularios/Loading";
 
 let equiposOptions = [
     {id: 'Bora Bora', full_name: "Bora Bora"},

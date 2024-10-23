@@ -1,5 +1,5 @@
 import { DocumentArrowDownIcon, DocumentTextIcon, PrinterIcon } from "@heroicons/react/20/solid";
-import ComboboxSelect from "./ComboboxSelect";
+import ComboboxSelect from "../formularios/ComboboxSelect";
 import { Tooltip } from "react-tooltip";
 import InformeAsistenciaMensual from "./Informes/AsistenciaMensual/InformeAsistenciaMensual";
 import { useRef, useState } from "react";

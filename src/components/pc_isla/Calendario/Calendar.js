@@ -3,7 +3,7 @@ import ColumnaDia from './ColumnaDia';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import { connect } from 'react-redux';
 import { get_calendario_pc_isla } from 'redux/actions/pc_isla/pc_isla';
-import Loading from './Loading';
+import Loading from 'components/formularios/Loading';
 
 const Calendar = ({
   calendario,

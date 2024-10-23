@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
-from apps.pc_isla.models import Persona
+from apps.base.models import Persona
 
 # Create your models here.
 

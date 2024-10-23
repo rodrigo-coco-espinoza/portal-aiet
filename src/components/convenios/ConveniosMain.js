@@ -1,6 +1,6 @@
 import InfoInstitucion from "components/convenios/infoInstitucion/InfoInstitucion"
 import TabsInstitucion from "components/convenios/tabsInstitucion/TabsInstitucion"
-import ComboboxSelect from "components/pc_isla/ComboboxSelect"
+import ComboboxSelect from "components/formularios/ComboboxSelect"
 import { useState } from "react"
 import { connect }  from "react-redux";
 import { PlusIcon } from "@heroicons/react/20/solid"
@@ -20,7 +20,7 @@ const institucionesInfo = [
         encargadoSII: 
         {
             id: 1,
-            nombre: 'Rodrigo Espinoza',
+            nombre: 'Rodrigo Espinozo',
             email: 'rodrigo.espinza@sii.cl',
             telefono: null,
             area: 'Área de Informaición y Estadísticas Tributarias',

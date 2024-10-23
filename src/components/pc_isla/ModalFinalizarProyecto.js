@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { connect } from "react-redux";
 import { finalizar_proyecto } from "redux/actions/pc_isla/pc_isla";
-import Loading from "./Loading";
+import Loading from "../formularios/Loading";
 
 function ModalFinalizarJornada({
     idProyecto,
