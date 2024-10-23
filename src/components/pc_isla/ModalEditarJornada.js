@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { get_jornadas_minhacienda, update_jornadas_minhacienda } from "redux/actions/pc_isla/pc_isla";
 import { connect } from "react-redux";
-import Loading from "./Loading";
+import Loading from "../formularios/Loading";
 
 
 function ModalEditarJornada({

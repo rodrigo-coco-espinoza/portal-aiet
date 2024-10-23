@@ -6,7 +6,7 @@ import {
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Tooltip } from "react-tooltip";
-import ComboboxSelect from "./ComboboxSelect";
+import ComboboxSelect from "../formularios/ComboboxSelect";
 import { Alert } from "@material-tailwind/react";
 import {
   update_encargados_sii,
@@ -16,7 +16,7 @@ import {
 } from "redux/actions/pc_isla/pc_isla";
 import ModalRechazarProyecto from "./ModalRechazarProyecto";
 import ProtocloInstituciones from "./ProtocoloInstituciones";
-import ComboboxSelected from "./ComboboxSelected";
+import ComboboxSelected from "../formularios/ComboboxSelected";
 import BloquesSelected from "./BloquesSelected";
 import ModalEditarJornada from "./ModalEditarJornada";
 import TablaAsistencia from "./TablaAsistencia";

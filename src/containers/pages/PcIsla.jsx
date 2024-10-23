@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { motion } from 'framer-motion'
 import Footer from "components/navigation/Footer";
-import Calendar from "components/pc_isla/Calendar";
+import Calendar from "components/pc_isla/Calendario/Calendar";
 import ProyectosActivos from "components/pc_isla/ProyectosActivos";
 import { connect } from "react-redux";
 import { get_instituciones_options, get_encargados_pc_isla_options, get_proyectos, get_jornadas_minhacienda } from "redux/actions/pc_isla/pc_isla";

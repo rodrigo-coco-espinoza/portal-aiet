@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react"
 import { connect } from "react-redux"
 import { add_proyecto } from "redux/actions/pc_isla/pc_isla"
-import ComboboxSelect from "./ComboboxSelect"
+import ComboboxSelect from "components/formularios/ComboboxSelect"
 import { PlusIcon } from "@heroicons/react/20/solid"
 import { Tooltip } from "react-tooltip"
-import ModalAgregarInstitucion from "./ModalAgregarInstitucion"
+import ModalAgregarInstitucion from "components/formularios/ModalAgregarInstitucion"
 import { Alert } from "@material-tailwind/react"
 
 

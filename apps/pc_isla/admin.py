@@ -1,4 +1,6 @@
 from django.contrib import admin
+
+from ..base.models import Persona, Subdireccion
 from .models import *
 
 # Register your models here.

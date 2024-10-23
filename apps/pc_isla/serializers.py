@@ -1,4 +1,7 @@
 from rest_framework import serializers
+
+from apps.base.serializers import PersonaSerializer
+from apps.base.utils import obtener_apellido, capitalize_first, extraer_hora_de_fecha, calcular_minutos_entre_horas, minutos_a_hhmm
 from .models import *
 from django.utils import timezone
 import datetime
@@ -19,38 +22,10 @@ MESES_NOMBRE = [
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 ]
 
-APELLIDOS_COMPUESTOS = [
-    "de", "del", "de la", "de las", "de los", "la", "san", "santa", 'van', 'von', 'di', 'da', 'dos', 
-]
-
 INICIO_JORNADA_AM = datetime.time(9,0)
 FIN_JORNADA_AM = datetime.time(12, 30)
 INICIO_JORNADA_PM = datetime.time(14, 30)
 FIN_JORNADA_PM = datetime.time(17, 0)
-
-def capitalize_first(phrase):
-    if phrase:
-        words = phrase.split()
-        words[0] = words[0].capitalize()
-        return ' '.join(words)
-        
-    else:
-        return None
-
-
-def extraer_hora_de_fecha(datetime_string):
-    return datetime_string.split()[1] if datetime_string else None
-
-def calcular_minutos_entre_horas(hora_inicio, hora_fin):
-    datetime_ingreso = datetime.datetime.combine(datetime.datetime.min, hora_inicio) 
-    datetime_salida = datetime.datetime.combine(datetime.datetime.min, hora_fin)
-    time_diference = datetime_salida - datetime_ingreso
-    return time_diference.total_seconds() / 60
-
-def minutos_a_hhmm(minutos):
-    horas = trunc(minutos // 60)
-    minutos_restantes = trunc(minutos % 60)
-    return f"{horas:02}:{minutos_restantes:02}"
 
 def cacular_estadisticas_de_asistencia_del_mes(asistencias):
     jornadas_del_mes_cuenta = asistencias.count()
@@ -166,20 +141,6 @@ def obtener_asistencia_total_proyecto(proyecto):
         'total': info_total
     }
 
-def obtener_apellido(persona):
-    if not persona.apellido:
-        return None
-    
-    apellidos = persona.apellido.split()
-    apellido_completo = apellidos[0]
-
-    if apellido_completo.lower() in APELLIDOS_COMPUESTOS:
-        apellido_completo = ' '.join(apellidos[:2])
-        if apellido_completo.lower() in APELLIDOS_COMPUESTOS:
-            apellido_completo = ' '.join(apellidos[:3])
-
-    return apellido_completo
-
 def obtener_investigadores_asistentes(asistencia):
     investigadores = asistencia.asistenciainvestigador_set.all()
     asistentes = []
@@ -187,68 +148,6 @@ def obtener_investigadores_asistentes(asistencia):
         nombre = investigador.investigador.nombre.split()[0]
         asistentes.append(f"{nombre[0]}. {obtener_apellido(investigador.investigador)}")
     return ', '.join(asistentes)
-
-class InstitucionSelectSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Institucion
-        fields = [
-            "id",
-            "full_name",
-        ]
-
-    def get_full_name(self, instance):
-        return f"{instance.sigla} {instance.nombre}"
-
-class PersonaSelectSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField()
-    id = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Institucion
-        fields = [
-            "id",
-            "full_name",
-        ]
-
-    def get_full_name(self, instance):
-        return f"{instance.persona.nombre.split()[0]} {obtener_apellido(instance.persona)}"
-    
-    def get_id(self, instance):
-        return instance.persona.id
-    
-
-
-class PersonaSerializer(serializers.ModelSerializer):
-    nombre_completo = serializers.SerializerMethodField()
-    nombre_corto = serializers.SerializerMethodField()
-
-    def get_nombre_completo(self, obj):
-        return f"{obj.nombre.split()[0]} {obtener_apellido(obj)}"
-    
-    def get_nombre_corto(self, obj):
-        nombre = obj.nombre.split()[0]
-        return f"{nombre[0]}. {obtener_apellido(obj)}"
-
-    class Meta:
-        model = Persona
-        fields = [
-            'id',
-            'nombre',
-            'apellido',
-            'nombre_completo',
-            'nombre_corto',
-            'rut',
-            'email',
-            'telefono',
-            'institucion',
-            'subdireccion',
-            'area',
-            'cargo',
-        ]
-   
-
 
 class ProyectoActivoSerializer(serializers.ModelSerializer):
     encargado_sii = PersonaSerializer()
@@ -456,7 +355,6 @@ class ProyectoNoActivoSerializer(serializers.ModelSerializer):
             'nombre',
             'estado',
         ]
-
 
 class InformeAsistenciaSerializer(serializers.ModelSerializer):
     data_total = serializers.SerializerMethodField()

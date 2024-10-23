@@ -1,6 +1,6 @@
 import { UserMinusIcon, UserPlusIcon } from "@heroicons/react/20/solid";
-import ComboboxSelect from "components/pc_isla/ComboboxSelect";
-import ComboboxSelected from "components/pc_isla/ComboboxSelected";
+import ComboboxSelect from "components/formularios/ComboboxSelect";
+import ComboboxSelected from "components/formularios/ComboboxSelected";
 import { useState } from "react";
 import { connect } from "react-redux";
 import { Tooltip } from "react-tooltip";

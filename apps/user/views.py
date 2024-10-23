@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from .models import UserAccount
-from apps.pc_isla.models import Persona
+from apps.base.models import Persona
 import json
 from .serializers import EncargadosPcIslaSerializer
 

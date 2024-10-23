@@ -18,12 +18,6 @@ function ComboboxSelected({options, onChange, label, render=true, index=null, op
   }, [render]);
 
   
-  // useEffect(() => {
-  //   setSelected(showSelected ? optionSelected : { id: -1, full_name: 'Escriba para buscar' });
-  // }, [render, showSelected, optionSelected]);
-
-
-
   const filteredOptions =
     query === ''
       ? options
