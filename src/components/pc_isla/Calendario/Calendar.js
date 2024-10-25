@@ -10,6 +10,10 @@ const Calendar = ({
   get_calendario_pc_isla
 }) => {
 
+  const [loading, setLoading] = useState(false);
+  const [itemsPerPage, setItemsPerPage] = useState(calculateItemsPerPage());
+  const [currentPage, setCurrentPage] = useState(5);
+
   useEffect(() => {
     setLoading(true);
     get_calendario_pc_isla()
@@ -32,9 +36,22 @@ const Calendar = ({
     }
 
   }, []);
-  const [loading, setLoading] = useState(false);
 
-  const [itemsPerPage, setItemsPerPage] = useState(calculateItemsPerPage());
+  useEffect(() => {
+    // Encuentra la fecha de hoy en el array calendario
+
+    const today = new Date();
+    const formattedToday = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
+    const todayIndex = calendario.findIndex(item => item.fecha === formattedToday);
+ 
+    if (todayIndex !== -1) {
+      // Calcula el número de página que contiene la fecha de hoy
+      const pageNumber = Math.floor(todayIndex / itemsPerPage) + 1;
+      setCurrentPage(pageNumber);
+    }
+  }, [itemsPerPage]);
+
+ 
   
   // Calculate items per page based on screen width
   function calculateItemsPerPage() {
@@ -56,12 +73,12 @@ const Calendar = ({
     setItemsPerPage(calculateItemsPerPage());
   }
    
-  const [currentPage, setCurrentPage] = useState(1);
   // Calculate the index range for the current page
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, calendario.length);
   const diasToShow = calendario.slice(startIndex, endIndex);
   const totalPages = Math.ceil(calendario.length / itemsPerPage);
+
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };

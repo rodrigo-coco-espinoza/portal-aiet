@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ModalDetalleProyecto from "./ModalDetalleProyecto";
+import ModalDetalleProyecto from "./DetalleProyecto/ModalDetalleProyecto";
 
 function ProyectoCard({
     data, institucion, 

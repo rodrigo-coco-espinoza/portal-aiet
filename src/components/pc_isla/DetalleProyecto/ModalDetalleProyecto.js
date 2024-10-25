@@ -1,3 +1,16 @@
+import ComboboxSelect from "components/formularios/ComboboxSelect";
+import ComboboxSelected from "components/formularios/ComboboxSelected";
+import {
+  ModalRechazarProyecto,
+  ProtocloInstituciones,
+  BloquesSelected,
+  TablaAsistencia,
+  JornadaExtra,
+  ExtenderFinalizar,
+  EstadisticasUso,
+} from "./index";
+
+import { Alert } from "@material-tailwind/react";
 import {
   ArrowPathIcon,
   DocumentArrowDownIcon,
@@ -6,23 +19,12 @@ import {
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Tooltip } from "react-tooltip";
-import ComboboxSelect from "../formularios/ComboboxSelect";
-import { Alert } from "@material-tailwind/react";
 import {
   update_encargados_sii,
   rechazar_proyecto,
   aceptar_proyecto,
   get_bloques_ocupados,
 } from "redux/actions/pc_isla/pc_isla";
-import ModalRechazarProyecto from "./ModalRechazarProyecto";
-import ProtocloInstituciones from "./ProtocoloInstituciones";
-import ComboboxSelected from "../formularios/ComboboxSelected";
-import BloquesSelected from "./BloquesSelected";
-import ModalEditarJornada from "./ModalEditarJornada";
-import TablaAsistencia from "./TablaAsistencia";
-import JornadaExtra from "./JornadaExtra";
-import ExtenderFinalizar from "./ExtenderFinalizar";
-import EstadisticasUso from "./EstadisticasUso";
 
 function ModalDetalleProyecto({
   active,
@@ -141,11 +143,11 @@ function ModalDetalleProyecto({
   // Editar encargados SII
   const encargadoSiiSelected = {
     id: proyecto.encargado_sii.id,
-    full_name: proyecto.encargado_sii.nombre,
+    full_name: proyecto.encargado_sii.nombre_completo,
   };
   const backupSiiSelected = {
     id: proyecto.backup_sii.id,
-    full_name: proyecto.backup_sii.nombre,
+    full_name: proyecto.backup_sii.nombre_completo,
   };
   const handleEditarEncargadosSii = () => {
     setEditarEncargadosSii(true);
@@ -776,11 +778,6 @@ function ModalDetalleProyecto({
                           Registro de asistencia
                         </h1>
                         <TablaAsistencia asistencias={proyecto.asistencia} />
-                        <EstadisticasUso
-                          idProyecto={proyecto.id}
-                          data={proyecto.estadisticas_uso}
-                          user={user}
-                        />
 
                         {user &&
                           (user.is_pc_isla_admin || user.is_pc_isla_editor) && (
@@ -792,9 +789,23 @@ function ModalDetalleProyecto({
                       </div>
                     )}
 
-                    {/* Extracciones */}
+                    {/* Estadísticas de uso */}
                     {isAccepted && isProtocolo && (
                       <div className="mb-4 px-6 pb-4 pt-2 bg-gris-300">
+                        <h1 className="text-xl text-gris-800 cursor-default">
+                          Estadísticas de uso
+                        </h1>
+                        <EstadisticasUso
+                          idProyecto={proyecto.id}
+                          data={proyecto.estadisticas_uso}
+                          user={user}
+                        />
+                      </div>
+                    )}
+
+                    {/* Extracciones */}
+                    {isAccepted && isProtocolo && (
+                      <div className="mb-4 px-6 pb-4 pt-2">
                         <h1 className="text-xl text-gris-800 cursor-default">
                           Extracciones
                         </h1>
@@ -806,7 +817,7 @@ function ModalDetalleProyecto({
                       (user.is_pc_isla_admin || user.is_pc_isla_editor) &&
                       isAccepted &&
                       isProtocolo && (
-                        <div className="mb-4 px-6 pb-4 pt-2">
+                        <div className="mb-4 px-6 pb-4 pt-2 bg-gris-300">
                           <h1 className="text-xl text-gris-800 cursor-default">
                             Extender o finalizar proyecto
                           </h1>

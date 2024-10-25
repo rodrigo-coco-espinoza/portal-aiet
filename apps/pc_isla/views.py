@@ -141,17 +141,18 @@ def get_calendario():
 
     # Fecha inicio y término del calendario
     fecha_actual = datetime.now().date()
-    inicio = fecha_actual - timedelta(days=fecha_actual.weekday() + 1)
-    
+    # Calcular el primer lunes 4 semanas antes de la fecha actual
+    inicio = fecha_actual - timedelta(weeks=4)
+    while inicio.weekday() != 0:  # 0 representa el lunes
+        inicio -= timedelta(days=1)
 
-    fin = inicio + timedelta(days=30)
+    #inicio = fecha_actual - timedelta(days=fecha_actual.weekday() + 1) 
+    fin = fecha_actual + timedelta(weeks=4)
     while fin.weekday() != 4:  # 4 representa el viernes
         fin += timedelta(days=1)
 
     # Obtener todos los proyectos activos y sus asistencias
-    proyectos_activos = Proyecto.objects.filter(estado='en curso')
     asistencias = Asistencia.objects.filter(
-        jornada__proyecto__in=proyectos_activos,
         fecha__range=(inicio, fin)
         )
     
