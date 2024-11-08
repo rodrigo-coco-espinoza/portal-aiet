@@ -35,7 +35,8 @@ class AsistenciaInvestigadorAdmin(admin.ModelAdmin):
 
 admin.site.register(Proyecto, ProyectoAdmin)
 
+
 admin.site.register(Rol, RolAdmin)
 # admin.site.register(Jornada, JornadaAdmin)
 admin.site.register(Asistencia, AsistenciaAdmin)
-admin.site.register(AsistenciaInvestigador, AsistenciaInvestigadorAdmin)
+admin.site.register(AsistenciaInvestigador, AsistenciaInvestigadorAdmin) 

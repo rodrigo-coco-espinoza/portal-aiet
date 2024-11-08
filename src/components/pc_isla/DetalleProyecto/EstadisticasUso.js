@@ -1,7 +1,7 @@
 import { DocumentArrowDownIcon, DocumentTextIcon, PrinterIcon } from "@heroicons/react/20/solid";
-import ComboboxSelect from "../formularios/ComboboxSelect";
+import ComboboxSelect from "components/formularios/ComboboxSelect";
 import { Tooltip } from "react-tooltip";
-import InformeAsistenciaMensual from "./Informes/AsistenciaMensual/InformeAsistenciaMensual";
+import InformeAsistenciaMensual from "components/pc_isla/Informes/AsistenciaMensual/InformeAsistenciaMensual";
 import { useRef, useState } from "react";
 import html2pdf from 'html2pdf.js';
 import ReactToPrint from "react-to-print";
@@ -42,9 +42,7 @@ function EstadsiticasUso({
 
     return (
         <>
-        <div className="mt-8">
-            <h1 className="font-bold text-gris-800 cursor-default">Estadísticas de uso</h1>
-
+        <div className="mt-2">
             <div className="flex flex-row">
                 <label className="text-gris-700 text-sm w-[100px] mr-2">Mes</label>
                 <label className="text-gris-700 text-sm w-[120px] mr-2"> Asistencia</label>
@@ -101,9 +99,7 @@ function EstadsiticasUso({
                         documentTitle={documentTitle}
                     />
 
-                }
-                
-                
+                }             
                      
             </div>
             </div>

@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import ModalFinalizarProyecto from "./ModalFinalizarProyecto";
 import { extender_proyecto } from "redux/actions/pc_isla/pc_isla";
 import { Alert } from "@material-tailwind/react";
-import Loading from "../formularios/Loading";
+import Loading from "components/formularios/Loading";
 import { DocumentArrowDownIcon } from "@heroicons/react/20/solid";
 import { Tooltip } from "react-tooltip";
 

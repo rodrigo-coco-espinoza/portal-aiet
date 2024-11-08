@@ -75,6 +75,7 @@ const Calendar = ({
   const endIndex = Math.min(startIndex + itemsPerPage, calendario.length);
   const diasToShow = calendario.slice(startIndex, endIndex);
   const totalPages = Math.ceil(calendario.length / itemsPerPage);
+
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };

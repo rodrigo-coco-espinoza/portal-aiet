@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ComboboxSelect from "../formularios/ComboboxSelect";
+import ComboboxSelect from "components/formularios/ComboboxSelect";
 import { connect } from "react-redux";
 import { get_personas_institucion, add_protocolo} from "redux/actions/pc_isla/pc_isla";
 import { PlusIcon, UserMinusIcon, UserPlusIcon } from "@heroicons/react/20/solid";
@@ -7,7 +7,7 @@ import { Tooltip } from "react-tooltip";
 import ModalAgregarPersona from "components/formularios/ModalAgregarPersona";
 import { Alert } from "@material-tailwind/react";
 import BloquesSelection from "./BloquesSelection";
-import Loading from "../formularios/Loading";
+import Loading from "components/formularios/Loading";
 
 let equiposOptions = [
     {id: 'Bora Bora', full_name: "Bora Bora"},

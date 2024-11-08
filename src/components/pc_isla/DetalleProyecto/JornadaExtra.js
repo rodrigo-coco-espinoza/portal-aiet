@@ -1,10 +1,10 @@
 import { useState } from "react";
-import ComboboxSelect from "../formularios/ComboboxSelect";
+import ComboboxSelect from "components/formularios/ComboboxSelect";
 import { Alert, select } from "@material-tailwind/react";
 import BloquesSelection from "./BloquesSelection";
 import { connect } from "react-redux";
 import { add_jornada_extra } from "redux/actions/pc_isla/pc_isla";
-import Loading from "../formularios/Loading";
+import Loading from "components/formularios/Loading";
 
 let equiposOptions = [
     {id: 'Bora Bora', full_name: "Bora Bora"},
@@ -207,7 +207,7 @@ function JornadaExtra({
                         <span className="text-rojo-400 text-sm" hidden={validations.diaFecha}>La fecha no coincide con el día seleccionado.</span>
                     </div>
                 </div>
-                <div className="flex items-center justify-end">
+                <div className="flex items-center mt-3">
                     <button
                     type='submit'
                     className="text-verde-esmeralda-300 hover:text-verde-esmeralda-400  background-transparent font-bold uppercase py-0 text-sm outline-none focus:outline-none mr-1 mb-0 ease-linear transition-all duration-150">

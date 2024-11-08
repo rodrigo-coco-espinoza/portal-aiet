@@ -163,7 +163,6 @@ def get_calendario():
         fin += timedelta(days=1)
 
     # Obtener todos los proyectos activos y sus asistencias
-    proyectos_activos = Proyecto.objects.filter(estado='en curso')
     asistencias = Asistencia.objects.filter(
         #proyecto__in=proyectos_activos,
         fecha__range=(inicio, fin)
