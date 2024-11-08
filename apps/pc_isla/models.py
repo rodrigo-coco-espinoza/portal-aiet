@@ -43,7 +43,15 @@ SALIDA_CHOICES = (
     ('fin jornada', 'Fin jornada'),
     ('proceso ejecutándose', 'Proceso ejecutándose'),
     ('extracción de datos', 'Extracción de datos'),
+    ('inasistencia anticipada', 'Inasistencia anticipada'),
+    ('asistencia cedida', 'Asistencia cedida'),
     ('otro', 'Otro')
+)
+
+ASISTENCIA_TIPO_CHOICES = (
+    ('regular', 'Regular'),
+    ('recuperación', 'Recuperación'),
+    ('extra', 'Extra'),
 )
 
 def proyecto_upload_path(instance, filename):
@@ -164,22 +172,22 @@ class Rol(models.Model):
         return f"{self.persona.nombre} - {self.proyecto.institucion.sigla} - {self.proyecto.nombre}"
 
 
-class Jornada(models.Model):
+# class Jornada(models.Model):
 
-    class Meta:
-        verbose_name = "Jornada"
-        verbose_name_plural = "Jornadas"
+#     class Meta:
+#         verbose_name = "Jornada"
+#         verbose_name_plural = "Jornadas"
     
-    proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, null=False)
-    equipo = models.CharField(max_length=50, choices=EQUIPO_CHOICES, null=False)
-    horario = models.CharField(max_length=50, choices=HORARIO_CHOICES, null=False)
-    dia = models.CharField(max_length=50, choices=DIAS_CHOICES, null=False)
-    extra = models.BooleanField(default=0)
-    fecha = models.DateField(null=True, blank=True)
-    active = models.BooleanField(default=1)
+#     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, null=False)
+#     equipo = models.CharField(max_length=50, choices=EQUIPO_CHOICES, null=False)
+#     horario = models.CharField(max_length=50, choices=HORARIO_CHOICES, null=False)
+#     dia = models.CharField(max_length=50, choices=DIAS_CHOICES, null=False)
+#     extra = models.BooleanField(default=0)
+#     fecha = models.DateField(null=True, blank=True)
+#     active = models.BooleanField(default=1)
 
-    def __str__(self):
-        return f"({self.id}) Proyecto: {self.proyecto.id} {self.equipo} {self.dia} {self.horario} {'[Extra]' if self.extra else ''}"
+#     def __str__(self):
+#         return f"({self.id}) Proyecto: {self.proyecto.id} {self.equipo} {self.dia} {self.horario} {'[Extra]' if self.extra else ''}"
 
 
 class Asistencia(models.Model):
@@ -187,16 +195,20 @@ class Asistencia(models.Model):
     class Meta:
         verbose_name = "Asistencia"
         verbose_name_plural = "Asistencias"
-
-    jornada = models.ForeignKey(Jornada, on_delete=models.CASCADE, null=False)
+    
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, null=False, default=1)
+    equipo = models.CharField(max_length=50, choices=EQUIPO_CHOICES, null=False, default='Bora Bora')
+    horario = models.CharField(max_length=50, choices=HORARIO_CHOICES, null=False, default='AM')
     fecha = models.DateField(null=False)
+    tipo = models.CharField(max_length=50, choices=ASISTENCIA_TIPO_CHOICES, null=False, default='regular')
     datetime_ingreso = models.CharField(max_length=20, null=True, blank=True)
     datetime_salida = models.CharField(max_length=20, null=True, blank=True)
-    motivo_salida = models.CharField(max_length=50, choices=SALIDA_CHOICES,null=True, blank=True)
+    motivo_salida = models.CharField(max_length=50, choices=SALIDA_CHOICES, null=True, blank=True)
+    observacion = models.CharField(max_length=250, null=True, blank=True)
 
 
     def __str__(self):
-        return f"({self.id}) {self.fecha} - {self.jornada.equipo} {self.jornada.dia} {self.jornada.horario} Proyecto {self.jornada.proyecto.id}"
+        return f"({self.id}) {self.fecha} - {self.equipo} {self.horario} Proyecto {self.proyecto.id}"
 
 
 class AsistenciaInvestigador(models.Model):

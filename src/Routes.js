@@ -1,12 +1,12 @@
 import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
-import Error404 from "containers/errors/Error404";
-import Home from "containers/pages/Home";
-import ValidarArchivos from "containers/pages/ValidarArchivos"
-import BuscarQueries from "containers/pages/BuscarQueries";
+import Error404 from "./containers/errors/Error404";
+import Home from "./containers/pages/Home";
+import ValidarArchivos from "./containers/pages/ValidarArchivos"
+import BuscarQueries from "./containers/pages/BuscarQueries";
 import { AnimatePresence } from "framer-motion";
-import User from "containers/pages/User";
-import PcIsla from "containers/pages/PcIsla";
-import Convenios from "containers/pages/Convenios";
+import User from "./containers/pages/User";
+import PcIsla from "./containers/pages/PcIsla";
+import Convenios from "./containers/pages/Convenios";
 
 
 function AnimatedRoutes(){

@@ -223,9 +223,10 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
         if obj.institucion.sigla == "MINHACIENDA":
             return 'Juan Fernández'
         else:
-            jornada_instance = obj.jornada_set.filter(extra=0, active=1).first()
-            if jornada_instance:
-                return jornada_instance.equipo
+            asistencia_instance = obj.asistencia_set.filter(tipo="regular").first()
+            # jornada_instance = obj.jornada_set.filter(extra=0, active=1).first()
+            if asistencia_instance:
+                return asistencia_instance.equipo
             else:
                 return None
 

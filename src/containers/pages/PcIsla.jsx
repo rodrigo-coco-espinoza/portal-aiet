@@ -45,8 +45,8 @@ function PcIsla({
                         >
                             <h2 className='font-semibold sm:text-[44px] text-[40px] text-azul-brillante-400 sm-sii:leading-[76.8px] leading-[66.8px] w-full cursor-default'>Administrador de PC Isla</h2>
                             <Calendar />
-                            <ProyectosActivos
-                            />
+                            {/* <ProyectosActivos
+                            /> */}
                         </motion.div>
                                 </div>
                             </div>
