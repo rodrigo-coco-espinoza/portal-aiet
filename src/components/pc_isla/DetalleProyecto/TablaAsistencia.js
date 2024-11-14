@@ -46,7 +46,7 @@ const TablaAsistencia = ({
         <div className="overflow-y-auto max-h-[250px]">
         {asistencias.map((asistencia, index) => (
             <div className="flex flex-row" key={`tabla_mini_${index}`}>
-                <p className="sm-sii:text-base text-sm text-gris-900 w-[110px] mr-2">{asistencia.jornada} {asistencia.extra ? '(E)' : ""}</p>
+                <p className="sm-sii:text-base text-sm text-gris-900 w-[110px] mr-2">{asistencia.jornada} {asistencia.tipo == 'extra' ? '(E)' : ""}</p>
                 <p className="sm-sii:text-base text-sm w-[90px] mr-2">{asistencia.fecha}</p>
                 <p className="sm-sii:text-base text-sm w-[60px] mr-2">{asistencia.ingreso ? asistencia.ingreso : ""}</p>
                 <p className="sm-sii:text-base text-sm w-[60px] mr-2">{asistencia.salida ? asistencia.salida : ""}</p>                                              
@@ -71,7 +71,7 @@ const TablaAsistencia = ({
                 <p className="sm-sii:text-base text-sm w-[90px] mr-2">{asistencia.fecha}</p>
                 <p className="sm-sii:text-base text-sm w-[60px] mr-2">{asistencia.ingreso ? asistencia.ingreso : ""}</p>
                 <p className="sm-sii:text-base text-sm w-[60px] mr-2">{asistencia.salida ? asistencia.salida : ""}</p>
-                <p className="sm-sii:text-base text-sm">{asistencia.salida ? asistencia.motivo : ""} {asistencia.extra ? '(jornada extra)' : ""}</p>                                                
+                <p className="sm-sii:text-base text-sm">{asistencia.salida ? asistencia.motivo : ""} {asistencia.tipo === "extra" ? '(jornada extra)' : ""}</p>                                                
             </div>
         ))
         }

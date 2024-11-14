@@ -9,6 +9,7 @@ from operator import itemgetter
 from django.db.models.functions import TruncMonth
 from math import trunc
 
+
 DIAS = {
     'lunes': 0,
     'martes': 1,
@@ -16,6 +17,24 @@ DIAS = {
     'jueves': 3,
     'viernes': 4,
 }
+
+DIGITO_A_DIA = {
+    '0' :'lunes',
+    '1' :'martes',
+    '2' :'miércoles',
+    '3' :'jueves',
+    '4' :'viernes',
+}
+
+DIAS_ENG_A_ESP = {
+    'monday': 'lunes',
+    'tuesday': 'martes',
+    'wednesday': 'miércoles',
+    'thursday': 'jueves',
+    'friday': 'viernes',
+}
+
+
 
 MESES_NOMBRE = [
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
@@ -56,14 +75,14 @@ def cacular_estadisticas_de_asistencia_del_mes(asistencias):
         
         # Calcular tiempo extra
         extra = 0
-        if asistencia.jornada.horario == "AM":          
+        if asistencia.horario == "AM":          
             
             if hora_ingreso < INICIO_JORNADA_AM:
                 extra += calcular_minutos_entre_horas(hora_ingreso, INICIO_JORNADA_AM)
             if hora_salida > FIN_JORNADA_AM:
                 extra += calcular_minutos_entre_horas(FIN_JORNADA_AM, hora_salida)
             
-        elif asistencia.jornada.horario == "PM":
+        elif asistencia.horario == "PM":
 
             # Calcular tiempo extra
             if hora_ingreso < INICIO_JORNADA_PM:
@@ -90,11 +109,18 @@ def cacular_estadisticas_de_asistencia_del_mes(asistencias):
         }
     }
 
-def obtener_asistencia_total_proyecto(proyecto):
+def obtener_asistencia_total_proyecto(proyecto, mes):
+
+    fecha = datetime.date.today()
+    if mes != fecha.month:
+        fecha = datetime.date(fecha.year, mes, 1) + datetime.timedelta(days=31)
+        fecha = fecha.replace(day=1) - datetime.timedelta(days=1)
+
+            
     asistencias = Asistencia.objects.filter(
-        jornada__proyecto=proyecto, 
-        fecha__lte=datetime.date.today(),
-        jornada__extra=0,
+        proyecto=proyecto,       
+        fecha__lte=fecha,
+        tipo__in=['regular', 'recuperacion']
     )
 
     info_mensual = []
@@ -223,26 +249,28 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
         if obj.institucion.sigla == "MINHACIENDA":
             return 'Juan Fernández'
         else:
-            jornada_instance = obj.jornada_set.filter(extra=0, active=1).first()
-            if jornada_instance:
-                return jornada_instance.equipo
+            asistencia_instance = obj.asistencia_set.filter(tipo="regular").first()
+            # jornada_instance = obj.jornada_set.filter(extra=0, active=1).first()
+            if asistencia_instance:
+                return asistencia_instance.equipo
             else:
                 return None
 
     def get_jornada(self, obj):
 
-        jornadas_instance = obj.jornada_set.filter(extra=0, active=1)
-        if jornadas_instance:
+        asistencias_instance = Asistencia.objects.filter(proyecto=obj, tipo='regular')
+        if asistencias_instance:
             info = {
                 'AM': [False] * 5,
                 'PM': [False] * 5
             }
 
-            for jornada in jornadas_instance:
-                if jornada.horario == 'AM':
-                    info['AM'][DIAS[jornada.dia]] = True
-                elif jornada.horario == 'PM':
-                    info['PM'][DIAS[jornada.dia]] = True
+            for asistencia in asistencias_instance:
+                if asistencia.horario == 'AM':
+                     
+                    info['AM'][asistencia.fecha.weekday()] = True
+                elif asistencia.horario == 'PM':
+                    info['PM'][asistencia.fecha.weekday()] = True
             return info                
         else:
             return {
@@ -254,22 +282,19 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
     asistencia = serializers.SerializerMethodField()
     def get_asistencia(self, obj):
         data = []
-
-        asistencias = obj.jornada_set.all().values_list('asistencia', flat=True)
         asistencias_pasadas = Asistencia.objects.filter(
-            id__in=asistencias,
+            proyecto=obj,
             fecha__lte=datetime.date.today()
         ).order_by('fecha')
         
         for asistencia in asistencias_pasadas:
             data.append({
-                'jornada': f'{asistencia.jornada.dia.capitalize()} {asistencia.jornada.horario}',
+                'jornada': f'{DIGITO_A_DIA[str(asistencia.fecha.weekday())].capitalize()} {asistencia.horario}',
                 'fecha': asistencia.fecha.strftime('%d-%m-%Y'),
                 'ingreso': extraer_hora_de_fecha(asistencia.datetime_ingreso),
                 'salida': extraer_hora_de_fecha(asistencia.datetime_salida),
                 'motivo': capitalize_first(asistencia.motivo_salida),
-                'extra': asistencia.jornada.extra
-
+                'tipo': asistencia.tipo,
             })
 
         return data
@@ -289,8 +314,9 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
     # Estadísticas de uso
     estadisticas_uso = serializers.SerializerMethodField()
     def get_estadisticas_uso(self, obj):
+        current_month = datetime.date.today().month
 
-        data_estadisticas = obtener_asistencia_total_proyecto(obj)
+        data_estadisticas = obtener_asistencia_total_proyecto(obj, current_month)
         data = {
             'mesesInforme': [],
             'asistenciaMensual': data_estadisticas['mensual'],
@@ -298,7 +324,7 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
 
         }
 
-        asistencias = Asistencia.objects.filter(jornada__proyecto=obj, fecha__lte=datetime.date.today())
+        asistencias = Asistencia.objects.filter(proyecto=obj, fecha__lte=datetime.date.today())
         asistencias_por_mes = asistencias.annotate(month=TruncMonth('fecha')).values('month').distinct()
         for mes in asistencias_por_mes:
             mes_fecha = mes['month']
@@ -364,7 +390,8 @@ class InformeAsistenciaSerializer(serializers.ModelSerializer):
     pronto_a_terminar = serializers.SerializerMethodField()
 
     def get_data_total(self, obj):
-        data_estadisticas = obtener_asistencia_total_proyecto(obj)
+        mes = self.context.get('mes')
+        data_estadisticas = obtener_asistencia_total_proyecto(obj, mes)
         data = {
             'asistenciaMensual': data_estadisticas['mensual'],
             'estadisticasTotal': data_estadisticas['total']
@@ -378,14 +405,14 @@ class InformeAsistenciaSerializer(serializers.ModelSerializer):
         data_asignadas = []
 
         mes = self.context.get('mes')
-        asistencias = obj.jornada_set.all().values_list('asistencia', flat=True)
+        # asistencias = obj.jornada_set.all().values_list('asistencia', flat=True)
         asistencias_mes = Asistencia.objects.filter(
-            id__in=asistencias,
+            proyecto=obj,
             fecha__month=mes,
         ).order_by('fecha')
 
         # Dejar solo las asistencias que no son extras
-        asistencias_asignadas = asistencias_mes.filter(jornada__extra=0)
+        asistencias_asignadas = asistencias_mes.filter(tipo__in=['regular', 'recuperacion'])
 
         for asistencia in asistencias_asignadas:
             # Obtener investigadores asistentes
@@ -399,7 +426,7 @@ class InformeAsistenciaSerializer(serializers.ModelSerializer):
             })
 
         data_extras = []
-        asistencias_extras = asistencias_mes.filter(jornada__extra=1)
+        asistencias_extras = asistencias_mes.filter(tipo='extra')
         for asistencia in asistencias_extras:
 
 
