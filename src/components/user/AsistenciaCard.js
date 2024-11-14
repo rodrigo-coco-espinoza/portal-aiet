@@ -34,7 +34,7 @@ function AsistenciaCard({
         jornada,
         ingreso,
         salida,
-        extra,
+        tipo,
         investigadores,
     } = data
 
@@ -137,7 +137,7 @@ function AsistenciaCard({
             
 
             </div>
-            <p className="mb-1 font-normal text-sm text-gris-600">{dia} {fecha} {extra ? "(jornada extra)" : ""}</p>
+            <p className="mb-1 font-normal text-sm text-gris-600">{dia} {fecha} {tipo === "extra" ? "(jornada extra)" : ""}</p>
             <p className="mb-1 font-normal text-sm text-gris-600">{equipo} - Horario {jornada}</p>
             { 
             ingreso ? 

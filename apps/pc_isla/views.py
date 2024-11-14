@@ -144,7 +144,6 @@ def obtener_jornada_minhacienda():
 
     return data
 
-
 def get_calendario():
 
     calendario = []
@@ -314,6 +313,8 @@ def obtener_proyectos():
             }
 
             for proyecto in proyectos:
+                if proyecto.fecha_inicio:
+                    fecha = proyecto.fecha_inicio
                 if proyecto.estado in ['solicitud recibida', 'confección del protocolo', 'en curso']:
                     institucion_data['proyectos'].append(ProyectoActivoSerializer(proyecto).data)
                 else:
@@ -604,14 +605,16 @@ class AddProtocolo(APIView):
                 nuevo_investigador.save()
 
             # Agregar asistencias
-            jornada_am = data.getlist('jornada_am[]')
-            jornada_pm = data.getlist('jornada_pm[]')
+            jornada_am = list(map(int, data.getlist('jornada_am[]')))
+            jornada_pm = list(map(int, data.getlist('jornada_pm[]')))
 
             feriados = Chile()
-            start_date = datetime.strptime(proyecto.fecha_inicio,"%Y-%m-%d").date()
-            end_date = datetime.strptime(proyecto.fecha_termino,"%Y-%m-%d").date()
+            proyecto = Proyecto.objects.get(id=data['proyectoId'])
+            start_date = proyecto.fecha_inicio
+            end_date = proyecto.fecha_termino
             while start_date <= end_date:
-                if str(start_date.weekday()) in jornada_am:
+                fecha_date = start_date
+                if start_date.weekday() in jornada_am and start_date not in feriados:
                     # Comprobar que no existe una asistencia para ese día, equipo y horario
                     if not Asistencia.objects.filter(fecha=start_date, equipo=data['equipo'], horario='AM').exclude(motivo_salida__in=['inasistencia anticipada', 'asistencia cedida']).exists():
                         nueva_asistencia = Asistencia.objects.create(
@@ -623,7 +626,7 @@ class AddProtocolo(APIView):
                         )
                         nueva_asistencia.save()
 
-                if str(start_date.weekday()) in jornada_pm:
+                if start_date.weekday() in jornada_pm and start_date not in feriados:
                     # Comprobar que no existe una asistencia para ese día, equipo y horario
                     if not Asistencia.objects.filter(fecha=start_date, equipo=data['equipo'], horario='PM').exclude(motivo_salida__in=['inasistencia anticipada', 'asistencia cedida']).exists():
                         nueva_asistencia = Asistencia.objects.create(
@@ -638,43 +641,6 @@ class AddProtocolo(APIView):
 
 
                 start_date += timedelta(days=1)
-
-                            
-            # for dia in jornada_am:
-            #     nueva_jornada = Jornada.objects.create(
-            #         proyecto=proyecto,
-            #         equipo=data['equipo'],
-            #         horario='AM',
-            #         dia=DIGITO_A_DIA[dia]
-            #     )
-            #     nueva_jornada.save()
-            
-            # for dia in jornada_pm:
-            #     nueva_jornada = Jornada.objects.create(
-            #         proyecto=proyecto,
-            #         equipo=data['equipo'],
-            #         horario='PM',
-            #         dia=DIGITO_A_DIA[dia]
-            #     )
-            #     nueva_jornada.save()
-
-            # # Agregar asistencias
-            # feriados = Chile()
-            # jornadas = Jornada.objects.filter(proyecto=proyecto, active=1, extra=0)
-            # for jornada in jornadas:
-            #     current_date = datetime.strptime(proyecto.fecha_inicio,"%Y-%m-%d").date()
-            #     end_date = datetime.strptime(proyecto.fecha_termino,"%Y-%m-%d").date()
-                
-            #     while current_date <= end_date:
-            #         if current_date.weekday() == DIAS_A_DIGITO[jornada.dia] and current_date not in feriados:
-            #             nueva_asistencia = Asistencia.objects.create(
-            #                 jornada=jornada,
-            #                 fecha=current_date
-            #             )
-            #             nueva_asistencia.save()
-
-            #         current_date += timedelta(days=1)
-
 
 
             #Resultado
@@ -723,27 +689,37 @@ class JornadaMinhacienda(APIView):
         
 
     def patch(self, request):
-        #TODO: AQUII LA PURA ZOOOORRRRRR
         try:
             data = request.data
 
-            # Obtener las jornadas actuales
+            # Obtener las asistencias programadas
             
             hacienda_instance = Institucion.objects.get(sigla="MINHACIENDA")
             instituciones_hacienda = Institucion.objects.filter(
             Q(ministerio=hacienda_instance) | Q(sigla="MINHACIENDA")
             ).all()
             proyectos_activos = Proyecto.objects.filter(
-                institucion__in=instituciones_hacienda
-                ).exclude(
-                    Q(protocolo='') | Q(estado='finalizado') | Q(estado='rechazado')
-                )
-            jornadas_actuales = Jornada.objects.filter(proyecto__in=proyectos_activos, extra=0, active=1)
+                institucion__in=instituciones_hacienda,
+                estado='en curso'
+            )
 
-            # Desactivar las jornadas actuales
-            jornadas_actuales.update(active=0)
+            asistencias_programadas = Asistencia.objects.filter(
+                proyecto__in=proyectos_activos,
+                tipo='regular',
+                datetime_ingreso__isnull=True,
+                datetime_salida__isnull=True,
+                fecha__gte=datetime.now().date()
+            )
+
+            # Eliminar asistencias programadas
+            asistencias_programadas.delete()
+
+            # Agregar nuevas asistencias
+            
+
 
             # Ingresar nueva jornadas
+            feriados = Chile()
             data = self.request.data
             for jornada in JORNADAS_HACIENDA:
                 try:
@@ -754,43 +730,27 @@ class JornadaMinhacienda(APIView):
                     dia = dia_horario[0]
                     horario = dia_horario[1].rstrip("]")
 
-                    nueva_jornada = Jornada.objects.create(
-                        proyecto=proyecto,
-                        equipo='Juan Fernández',
-                        dia=dia,
-                        horario=horario,
-                    )
-                    nueva_jornada.save()
+                    current_date = datetime.now().date() 
+                    while current_date <= proyecto.fecha_termino:
+                        # Verificar que no exista asistencia en esa fecha, horario y equipo
+                        if not Asistencia.objects.filter(fecha=current_date, horario=horario, equipo='Juan Fernández').exists():
+
+                            if current_date.weekday() == DIAS_A_DIGITO[dia] and current_date not in feriados:
+                                nueva_asistencia = Asistencia.objects.create(
+                                    proyecto=proyecto,
+                                    equipo='Juan Fernández',
+                                    horario=horario,
+                                    fecha=current_date,
+                                    tipo='regular'
+                                )
+                                nueva_asistencia.save()
+
+                        current_date += timedelta(days=1)
+
 
                 except Exception as e:
                     print(f'Error: {e}')   
 
-            # Eliminar asistencias futuras
-            dia_actual = datetime.now().date()
-            asistencias_actuales = Asistencia.objects.filter(
-                jornada__proyecto__in=proyectos_activos,
-                fecha__gte=dia_actual,
-                datetime_ingreso__isnull=True
-            )
-            asistencias_actuales.delete()
-
-
-
-            # Agregar nuevas asistencias
-            feriados = Chile()
-            jornadas = Jornada.objects.filter(proyecto__in=proyectos_activos, extra=0, active=1)
-            for jornada in jornadas:
-                current_date = datetime.now().date() 
-                end_date = jornada.proyecto.fecha_termino 
-                while current_date <= end_date:
-                    if current_date.weekday() == DIAS_A_DIGITO[jornada.dia] and current_date not in feriados:
-                        nueva_asistencia = Asistencia.objects.create(
-                            jornada=jornada,
-                            fecha=current_date
-                        )
-                        nueva_asistencia.save()
-
-                    current_date += timedelta(days=1)
       
 
             # Actualizar todos los proyectos
@@ -906,14 +866,25 @@ class AddJornadaExtra(APIView):
         #     )
         #     nueva_jornada.save()
 
-        nueva_asistencia = Asistencia.objects.create(
-            proyecto=proyecto_instance,
-            equipo=data['equipo'],
-            horario='AM' if jornada_am else 'PM',
-            fecha=data['fecha'],
-            tipo='extra'
-        )
-        nueva_asistencia.save()
+        # Comprobar que no exista la asistencia
+        if not Asistencia.objects.filter(fecha=data['fecha'], horario='AM' if jornada_am else 'PM', equipo=data['equipo']).exists():
+            nueva_asistencia = Asistencia.objects.create(
+                proyecto=proyecto_instance,
+                equipo=data['equipo'],
+                horario='AM' if jornada_am else 'PM',
+                fecha=data['fecha'],
+                tipo='extra'
+            )
+            nueva_asistencia.save()
+
+        # nueva_asistencia = Asistencia.objects.create(
+        #     proyecto=proyecto_instance,
+        #     equipo=data['equipo'],
+        #     horario='AM' if jornada_am else 'PM',
+        #     fecha=data['fecha'],
+        #     tipo='extra'
+        # )
+        # nueva_asistencia.save()
 
         # Actualizar proyecto
         proyecto = ProyectoActivoSerializer(proyecto_instance).data
@@ -957,8 +928,9 @@ class FinalizarProyecto(APIView):
         # Eliminar asistencias
         Asistencia.objects.filter(
             proyecto=proyecto_instance,
-            fecha__gt=date.today(),
-            motivo_salida__isnull=True
+            fecha__gte=date.today(),
+            datetime_ingreso__isnull=True,
+            datetime_salida__isnull=True,
         ).delete()
 
         # Actualizar proyectos
@@ -1015,34 +987,34 @@ class ExtenderProyecto(APIView):
             if jornadas_a_extender['equipo'] is None:
                 jornadas_a_extender['equipo'] = asistencia.equipo
             
-            fecha = datetime.strptime(asistencia.fecha,"%Y-%m-%d").date()
-            if asistencia.horario == 'AM' and fecha.weekday() not in jornadas_a_extender['AM']:
-                jornadas_a_extender['AM'].append(fecha.weekday())
-            elif asistencia.horario == 'PM' and fecha.weekday() not in jornadas_a_extender['PM']:
-                jornadas_a_extender['PM'].append(fecha.weekday())
+            #fecha = datetime.strptime(asistencia.fecha,"%Y-%m-%d").date()
+            if asistencia.horario == 'AM' and asistencia.fecha.weekday() not in jornadas_a_extender['AM']:
+                jornadas_a_extender['AM'].append(asistencia.fecha.weekday())
+            elif asistencia.horario == 'PM' and asistencia.fecha.weekday() not in jornadas_a_extender['PM']:
+                jornadas_a_extender['PM'].append(asistencia.fecha.weekday())
 
-        while current_date <= nueva_fecha_termino:
-            if current_date.weekday() in jornadas_a_extender['AM']:
+        while fecha_inicio <= nueva_fecha_termino:
+            if fecha_inicio.weekday() in jornadas_a_extender['AM'] and fecha_inicio not in feriados:
                 nueva_asistencia = Asistencia.objects.create(
                     proyecto=proyecto_instance,
                     equipo=jornadas_a_extender['equipo'],
                     horario='AM',
-                    fecha=current_date,
+                    fecha=fecha_inicio,
                     tipo='regular'
                 )
                 nueva_asistencia.save()
 
-            if current_date.weekday() in jornadas_a_extender['PM']:
+            if fecha_inicio.weekday() in jornadas_a_extender['PM'] and fecha_inicio not in feriados:
                 nueva_asistencia = Asistencia.objects.create(
                     proyecto=proyecto_instance,
                     equipo=jornadas_a_extender['equipo'],
                     horario='PM',
-                    fecha=current_date,
+                    fecha=fecha_inicio,
                     tipo='regular'
                 )
                 nueva_asistencia.save()
 
-            current_date += timedelta(days=1)
+            fecha_inicio += timedelta(days=1)
 
 
         # jornadas = Jornada.objects.filter(proyecto=proyecto_instance, active=1, extra=0)
