@@ -285,7 +285,7 @@ def obtener_asistencias(persona):
             'nombre': asistencia.proyecto.nombre,
             'extendido': asistencia.proyecto.extendido,
             'pronto_a_terminar': asistencia.proyecto.es_fecha_termino_menor_o_igual_a_2_semanas(),
-            'dia': asistencia.dia.capitalize(),
+            'dia': DIGITO_A_DIA[str(asistencia.fecha.weekday())],
             'fecha': asistencia.fecha.strftime('%d-%m-%Y'),
             'equipo': asistencia.equipo,
             'jornada': asistencia.horario,

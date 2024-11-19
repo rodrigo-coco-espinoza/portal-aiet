@@ -131,7 +131,7 @@ function AsistenciaCard({
                 <p className="mb-0 font-normal text-sm text-gris-600 cursor-default">Plazo extendido</p>
             }
             {pronto_a_terminar &&
-                <p className="mb-0 font-normal text-sm text-rosa-400 cursor-default">Projecto próximo a terminar. {!extendido && <span>Recuerde solicitar extensión del plazo con anticipación.</span>}</p>
+                <p className="mb-0 font-normal text-sm text-rosa-400 cursor-default">Proyecto próximo a terminar. {!extendido && <span>Recuerde solicitar extensión del plazo con anticipación.</span>}</p>
             }
 
             
