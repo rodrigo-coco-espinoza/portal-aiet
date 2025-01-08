@@ -113,7 +113,10 @@ def obtener_asistencia_total_proyecto(proyecto, mes):
 
     fecha = datetime.date.today()
     if mes != fecha.month:
-        fecha = datetime.date(fecha.year, mes, 1) + datetime.timedelta(days=31)
+        if 7 <= mes - fecha.month <= 11:
+            fecha = datetime.date(fecha.year - 1, mes, 1) + datetime.timedelta(days=31)
+        else:
+            fecha = datetime.date(fecha.year, mes, 1) + datetime.timedelta(days=31)
         fecha = fecha.replace(day=1) - datetime.timedelta(days=1)
 
             
