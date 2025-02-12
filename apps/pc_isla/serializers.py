@@ -47,12 +47,15 @@ INICIO_JORNADA_PM = datetime.time(14, 30)
 FIN_JORNADA_PM = datetime.time(17, 0)
 
 def cacular_estadisticas_de_asistencia_del_mes(asistencias):
+    
     jornadas_del_mes_cuenta = asistencias.count()
     asistencias_del_mes = asistencias.exclude(datetime_ingreso="").exclude(datetime_ingreso__isnull=True)
     asistencias_del_mes_cuenta = asistencias_del_mes.count()
 
     minutos_utilizados = 0
     minutos_extra = 0
+
+    horas_asignadas = 0
 
     for asistencia in asistencias_del_mes:
         hora_minuto_string = extraer_hora_de_fecha(asistencia.datetime_ingreso)
@@ -91,6 +94,15 @@ def cacular_estadisticas_de_asistencia_del_mes(asistencias):
                 extra += calcular_minutos_entre_horas(FIN_JORNADA_PM, hora_salida)
         
         minutos_extra += extra
+
+        # Cacular horas asignadas
+        if asistencia.horario == "AM":
+            horas_asignadas += 3.5
+        elif asistencia.horario == "PM":
+            if asistencia.fecha.weekday() == 4:
+                horas_asignadas += 1.5
+            else:
+                horas_asignadas += 2.5
     
     return {
         'mes': MESES_NOMBRE[asistencias.first().fecha.month - 1],
@@ -98,13 +110,14 @@ def cacular_estadisticas_de_asistencia_del_mes(asistencias):
         'jornadasAsignadas': jornadas_del_mes_cuenta,
         'porcentajeAsistencia': trunc((asistencias_del_mes_cuenta / jornadas_del_mes_cuenta) * 100),
         'horasUtilizadas': round(minutos_utilizados / 60, 1),
-        'horasAsignadas': 2.5 * jornadas_del_mes_cuenta,
+        'horasAsignadas': horas_asignadas,
         'horasExtra': minutos_a_hhmm(minutos_extra),
         'para_totales': {
             'minutos': minutos_utilizados,
             'extra': minutos_extra,
             'jornadas_del_mes': jornadas_del_mes_cuenta,
-            'asistencias_del_mes': asistencias_del_mes_cuenta
+            'asistencias_del_mes': asistencias_del_mes_cuenta,
+            'horas_asignadas_del mes': horas_asignadas
 
         }
     }
@@ -132,6 +145,7 @@ def obtener_asistencia_total_proyecto(proyecto, mes):
     asistencias_total = 0
     minutos_utilizados_total = 0
     minutos_extra_total = 0
+    horas_asignadas_total = 0
 
 
     meses_asistencias = asistencias.annotate(month=TruncMonth('fecha')).values('month').distinct()
@@ -141,6 +155,7 @@ def obtener_asistencia_total_proyecto(proyecto, mes):
         data_mes = cacular_estadisticas_de_asistencia_del_mes(asistencias_del_mes)
 
         # Actualizar totales
+        horas_asignadas_total += data_mes['para_totales']['horas_asignadas_del mes']
         jornadas_total += data_mes['para_totales']['jornadas_del_mes']
         asistencias_total += data_mes['para_totales']['asistencias_del_mes']
         minutos_utilizados_total += data_mes['para_totales']['minutos']
@@ -154,7 +169,7 @@ def obtener_asistencia_total_proyecto(proyecto, mes):
 
         info_total = {
             'porcentajeAsistenciaTotal': trunc((asistencias_total / jornadas_total) * 100),
-            'usoHorasAsignadasTotal': trunc((minutos_utilizados_total / 60) / (2.5 * jornadas_total) * 100),
+            'usoHorasAsignadasTotal': trunc((minutos_utilizados_total / 60) / horas_asignadas_total * 100),
             'horasExtraTotal': f"{minutos_a_hhmm(minutos_extra_total)}"
         }
 
