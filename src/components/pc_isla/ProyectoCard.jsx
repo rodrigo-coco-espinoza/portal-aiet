@@ -65,6 +65,7 @@ function ProyectoCard({
                     </div> 
                 </div>
                 <p className="mb-1 font-normal text-sm text-gris-600 cursor-default">Equipo: {data.equipo}</p>
+                <p className="mb-1 font-normal text-sm text-gris-600 cursor-default">Usuario: {data.usuario_equipo}</p>
                 <div className="mb-1 font-normal text-sm text-gris-600 cursor-default flex flex-row">
                     <span>Jornada/s:</span>
                     <div className="ml-1">

@@ -25,6 +25,8 @@ import {
   aceptar_proyecto,
   get_bloques_ocupados,
 } from "redux/actions/pc_isla/pc_isla";
+import ModalActualizarPersona from "../../formularios/ModalActualizarPersona";
+import { setId } from "@material-tailwind/react/components/Tabs/TabsContext";
 
 function ModalDetalleProyecto({
   active,
@@ -213,6 +215,25 @@ function ModalDetalleProyecto({
   const proyectoFinalizado = () => {
     alertProyectoFinalizado(proyecto.nombre, institucion.sigla);
     closeModal();
+  };
+
+
+
+  // Actualizar persona
+  const [showModalPersona, setShowModalPersona] = useState(false);
+  const [personaActualizar, setPersonaActualizar] = useState(null);
+
+  const openModalPersona = (persona) => {
+    setPersonaActualizar(persona);
+    setShowModalPersona(true);
+  };
+  const closeModalPersona = () => {
+    setShowModalPersona(false);
+    setPersonaActualizar(null);
+  };
+  const personaActualizada = () => {
+    closeModalPersona();
+    console.log("ALERT Persona actualizada");
   };
 
   return (
@@ -663,7 +684,7 @@ function ModalDetalleProyecto({
                                   user.is_pc_isla_editor) && (
                                   <a className="anchor-actualizar-encargado">
                                     <ArrowPathIcon
-                                      //onClick={() => setEditarinstitucionSii(true)}
+                                      onClick={() => openModalPersona(proyecto.encargado)}
                                       className="h-6 w-6 text-gris-800 hover:text-azul-cobalto-400 inline cursor-pointer ml-1"
                                     />
                                   </a>
@@ -718,7 +739,7 @@ function ModalDetalleProyecto({
                                           className="anchor-actualizar-investigador"
                                         >
                                           <ArrowPathIcon
-                                            //onClick={() => setEditarinstitucionSii(true)}
+                                            onClick={() => openModalPersona(investigador)}
                                             className="h-6 w-6 text-gris-800 hover:text-azul-cobalto-400 inline cursor-pointer"
                                           />
                                         </a>
@@ -752,6 +773,14 @@ function ModalDetalleProyecto({
                                 </>
                               )
                             )}
+                          </div>
+                          <div className="mt-1">
+                            <label className="text-lg text-gris-700 text-sm">
+                              Cuenta de usuario del equipo:
+                            </label>
+                            <p className="text-gris-900 cursor-default">
+                              {proyecto.usuario_equipo}
+                            </p>
                           </div>
                           <div className="mt-1">
                             <label
@@ -852,6 +881,13 @@ function ModalDetalleProyecto({
         closeModal={closeModalRechazar}
         rechazarProyecto={rechazarProyecto}
       />
+      <ModalActualizarPersona
+        persona={personaActualizar}
+        active={showModalPersona}
+        closeModal={closeModalPersona}
+        personaActualizada={personaActualizada}
+      />
+        
     </>
   );
 }

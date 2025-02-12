@@ -4,6 +4,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import { connect } from 'react-redux';
 import { get_calendario_pc_isla } from 'redux/actions/pc_isla/pc_isla';
 import Loading from 'components/formularios/Loading';
+import ModalAsistencia from './ModalAsistencia';
 
 const Calendar = ({
   calendario,
@@ -79,12 +80,21 @@ const Calendar = ({
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
+
+  // Modal asistencia
+  const [showAsistencia, setShowAsistencia] = useState(false);
+  const closeAsistencia = () => {
+    setShowAsistencia(false);
+  };
+  const openAsistencia = () => {
+    setShowAsistencia(true);
+  };  
   
 
   return (
     <>
-    <h1 className="font-bold text-gris-700 text-4xl mt-10 mb-8 border-b-2 border-gris-500">Calendario de uso de los computadores</h1>
-    <div className="flex">
+    <h1 className="font-bold text-gris-700 text-4xl mt-10 mb-8 border-b-2 border-gris-500 cursor-default">Calendario de uso de los computadores</h1>
+    <div className="flex cursor-default">
       {/* Columna PCs */}
       <div className='flex flex-col w-[150px] mr-1'>
         <div className='h-[50px] bg-transparent mb-2'></div>
@@ -135,6 +145,7 @@ const Calendar = ({
         <ColumnaDia
           key={dia_calendario.fecha}
           dataDia={dia_calendario}
+          openAsistencia={openAsistencia}
         />
       )))}    
     </div>
@@ -157,6 +168,10 @@ const Calendar = ({
       </div>
     }
     {loading && <Loading message={'Cargando calendario'}/>}
+    <ModalAsistencia
+      active={showAsistencia}
+      closeModal={closeAsistencia}
+    />
     </>
   );
 };

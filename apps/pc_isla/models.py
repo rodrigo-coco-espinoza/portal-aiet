@@ -137,6 +137,7 @@ class Proyecto(models.Model):
     protocolo = models.FileField(upload_to=protocolo_upload_path, max_length=500, null=True, blank=True)
     fecha_inicio = models.DateField(null=True, blank=True)
     fecha_termino = models.DateField(null=True, blank=True)
+    usuario_equipo = models.CharField(max_length=100, null=True, blank=True)
 
     # Extensión del proyecto
     extendido = models.BooleanField(default=0)
@@ -170,25 +171,6 @@ class Rol(models.Model):
 
     def __str__(self):
         return f"{self.persona.nombre} - {self.proyecto.institucion.sigla} - {self.proyecto.nombre}"
-
-
-# class Jornada(models.Model):
-
-#     class Meta:
-#         verbose_name = "Jornada"
-#         verbose_name_plural = "Jornadas"
-    
-#     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, null=False)
-#     equipo = models.CharField(max_length=50, choices=EQUIPO_CHOICES, null=False)
-#     horario = models.CharField(max_length=50, choices=HORARIO_CHOICES, null=False)
-#     dia = models.CharField(max_length=50, choices=DIAS_CHOICES, null=False)
-#     extra = models.BooleanField(default=0)
-#     fecha = models.DateField(null=True, blank=True)
-#     active = models.BooleanField(default=1)
-
-#     def __str__(self):
-#         return f"({self.id}) Proyecto: {self.proyecto.id} {self.equipo} {self.dia} {self.horario} {'[Extra]' if self.extra else ''}"
-
 
 class Asistencia(models.Model):
 

@@ -40,6 +40,7 @@ function ProtocloInstituciones({
         proyectoId: idProyecto,
         documento: "",
         fecha_inicio: "",
+        usuario_equipo: "",
         encargado: "",
         investigadores: [""],
         fecha_termino: null,
@@ -52,6 +53,7 @@ function ProtocloInstituciones({
         proyectoId,
         documento,
         fecha_inicio,
+        usuario_equipo,
         encargado,
         investigadores,
         fecha_termino,
@@ -316,6 +318,18 @@ function ProtocloInstituciones({
                             <label className="text-lg text-gris-700 text-sm" id="fecha-protocolo">Fin periodo del proyecto:</label>
                             <p className="text-gris-900 cursor-default">{formatDate(fecha_termino)}</p>
                         </div>    
+                    </div>
+                    {/* Usuario equipo */}
+                    <div className="mt-1 w-1/2">
+                        <label className="text-gris-700 text-sm" id="usuario-equipo">Usuario equipo:</label>
+                        <input
+                            type="text"
+                            name="usuario_equipo"
+                            id="usuario_equipo"
+                            value={usuario_equipo}
+                            onChange={e => onChange(e)}
+                            className="block w-full rounded border border-azul-marino-100 bg-clip-padding px-3 py-2 text-gris-800 transition file:-mx-3 focus:border-primary focus:text-gris-800 focus:shadow-te-primary focus:outline-none"
+                        />
                     </div>
                     {/* Encargado proyecto */}
                     <div className="mt-1 sm-sii:w-1/2">

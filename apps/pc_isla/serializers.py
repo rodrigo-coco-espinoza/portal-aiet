@@ -34,8 +34,6 @@ DIAS_ENG_A_ESP = {
     'friday': 'viernes',
 }
 
-
-
 MESES_NOMBRE = [
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
@@ -389,6 +387,7 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
             'pronto_a_terminar',
             'formatted_fecha_extension',
             'estadisticas_uso',
+            'usuario_equipo',
         ]
 
 class ProyectoNoActivoSerializer(serializers.ModelSerializer):

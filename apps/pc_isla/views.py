@@ -419,7 +419,6 @@ class ListInstitucioneSelectView(APIView):
         else:
             return Response({'error': 'No se han encontrado instituciones.'}, status=status.HTTP_404_NOT_FOUND)
         
-    
 class ListProyectosView(APIView):
     permission_classes = (permissions.AllowAny, )
 
@@ -428,7 +427,6 @@ class ListProyectosView(APIView):
         data = obtener_proyectos()
         
         return Response({'proyectosInstituciones': data}, status=status.HTTP_200_OK)
-
 
 class DownloadOficioRecibido(APIView):
     permission_classes = (permissions.AllowAny, )
@@ -442,7 +440,6 @@ class DownloadOficioRecibido(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
         
-
 class ActualizarEncargadosSii(APIView):
     permission_classes = (PcIslaPermissions, )
 
@@ -464,7 +461,6 @@ class ActualizarEncargadosSii(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-
 class RechazarProyecto(APIView):
     permission_classes = (PcIslaPermissions, )
 
@@ -483,7 +479,6 @@ class RechazarProyecto(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_501_NOT_IMPLEMENTED)
         
-
 class AceptarProyecto(APIView):
     permission_classes = (PcIslaPermissions, )
     parser_classes = [MultiPartParser, FormParser]
@@ -506,7 +501,6 @@ class AceptarProyecto(APIView):
             print(str(e))
             return Response({'error': str(e)}, status=status.HTTP_501_NOT_IMPLEMENTED)
 
-
 class DownloadOficioRespuesta(APIView):
     permission_classes = (permissions.AllowAny, )
 
@@ -518,7 +512,6 @@ class DownloadOficioRespuesta(APIView):
             return response
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
-
 
 class ListsPersonasInstitucion(APIView):
     permission_classes = (permissions.IsAuthenticated, )
@@ -555,7 +548,6 @@ class ListsPersonasInstitucion(APIView):
             print(str(e))
             return Response({'error': str(e)}, status=status.HTTP_501_NOT_IMPLEMENTED)
         
-
 class BloquesOcupados(APIView):
     permission_classes = (permissions.AllowAny, )
 
@@ -564,7 +556,6 @@ class BloquesOcupados(APIView):
         bloques_ocupados = obtener_bloques_ocupados()
             
         return Response({'bloquesOcupados': bloques_ocupados}, status=status.HTTP_200_OK)
-
 
 class AddProtocolo(APIView):
     permission_classes = (PcIslaPermissions, )
@@ -581,6 +572,7 @@ class AddProtocolo(APIView):
             proyecto.protocolo = data['documento']
             proyecto.fecha_inicio = data['fecha_inicio']
             proyecto.fecha_termino = data['fecha_termino']
+            proyecto.usuario_equipo = data['usuario_equipo']
             proyecto.estado = 'en curso'
             proyecto.save()
 
@@ -659,7 +651,6 @@ class AddProtocolo(APIView):
             print(e)
             return Response({'error': str(e)}, status=status.HTTP_501_NOT_IMPLEMENTED)
 
-
 class DownloadProtocolo(APIView):
     permission_classes = (permissions.AllowAny, )
 
@@ -671,7 +662,6 @@ class DownloadProtocolo(APIView):
             return response
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
-
 
 class JornadaMinhacienda(APIView):
     def get_permissions(self):
@@ -767,7 +757,6 @@ class JornadaMinhacienda(APIView):
             print(e)
             return Response({'error': str(e)}, status=status.HTTP_501_NOT_IMPLEMENTED)
 
-
 class HorarioPcIsla(APIView):
     permission_classes = (permissions.AllowAny, )
 
@@ -777,15 +766,13 @@ class HorarioPcIsla(APIView):
             return Response({'error': str(calendario)}, status=status.HTTP_501_NOT_IMPLEMENTED)
         else:
             return Response({'calendario': calendario}, status=status.HTTP_200_OK)
-        
-        
+          
 class AsistenciaList(APIView):
     permission_classes = (InvestigadorPermissions, )
 
     def get(self, request):
         data = obtener_asistencias(request.user.persona)
         return Response ({'asistencia': data}, status=status.HTTP_200_OK)
-
 
 class RegistrarIngreso(APIView):
     permission_classes = (InvestigadorPermissions, )
@@ -817,7 +804,6 @@ class RegistrarIngreso(APIView):
         respuesta = obtener_asistencias(request.user.persona)
         return Response({'asistencias': respuesta}, status=status.HTTP_200_OK)
 
-
 class RegistrarSalida(APIView):
     permission_classes = (InvestigadorPermissions, )
 
@@ -832,7 +818,6 @@ class RegistrarSalida(APIView):
 
         respuesta = obtener_asistencias(request.user.persona)
         return Response({'asistencias': respuesta}, status=status.HTTP_200_OK)
-
 
 class AddJornadaExtra(APIView):
 
@@ -909,7 +894,6 @@ class AddJornadaExtra(APIView):
                          'jornada_minhacienda': jornada_minhacienda,
                           'calendario': calendario}, status=status.HTTP_200_OK)
     
-
 class FinalizarProyecto(APIView):
     permission_classes = (PcIslaPermissions, )
 
@@ -1060,7 +1044,6 @@ class DownloadExtension(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
         
-
 class InformeAsistencia(APIView):
     permission_classes = (permissions.AllowAny, )
 
