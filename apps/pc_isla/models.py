@@ -152,6 +152,12 @@ class Proyecto(models.Model):
         fecha_limite = timezone.now().date() + timedelta(weeks=2)
         return self.fecha_termino <= fecha_limite
 
+    def es_fecha_termino_menor_o_igual_a_1_mes(self):
+        if self.fecha_termino is None:
+            return False
+        fecha_limite = timezone.now().date() + timedelta(weeks=4)
+        return self.fecha_termino <= fecha_limite
+
     def __str__(self):
         return f"{self.id} {self.institucion.sigla} - {self.nombre}"
     

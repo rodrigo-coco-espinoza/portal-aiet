@@ -12,6 +12,7 @@ const InformeAsistenciaMensual = forwardRef(({content}, ref) => {
     const {
         id,
         nombre,
+        estado,
         formatted_fecha_inicio,
         formatted_fecha_termino,
         extendido,
@@ -36,6 +37,7 @@ const InformeAsistenciaMensual = forwardRef(({content}, ref) => {
                     />
 
                     <Plazos
+                        estado={estado}
                         fecha_inicio={formatted_fecha_inicio}
                         fecha_termino={formatted_fecha_termino}
                         extendido={extendido}

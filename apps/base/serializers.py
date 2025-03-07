@@ -64,3 +64,17 @@ class PersonaSerializer(serializers.ModelSerializer):
             'area',
             'cargo',
         ]
+
+
+class InstitucionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Institucion
+        fields = [
+            'id',
+            'nombre',
+            'sigla',
+            'rut',
+            'direccion',
+            'tipo',
+            'ministerio',
+        ]

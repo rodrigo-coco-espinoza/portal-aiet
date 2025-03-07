@@ -32,6 +32,8 @@ import {
     ADD_JORNADA_EXTRA_SUCCES,
     FINALIZAR_PROYECTO_SUCCESS,
     EXTENDER_PROYECTO_SUCCESS,
+    GET_PROYECTOS_FINALIZADOS_SUCCESS,
+    GET_PROYECTOS_FINALIZADOS_FAIL,
 } from '../actions/pc_isla/types'
 
 const initialState = {
@@ -44,6 +46,7 @@ const initialState = {
     jornadasHacienda: {},
     calendario: [],
     asistencias: [],
+    proyectosPcIslaFinalizados: [],
 };
 
 const reemplazarProyecto = (proyectosState, idInstitucion, proyectoNuevo) => {
@@ -292,6 +295,13 @@ export function institucion_reducer (state=initialState, action){
                 jornadasHacienda: payload.jornadas_minhacienda,
                 calendario: payload.calendario,
             };
+        case GET_PROYECTOS_FINALIZADOS_SUCCESS:
+            return {
+                ...state,
+                proyectosPcIslaFinalizados: payload.proyectos_finalizados
+            };
+
+
         case UPDATE_ENCARGADOS_SII_FAIL:
         case ADD_PROTOCOLO_FAIL:
         case GET_BLOQUES_OCUPADOS_FAIL:
@@ -304,6 +314,7 @@ export function institucion_reducer (state=initialState, action){
         case ADD_INSTITUCION_FAIL:
         case ADD_PROYECTO_FAIL:
         case UPDATE_ENCARGADOS_SII_FAIL:
+        case GET_PROYECTOS_FINALIZADOS_FAIL:
             return {...state}
 
         default:

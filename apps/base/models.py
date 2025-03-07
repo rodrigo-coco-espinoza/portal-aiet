@@ -23,7 +23,7 @@ class Institucion(models.Model):
     
     ministerio = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, default=None)
 
-    objects = models.Manager
+
 
     def __str__(self):
         return f"{self.sigla}"

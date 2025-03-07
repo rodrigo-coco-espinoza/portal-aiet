@@ -34,6 +34,9 @@ import {
     ADD_JORNADA_EXTRA_SUCCES,
     FINALIZAR_PROYECTO_SUCCESS,
     EXTENDER_PROYECTO_SUCCESS,
+    GET_PROYECTOS_FINALIZADOS_SUCCESS,
+    GET_PROYECTOS_FINALIZADOS_FAIL
+
 } from './types'
 
 
@@ -537,3 +540,26 @@ export const informe_asistencia = (idProyecto, mes) => async dispatch => {
     return res.data;
     
 }
+
+export const get_proyectos_finalizados = () => async dispatch => {
+    const config = {
+        headers: {
+            'Accept': 'application/json',
+        }
+    };
+    try {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/pc_isla/get_proyectos_finalizados/`, config);
+
+        if (res.status === 200){
+            dispatch({
+                type: GET_PROYECTOS_FINALIZADOS_SUCCESS,
+                payload: res.data
+            });
+        }
+
+    } catch(err){
+        dispatch({
+            type: GET_PROYECTOS_FINALIZADOS_FAIL
+        });
+    }
+};

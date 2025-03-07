@@ -5,7 +5,7 @@ from apps.base.models import Persona
 from apps.user.models import UserAccount
 from django.conf import settings
 from apps.user.serializers import *
-from apps.base.serializers import InstitucionSelectSerializer, PersonaSelectSerializer, PersonaSerializer
+from apps.base.serializers import InstitucionSelectSerializer, PersonaSelectSerializer, PersonaSerializer, InstitucionSerializer
 from .serializers import ProyectoActivoSerializer, ProyectoNoActivoSerializer, InformeAsistenciaSerializer, MESES_NOMBRE
 import json
 from django.http import JsonResponse
@@ -322,6 +322,23 @@ def obtener_proyectos():
 
             data.append(institucion_data)
     return data
+
+def obtener_proyectos_finalizados():
+    proyectos_finalizados = Proyecto.objects.filter(
+        estado='finalizado',
+        fecha_termino__gte=timezone.now() - timedelta(weeks=8),
+        protocolo__isnull=False
+    ).select_related('institucion')
+
+    data = []
+    for proyecto in proyectos_finalizados:
+        data_proyecto = ProyectoActivoSerializer(proyecto).data
+        data_proyecto['institucion'] = InstitucionSerializer(proyecto.institucion).data
+        data.append(data_proyecto)
+
+    return data
+
+
 
 class AddProyecto(APIView):
     permission_classes = (permissions.IsAuthenticated, )
@@ -1060,7 +1077,6 @@ class DownloadExtension(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
         
-
 class InformeAsistencia(APIView):
     permission_classes = (permissions.AllowAny, )
 
@@ -1076,3 +1092,13 @@ class InformeAsistencia(APIView):
             'data_informe': data_informe
         }, status=status.HTTP_200_OK)
 
+class ListProyectosFinalizados(APIView):
+    permission_classes = (permissions.AllowAny, )
+
+    def get(self, request, format=None):
+        try: 
+            data = obtener_proyectos_finalizados()
+            
+            return Response({'proyectos_finalizados': data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

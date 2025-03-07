@@ -57,52 +57,61 @@ def cacular_estadisticas_de_asistencia_del_mes(asistencias):
 
     horas_asignadas = 0
 
-    for asistencia in asistencias_del_mes:
-        hora_minuto_string = extraer_hora_de_fecha(asistencia.datetime_ingreso)
-        hora_minuto_ingreso = hora_minuto_string.split(":")
-        hora_ingreso = datetime.time(int(hora_minuto_ingreso[0]), int(hora_minuto_ingreso[1])
-        )
-        
-        if asistencia.datetime_salida:
-            hora_minuto_string = extraer_hora_de_fecha(asistencia.datetime_salida)
-            hora_minuto_salida = hora_minuto_string.split(":")
-            hora_salida = datetime.time(int(hora_minuto_salida[0]), int(hora_minuto_salida[1]))
-        else: 
-            hora_salida = datetime.time(17, 0)
-
-        
-        # Calcular tiempo de uso
-        minutos = calcular_minutos_entre_horas(hora_ingreso, hora_salida)
-        minutos_utilizados += minutos
-
-        
-        # Calcular tiempo extra
-        extra = 0
-        if asistencia.horario == "AM":          
+    if asistencias_del_mes:
+        for asistencia in asistencias_del_mes:
+            hora_minuto_string = extraer_hora_de_fecha(asistencia.datetime_ingreso)
+            hora_minuto_ingreso = hora_minuto_string.split(":")
+            hora_ingreso = datetime.time(int(hora_minuto_ingreso[0]), int(hora_minuto_ingreso[1])
+            )
             
-            if hora_ingreso < INICIO_JORNADA_AM:
-                extra += calcular_minutos_entre_horas(hora_ingreso, INICIO_JORNADA_AM)
-            if hora_salida > FIN_JORNADA_AM:
-                extra += calcular_minutos_entre_horas(FIN_JORNADA_AM, hora_salida)
-            
-        elif asistencia.horario == "PM":
+            if asistencia.datetime_salida:
+                hora_minuto_string = extraer_hora_de_fecha(asistencia.datetime_salida)
+                hora_minuto_salida = hora_minuto_string.split(":")
+                hora_salida = datetime.time(int(hora_minuto_salida[0]), int(hora_minuto_salida[1]))
+            else: 
+                hora_salida = datetime.time(17, 0)
 
+            
+            # Calcular tiempo de uso
+            minutos = calcular_minutos_entre_horas(hora_ingreso, hora_salida)
+            
+
+            
             # Calcular tiempo extra
-            if hora_ingreso < INICIO_JORNADA_PM:
-                extra += calcular_minutos_entre_horas(hora_ingreso, INICIO_JORNADA_PM)
-            if hora_salida > FIN_JORNADA_PM:
-                extra += calcular_minutos_entre_horas(FIN_JORNADA_PM, hora_salida)
-        
-        minutos_extra += extra
+            extra = 0
+            if asistencia.horario == "AM":          
+                
+                if hora_ingreso < INICIO_JORNADA_AM:
+                    extra += calcular_minutos_entre_horas(hora_ingreso, INICIO_JORNADA_AM)
+                if hora_salida > FIN_JORNADA_AM:
+                    extra += calcular_minutos_entre_horas(FIN_JORNADA_AM, hora_salida)
+                
+                if minutos > 180:
+                    minutos_utilizados += 180
+                else:
+                    minutos_utilizados += minutos
 
-        # Cacular horas asignadas
+            elif asistencia.horario == "PM":
+
+                # Calcular tiempo extra
+                if hora_ingreso < INICIO_JORNADA_PM:
+                    extra += calcular_minutos_entre_horas(hora_ingreso, INICIO_JORNADA_PM)
+                if hora_salida > FIN_JORNADA_PM:
+                    extra += calcular_minutos_entre_horas(FIN_JORNADA_PM, hora_salida)
+                
+                if minutos > 150:
+                    minutos_utilizados += 150
+                else:
+                    minutos_utilizados += minutos
+            
+            minutos_extra += extra
+
+    for asistencia in asistencias:
         if asistencia.horario == "AM":
-            horas_asignadas += 3.5
+            horas_asignadas += 3
         elif asistencia.horario == "PM":
-            if asistencia.fecha.weekday() == 4:
-                horas_asignadas += 1.5
-            else:
-                horas_asignadas += 2.5
+            horas_asignadas += 2.5
+  
     
     return {
         'mes': MESES_NOMBRE[asistencias.first().fecha.month - 1],
@@ -391,6 +400,7 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
             'estadisticas_uso',
         ]
 
+    
 class ProyectoNoActivoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Proyecto
@@ -399,6 +409,8 @@ class ProyectoNoActivoSerializer(serializers.ModelSerializer):
             'nombre',
             'estado',
         ]
+
+
 
 class InformeAsistenciaSerializer(serializers.ModelSerializer):
     data_total = serializers.SerializerMethodField()
@@ -492,7 +504,7 @@ class InformeAsistenciaSerializer(serializers.ModelSerializer):
 
     
     def get_pronto_a_terminar(self, obj):
-        return obj.es_fecha_termino_menor_o_igual_a_2_semanas()
+        return obj.es_fecha_termino_menor_o_igual_a_1_mes()
     
 
     class Meta:
@@ -500,6 +512,7 @@ class InformeAsistenciaSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'nombre',
+            'estado',
             'formatted_fecha_inicio',
             'formatted_fecha_termino',
             'extendido',
