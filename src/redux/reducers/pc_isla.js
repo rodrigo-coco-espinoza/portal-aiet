@@ -34,6 +34,8 @@ import {
     EXTENDER_PROYECTO_SUCCESS,
     GET_PROYECTOS_FINALIZADOS_SUCCESS,
     GET_PROYECTOS_FINALIZADOS_FAIL,
+    UPDATE_PROTOCOLO_SUCCESS,
+    UPDATE_PROTOCOLO_FAIL
 } from '../actions/pc_isla/types'
 
 const initialState = {
@@ -300,7 +302,8 @@ export function institucion_reducer (state=initialState, action){
                 ...state,
                 proyectosPcIslaFinalizados: payload.proyectos_finalizados
             };
-
+        case UPDATE_PROTOCOLO_SUCCESS:
+            proyectosActualizados = reemplazarProyecto([...state.proyectosPcIsla], payload.id_institucion, payload.proyecto_actualizado);
 
         case UPDATE_ENCARGADOS_SII_FAIL:
         case ADD_PROTOCOLO_FAIL:
@@ -315,6 +318,7 @@ export function institucion_reducer (state=initialState, action){
         case ADD_PROYECTO_FAIL:
         case UPDATE_ENCARGADOS_SII_FAIL:
         case GET_PROYECTOS_FINALIZADOS_FAIL:
+        case UPDATE_PROTOCOLO_FAIL:
             return {...state}
 
         default:

@@ -35,7 +35,9 @@ import {
     FINALIZAR_PROYECTO_SUCCESS,
     EXTENDER_PROYECTO_SUCCESS,
     GET_PROYECTOS_FINALIZADOS_SUCCESS,
-    GET_PROYECTOS_FINALIZADOS_FAIL
+    GET_PROYECTOS_FINALIZADOS_FAIL,
+    UPDATE_PROTOCOLO_SUCCESS,
+    UPDATE_PROTOCOLO_FAIL
 
 } from './types'
 
@@ -560,6 +562,34 @@ export const get_proyectos_finalizados = () => async dispatch => {
     } catch(err){
         dispatch({
             type: GET_PROYECTOS_FINALIZADOS_FAIL
+        });
+    }
+};
+
+export const update_protocolo = (formData) => async dispatch => {
+    const config = {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `JWT ${localStorage.getItem('access')}`,
+            'Content-Type': 'multipart/form-data',
+        }
+    };
+
+    try {
+        const res = await axios.patch(`${process.env.REACT_APP_API_URL}/api/pc_isla/update_protocolo/`, formData, config);
+        if (res.status === 200) {
+            dispatch({
+                type: UPDATE_PROTOCOLO_SUCCESS,
+                payload: res.data
+            });
+        } else {
+            dispatch({
+                type: UPDATE_PROTOCOLO_FAIL
+            });
+        }
+    } catch(err) {
+        dispatch({
+            type: UPDATE_PROTOCOLO_FAIL
         });
     }
 };

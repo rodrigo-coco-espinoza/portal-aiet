@@ -23,20 +23,20 @@ function ProyectoCard({
     // Jornadas
     const dias = ['Lun', 'Mar', 'Mier', 'Jue', 'Vie'];
 
-    const jornada_text = () => {
-        let text = [];
-        if (Object.keys(data.jornada).length !== 0) {
-            for (let i = 0; i < 5; i++) {
-                if (data.jornada.AM[i] || data.jornada.PM[i]) {
-                    text.push(`${dias[i]} ${data.jornada.AM[i] ? 'AM' : ''} ${data.jornada.PM[i] ? 'PM' : ''}`)
-                }
-            }
-        } else {
-            text.push('Sin jornada asignada')
-        }
+    // const jornada_text = () => {
+    //     let text = [];
+    //     if (Object.keys(data.jornada).length !== 0) {
+    //         for (let i = 0; i < 5; i++) {
+    //             if (data.jornada.AM[i] || data.jornada.PM[i]) {
+    //                 text.push(`${dias[i]} ${data.jornada.AM[i] ? 'AM' : ''} ${data.jornada.PM[i] ? 'PM' : ''}`)
+    //             }
+    //         }
+    //     } else {
+    //         text.push('Sin jornada asignada')
+    //     }
 
-        return text;
-    };
+    //     return text;
+    // };
 
     // Proyecto finalizado
     const alertProyectoFinalizado = (proyecto, institucion) => {
@@ -65,7 +65,7 @@ function ProyectoCard({
                     </div> 
                 </div>
                 <p className="mb-1 font-normal text-sm text-gris-600 cursor-default">Equipo: {data.equipo}</p>
-                <div className="mb-1 font-normal text-sm text-gris-600 cursor-default flex flex-row">
+                {/* <div className="mb-1 font-normal text-sm text-gris-600 cursor-default flex flex-row">
                     <span>Jornada/s:</span>
                     <div className="ml-1">
                     {
@@ -74,7 +74,7 @@ function ProyectoCard({
                         ))
                     }
                     </div> 
-                </div>
+                </div> */}
                 
                 <p className="mb-5 font-normal text-sm text-gris-600 cursor-default">Fecha de término: <br className='sm-sii:hidden'/> <span className={`${data.pronto_a_terminar ? 'text-red-400' : 'text-gris-600'}`}>{data.formatted_fecha_termino} {data.extendido ? '(extendido)' : ''}</span></p>
                 </>

@@ -21,6 +21,7 @@ import { connect } from "react-redux";
 import { Tooltip } from "react-tooltip";
 import {
   update_encargados_sii,
+  update_protocolo,
   rechazar_proyecto,
   aceptar_proyecto,
   get_bloques_ocupados,
@@ -34,6 +35,7 @@ function ModalDetalleProyecto({
   user,
   encargadosSiiOptions,
   update_encargados_sii,
+  update_protocolo,
   showAlertRechazado,
   rechazar_proyecto,
   aceptar_proyecto,
@@ -207,6 +209,27 @@ function ModalDetalleProyecto({
   const protocoloSaved = () => {
     setIsProtocolo(true);
     setShowAlertProtocolo(true);
+  };
+  const [showActualizarProtocolo, setShowActualizarProtocolo] = useState(false);
+  const handleActualizarProtocolo = () => {
+    setShowActualizarProtocolo(true);
+  };
+  const [actualizarProtocoloData, setActualizarProtocoloData] = useState("");
+  const cerrarActualizarProtocolo = () => {
+    setShowActualizarProtocolo(false);
+    setActualizarProtocoloData("");
+  };
+  const actualizarProtocolo = async () => {
+    if (actualizarProtocoloData !== "") {
+      const dataToSend = new FormData();
+      dataToSend.append("protocolo", actualizarProtocoloData);
+      dataToSend.append("proyectoId", proyecto.id);
+
+      await update_protocolo(dataToSend);
+      setShowActualizarProtocolo(false);
+      setActualizarProtocoloData("");
+      setShowAlertProtocolo(true);
+    }
   };
 
   // Extender o finalizar proyecto
@@ -617,7 +640,8 @@ function ModalDetalleProyecto({
                             >
                               Archivo protocolo de uso:
                             </label>
-                            <p className="text-gris-900 cursor-default">
+                            {/* Mostrar protocolo de uso */}
+                            <p className={`text-gris-900 cursor-default ${showActualizarProtocolo ? "hidden" : ""}`}>
                               Ver documento
                               <a
                                 href={`${process.env.REACT_APP_API_URL}/api/pc_isla/download_protocolo/${proyecto.id}/`}
@@ -626,6 +650,19 @@ function ModalDetalleProyecto({
                               >
                                 <DocumentArrowDownIcon className="h-6 w-6 text-gris-800 inline hover:text-azul-cobalto-400 cursor-pointer ml-1" />
                               </a>
+
+                              {user &&
+                                (user.is_pc_isla_admin ||
+                                  user.is_pc_isla_editor) && (
+                                  <a className="anchor-actualizar-protocolo">
+                                    <ArrowPathIcon
+                                      onClick={handleActualizarProtocolo}
+                                      className="h-6 w-6 text-gris-800 hover:text-azul-cobalto-400 inline cursor-pointer"
+                                    />
+                                  </a>
+                                )
+
+                              }
                             </p>
                             <Tooltip
                               key="descargarProtocolo"
@@ -634,6 +671,43 @@ function ModalDetalleProyecto({
                             >
                               Descargar documento
                             </Tooltip>
+                            <Tooltip
+                              key="tooltipActualizarProtocolo"
+                              anchorSelect=".anchor-actualizar-protocolo"
+                            >
+                              Actualizar protocolo de uso
+                            </Tooltip>
+
+                            {/* Actualizar protocolo de uso */}
+                            <p className={`flex flex-col sm-sii:flex-row ${showActualizarProtocolo ? "" : "hidden"}`}>
+                              <input 
+                                type='file'
+                                id='actualizarProtocolo'
+                                name='actualizarProtocolo'
+                                accept=".pdf, .PDF"
+                                required
+                                onChange={(e) => setActualizarProtocoloData(e.target.files[0])}
+                                className="block w-full rounded border border-azul-marino-100 bg-clip-padding px-3 py-2 text-gris-800 transition file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:cursor-pointer file:border-inherit file:bg-gris-800 file:px-3 file:py-[0.32rem] file:text-white file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-gris-400 hover:file:text-gris-800 focus:border-primary focus:text-gris-800 focus:shadow-te-primary focus:outline-none"
+                              />
+                              <span className="flex items-end justify-end ms-1">
+
+                              
+                                <button
+                                  onClick={actualizarProtocolo}
+                                  className="text-verde-esmeralda-300 hover:text-verde-esmeralda-400  background-transparent font-bold uppercase py-0 text-sm outline-none focus:outline-none mr-1 mb-0 ease-linear transition-all duration-150 mr-3"
+                                >
+                                  Guardar
+                                </button>
+                                <button
+                                  onClick={cerrarActualizarProtocolo}
+                                  className="text-rojo-300 hover:text-rojo-400  background-transparent font-bold uppercase py-0 text-sm outline-none focus:outline-none mr-1 mb-0 ease-linear transition-all duration-150"
+                                  type="button"
+                                >
+                                  Cancelar
+                                </button>
+                              </span>
+                            </p>
+                            
                           </div>
                           <div className="mt-1">
                             <label
@@ -866,4 +940,5 @@ export default connect(mapStateToProps, {
   update_encargados_sii,
   rechazar_proyecto,
   aceptar_proyecto,
+  update_protocolo,
 })(ModalDetalleProyecto);

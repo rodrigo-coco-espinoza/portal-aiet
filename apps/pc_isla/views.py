@@ -1102,3 +1102,36 @@ class ListProyectosFinalizados(APIView):
             return Response({'proyectos_finalizados': data}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class UpdateProtocolo(APIView):
+    permission_classes = (PcIslaPermissions, )
+    parser_classes = [MultiPartParser, FormParser]
+
+    def patch(self, request, format=None):
+        try:
+            data = request.data
+            
+            # Obtener el proyecto
+            proyecto = Proyecto.objects.get(id=data['proyectoId'])
+            
+            # Si ya existe un protocolo, eliminarlo del sistema de archivos
+            if proyecto.protocolo:
+                # Verificar si el archivo existe antes de intentar eliminarlo
+                if os.path.exists(proyecto.protocolo.path):
+                    os.remove(proyecto.protocolo.path)
+            
+            # Asignar el nuevo protocolo
+            proyecto.protocolo = data['protocolo']
+            proyecto.save()
+
+            # Resultado
+            proyecto_result = ProyectoActivoSerializer(proyecto).data
+
+            return Response({
+                'proyecto_actualizado': proyecto_result,
+                'id_institucion': proyecto.institucion.id, 
+                
+                }, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({'error': str(e)}, status=status.HTTP_501_NOT_IMPLEMENTED)
