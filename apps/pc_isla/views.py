@@ -326,6 +326,7 @@ def obtener_proyectos():
 def obtener_proyectos_finalizados():
     proyectos_finalizados = Proyecto.objects.filter(
         estado='finalizado',
+        # Comentar para mostrar todos los proyectos finalizados
         fecha_termino__gte=timezone.now() - timedelta(weeks=8),
         protocolo__isnull=False
     ).select_related('institucion')
