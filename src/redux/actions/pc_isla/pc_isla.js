@@ -37,7 +37,9 @@ import {
     GET_PROYECTOS_FINALIZADOS_SUCCESS,
     GET_PROYECTOS_FINALIZADOS_FAIL,
     UPDATE_PROTOCOLO_SUCCESS,
-    UPDATE_PROTOCOLO_FAIL
+    UPDATE_PROTOCOLO_FAIL,
+    UPDATE_EXTENSION_SUCCESS,
+    UPDATE_EXTENSION_FAIL
 
 } from './types'
 
@@ -590,6 +592,33 @@ export const update_protocolo = (formData) => async dispatch => {
     } catch(err) {
         dispatch({
             type: UPDATE_PROTOCOLO_FAIL
+        });
+    }
+};
+
+export const update_extension = (formData) => async dispatch => {
+    const config = {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `JWT ${localStorage.getItem('access')}`,
+            'Content-Type': 'multipart/form-data',
+        }
+    };
+    try {
+        const res = await axios.patch(`${process.env.REACT_APP_API_URL}/api/pc_isla/update_extension/`, formData, config);
+        if (res.status === 200) {
+            dispatch({
+                type: UPDATE_EXTENSION_SUCCESS,
+                payload: res.data
+            });
+        } else {
+            dispatch({
+                type: UPDATE_EXTENSION_FAIL
+            });
+        }
+    } catch(err) {
+        dispatch({
+            type: UPDATE_EXTENSION_FAIL
         });
     }
 };

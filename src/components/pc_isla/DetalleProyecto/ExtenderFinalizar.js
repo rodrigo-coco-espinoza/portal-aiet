@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { connect } from "react-redux";
 import ModalFinalizarProyecto from "./ModalFinalizarProyecto";
-import { extender_proyecto } from "redux/actions/pc_isla/pc_isla";
+import { extender_proyecto, update_extension } from "redux/actions/pc_isla/pc_isla";
 import { Alert } from "@material-tailwind/react";
 import Loading from "components/formularios/Loading";
-import { DocumentArrowDownIcon } from "@heroicons/react/20/solid";
+import { ArrowPathIcon, DocumentArrowDownIcon } from "@heroicons/react/20/solid";
 import { Tooltip } from "react-tooltip";
 
 function ExtenderFinalizar({
@@ -13,6 +13,8 @@ function ExtenderFinalizar({
     extender_proyecto,
     extendido,
     fechaExtension,
+    user,
+    update_extension,
 }) 
 {
     // Form extender proyecto
@@ -58,6 +60,30 @@ function ExtenderFinalizar({
             });
     };
 
+    // Actualizar documento extensión
+    const [showActualizarExtension, setShowActualizarExtension] = useState(false);
+    const [actualizarExtensionData, setActualizarExtensionData] = useState("");
+
+    const cerrarActualizarExtension = () => {
+        setShowActualizarExtension(false);
+        setActualizarExtensionData("");
+    };
+
+    const actualizarExtension = async () => {
+        if (actualizarExtensionData) {
+            const formDataToSend = new FormData();
+            formDataToSend.append('proyectoId', idProyecto);
+            formDataToSend.append('documento', actualizarExtensionData);
+
+            try {
+                await update_extension(formDataToSend);
+                cerrarActualizarExtension();
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    };
+
     // Finalizar proyecto
     const [showModalFinalizar, setShowModalFinalizar] = useState(false);
     const handleFinalizarProyecto = (isFinished) => {
@@ -84,8 +110,47 @@ function ExtenderFinalizar({
         { extendido ?
         <>
             <h1 className="font-bold text-gris-800 cursor-default mt-4">Plazo del proyecto extendido</h1>
-            <p className="text-gris-900 cursor-default">
+            <p className={`text-gris-900 cursor-default ${showActualizarExtension ? 'hidden' : ''}`}>
                 Recibido el {fechaExtension} <a href={`${process.env.REACT_APP_API_URL}/api/pc_isla/download_extension/${proyectoId}/`} target="_blank" className="anchor-descargar-extension"><DocumentArrowDownIcon className="h-6 w-6 text-gris-800 inline hover:text-azul-cobalto-400 cursor-pointer" /></a>
+                {user && 
+                    (user.is_pc_isla_admin || user.is_pc_isla_editor) && (
+                        <a className="anchor-actualizar-extension">
+                            <ArrowPathIcon
+                                onClick={() => setShowActualizarExtension(!showActualizarExtension)}
+                                className="h-6 w-6 text-gris-800 inline hover:text-azul-cobalto-400 cursor-pointer"
+                            />
+                        </a>
+                    )
+
+                }
+            </p>
+            <p className={`flex flex-col sm-sii:flex-row ${showActualizarExtension ? '' : 'hidden'}`}>
+                <input 
+                                type='file'
+                                id='actualizarExtension'
+                                name='actualizarExtension'
+                                accept=".pdf, .PDF"
+                                required
+                               onChange={(e) => setActualizarExtensionData(e.target.files[0])}
+                                className="block w-full rounded border border-azul-marino-100 bg-clip-padding px-3 py-2 text-gris-800 transition file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:cursor-pointer file:border-inherit file:bg-gris-800 file:px-3 file:py-[0.32rem] file:text-white file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-gris-400 hover:file:text-gris-800 focus:border-primary focus:text-gris-800 focus:shadow-te-primary focus:outline-none"
+                              />
+                              <span className="flex items-end justify-end ms-1">
+
+                              
+                                <button
+                                 onClick={actualizarExtension}
+                                  className="text-verde-esmeralda-300 hover:text-verde-esmeralda-400  background-transparent font-bold uppercase py-0 text-sm outline-none focus:outline-none mr-1 mb-0 ease-linear transition-all duration-150 mr-3"
+                                >
+                                  Guardar
+                                </button>
+                                <button
+                                 onClick={cerrarActualizarExtension}
+                                  className="text-rojo-300 hover:text-rojo-400  background-transparent font-bold uppercase py-0 text-sm outline-none focus:outline-none mr-1 mb-0 ease-linear transition-all duration-150"
+                                  type="button"
+                                >
+                                  Cancelar
+                                </button>
+                              </span>
             </p>
             <Tooltip
                 key="descargarExtension"
@@ -93,6 +158,13 @@ function ExtenderFinalizar({
                 place="top"
             >
                 Descargar documento
+            </Tooltip>
+            <Tooltip
+                key="actualizarExtension"
+                anchorSelect=".anchor-actualizar-extension"
+                place="top"
+            >
+                Actualizar documento
             </Tooltip>
         </>
         :
@@ -153,9 +225,11 @@ function ExtenderFinalizar({
 }
 
 const mapStateToProps = state => ({
-    
+    user: state.auth.user,
 
 });
+
 export default connect(mapStateToProps, {
-    extender_proyecto
+    extender_proyecto,
+    update_extension
 })(ExtenderFinalizar);

@@ -1136,3 +1136,35 @@ class UpdateProtocolo(APIView):
         except Exception as e:
             print(e)
             return Response({'error': str(e)}, status=status.HTTP_501_NOT_IMPLEMENTED)
+        
+class UpdateExtension(APIView):
+    permission_classes = (PcIslaPermissions, )
+    parser_classes = [MultiPartParser, FormParser]
+
+    def patch(self, request, format=None):
+        try:
+            data = request.data
+            
+            # Obtener el proyecto
+            proyecto = Proyecto.objects.get(id=data['proyectoId'])
+            
+            # Si ya existe un documento de extensión, eliminarlo del sistema de archivos
+            if proyecto.documento_extension:
+                # Verificar si el archivo existe antes de intentar eliminarlo
+                if os.path.exists(proyecto.documento_extension.path):
+                    os.remove(proyecto.documento_extension.path)
+
+            # Asignar el nuevo documento de extensión
+            proyecto.documento_extension = data['documento']
+            proyecto.save()
+            # Resultado
+            proyecto_result = ProyectoActivoSerializer(proyecto).data
+
+            return Response({
+                'proyecto_actualizado': proyecto_result,
+                'id_institucion': proyecto.institucion.id, 
+                
+                }, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({'error': str(e)}, status=status.HTTP_501_NOT_IMPLEMENTED)

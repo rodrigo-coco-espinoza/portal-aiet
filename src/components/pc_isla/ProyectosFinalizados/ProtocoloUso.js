@@ -3,9 +3,9 @@ import { DocumentArrowDownIcon, ArrowPathIcon } from "@heroicons/react/20/solid"
 import { Alert } from "@material-tailwind/react";
 import { useState } from "react";
 import { connect } from "react-redux";
-import { update_protocolo } from "redux/actions/pc_isla/pc_isla";
+import { update_protocolo, update_extension } from "redux/actions/pc_isla/pc_isla";
 
-function ProtocoloUso({ proyecto, user, update_protocolo }) {
+function ProtocoloUso({ proyecto, user, update_protocolo, update_extension }) {
   // Protocolo de uso
   const [showAlertProtocolo, setShowAlertProtocolo] = useState(false);
   const [showActualizarProtocolo, setShowActualizarProtocolo] = useState(false);
@@ -30,6 +30,30 @@ function ProtocoloUso({ proyecto, user, update_protocolo }) {
       setShowActualizarProtocolo(false);
       setActualizarProtocoloData("");
       setShowAlertProtocolo(true);
+    }
+  };
+
+  // Actualizar documento extensión
+  const [showActualizarExtension, setShowActualizarExtension] = useState(false);
+  const [actualizarExtensionData, setActualizarExtensionData] = useState("");
+
+  const cerrarActualizarExtension = () => {
+    setShowActualizarExtension(false);
+    setActualizarExtensionData("");
+  };
+
+  const actualizarExtension = async () => {
+    if (actualizarExtensionData) {
+      const formDataToSend = new FormData();
+      formDataToSend.append('proyectoId', proyecto.id);
+      formDataToSend.append('documento', actualizarExtensionData);
+
+      try {
+        await update_extension(formDataToSend);
+        cerrarActualizarExtension();
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
   return (
@@ -128,8 +152,62 @@ function ProtocoloUso({ proyecto, user, update_protocolo }) {
         <p className="text text-gris-900 cursor-default">
           Del {proyecto.formatted_fecha_inicio} al{" "}
           {proyecto.formatted_fecha_termino}{" "}
-          {proyecto.extendido ? "(plazo extendido)" : ""}
+          {proyecto.extendido ?
+          <span>(plazo extendido <a href={`${process.env.REACT_APP_API_URL}/api/pc_isla/download_extension/${proyecto.id}/`} target="_blank" rel="noreferrer" className="anchor-descargar-extension"><DocumentArrowDownIcon 
+            className="h-5 w-5 text-gris-800 inline hover:text-azul-cobalto-400 cursor-pointer mb-1 ml-1"/></a>
+            {user &&
+              (user.is_pc_isla_admin || user.is_pc_isla_editor) && (
+                <button className="anchor-actualizar-extension bg-transparent border-none p-0 cursor-pointer">
+                  <ArrowPathIcon
+                    onClick={() => setShowActualizarExtension(!showActualizarExtension)}
+                    className="h-5 w-5 text-gris-800 hover:text-azul-cobalto-400 inline cursor-pointer mb-1 ml-1"
+                  />
+                </button>
+              )}
+          )
+          </span> 
+          : 
+          ""}
         </p>
+        <div className={`flex flex-col sm-sii:flex-row ${showActualizarExtension ? "" : "hidden"}`}>
+          <input 
+            type='file'
+            id='actualizarExtension'
+            name='actualizarExtension'
+            accept=".pdf, .PDF"
+            required
+            onChange={(e) => setActualizarExtensionData(e.target.files[0])}
+            className="block w-full rounded border border-azul-marino-100 bg-clip-padding px-3 py-2 text-gris-800 transition file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:cursor-pointer file:border-inherit file:bg-gris-800 file:px-3 file:py-[0.32rem] file:text-white file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-gris-400 hover:file:text-gris-800 focus:border-primary focus:text-gris-800 focus:shadow-te-primary focus:outline-none"
+          />
+          <span className="flex items-end justify-end ms-1">
+            <button
+              onClick={actualizarExtension}
+              className="text-verde-esmeralda-300 hover:text-verde-esmeralda-400 background-transparent font-bold uppercase py-0 text-sm outline-none focus:outline-none mr-1 mb-0 ease-linear transition-all duration-150 mr-3"
+            >
+              Guardar
+            </button>
+            <button
+              onClick={cerrarActualizarExtension}
+              className="text-rojo-300 hover:text-rojo-400 background-transparent font-bold uppercase py-0 text-sm outline-none focus:outline-none mr-1 mb-0 ease-linear transition-all duration-150"
+              type="button"
+            >
+              Cancelar
+            </button>
+          </span>
+        </div>
+
+        <Tooltip
+          key="descargarExtension"
+          anchorSelect=".anchor-descargar-extension"
+        >
+          Descargar documento
+        </Tooltip>
+        <Tooltip
+          key="tooltipActualizarExtension"
+          anchorSelect=".anchor-actualizar-extension"
+        >
+          Actualizar documento
+        </Tooltip>
       </div>
       <div className="mt-1">
         <label className="text-lg text-gris-700 text-sm" id="encargado-ie">
@@ -164,4 +242,5 @@ const mapStateToProps = (state) => ({
 
 export default connect(mapStateToProps, {
   update_protocolo,
+  update_extension,
 })(ProtocoloUso);

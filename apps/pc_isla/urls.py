@@ -27,4 +27,5 @@ urlpatterns = [
     path('informe_asistencia/<int:proyecto_id>/<int:mes>/', InformeAsistencia.as_view()),
     path('get_proyectos_finalizados/', ListProyectosFinalizados.as_view()),
     path('update_protocolo/', UpdateProtocolo.as_view()),
+    path('update_extension/', UpdateExtension.as_view()),
 ]

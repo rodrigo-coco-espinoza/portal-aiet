@@ -98,7 +98,7 @@ def documento_extension_upload_path(instance, filename):
 
     folder_path = os.path.join(MEDIA_FOLDER, sigla, nombre)
 
-    date = '-'.join(reversed(instance.fecha_extension.split('-')))
+    date = instance.fecha_extension.strftime('%d-%m-%Y')
     new_filename = f"{sigla}_solicitud_extension_{date}.pdf"
 
     return os.path.join(folder_path, new_filename)
