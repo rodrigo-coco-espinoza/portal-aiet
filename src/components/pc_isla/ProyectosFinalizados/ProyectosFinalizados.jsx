@@ -1,4 +1,5 @@
 import { connect } from "react-redux";
+import { useState } from "react";
 import ProyectoFinalizadoCard from "./ProyectoFinalizadoCard";
 import { get_all_proyectos_finalizados } from "redux/actions/pc_isla/pc_isla";
 
@@ -6,6 +7,14 @@ function ProyectosFinalizados({
     proyectosPcIslaFinalizados,
     get_all_proyectos_finalizados
 }){
+
+    const [mostrarBoton, setMostrarBoton] = useState(true);
+
+    const handleVerMas = () =>{
+        get_all_proyectos_finalizados()
+        setMostrarBoton(false)
+    }
+
     return(
         <div className="">
             <div className="w-full font-bold text-gris-700 text-4xl border-b-2 border-gris-500  cursor-default mt-16 mb-8">
@@ -22,13 +31,15 @@ function ProyectosFinalizados({
                 ))}
             </div>
             {/* Botón cargar todos los proyectos finalizados */}
-            <div className="flex justify-center mt-8">
-                <button 
-                    onClick={get_all_proyectos_finalizados}
-                    className="bg-azul-brillante-400 text-white font-semibold py-2 px-4 rounded hover:bg-azul-brillante-300 transition duration-300">
-                    Cargar más proyectos finalizados
-                </button>
-            </div>
+            {mostrarBoton && (
+                <div className="flex justify-center mt-8">
+                    <button 
+                        onClick={handleVerMas}
+                        className="bg-azul-brillante-400 text-white font-semibold py-2 px-4 rounded hover:bg-azul-brillante-300 transition duration-300">
+                        Cargar más proyectos finalizados
+                    </button>
+                </div>
+            )}
         </div>
     )
 }
