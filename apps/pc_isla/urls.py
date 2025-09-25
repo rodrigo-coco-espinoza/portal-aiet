@@ -28,4 +28,5 @@ urlpatterns = [
     path('get_proyectos_finalizados/', ListProyectosFinalizados.as_view()),
     path('update_protocolo/', UpdateProtocolo.as_view()),
     path('update_extension/', UpdateExtension.as_view()),
+    path('get_all_proyectos_finalizados/', ListAllProyectosFinalizados.as_view()),
 ]

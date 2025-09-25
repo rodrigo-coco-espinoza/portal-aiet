@@ -18,6 +18,7 @@ function PcIsla({
     get_proyectos,
     get_jornadas_minhacienda,
     get_proyectos_finalizados,
+    user
 }){
     useEffect(() => {
         window.scrollTo(0,0);
@@ -50,7 +51,9 @@ function PcIsla({
                             <Calendar />
                             <ProyectosActivos
                             />
-                            <ProyectosFinalizados />
+                            {user && (user.is_pc_isla_admin || user.is_pc_isla_editor) &&
+                                <ProyectosFinalizados />
+                            }
                         </motion.div>
                                 </div>
                             </div>
@@ -66,7 +69,8 @@ function PcIsla({
 }
 
 const mapStateToProps = state =>({
-    institucionesOptions: state.institucion_reducer.institucionesOptions
+    institucionesOptions: state.institucion_reducer.institucionesOptions,
+    user: state.auth.user,
 })
 
 export default connect(mapStateToProps, {

@@ -37,7 +37,9 @@ import {
     UPDATE_PROTOCOLO_SUCCESS,
     UPDATE_PROTOCOLO_FAIL,
     UPDATE_EXTENSION_SUCCESS,
-    UPDATE_EXTENSION_FAIL
+    UPDATE_EXTENSION_FAIL,
+    GET_ALL_PROYECTOS_FINALIZADOS_SUCCESS,
+    GET_ALL_PROYECTOS_FINALIZADOS_FAIL
 } from '../actions/pc_isla/types'
 
 const initialState = {
@@ -316,6 +318,12 @@ export function institucion_reducer (state=initialState, action){
                 ...state,
                 proyectosPcIsla: proyectosActualizados,
             };
+
+        case GET_ALL_PROYECTOS_FINALIZADOS_SUCCESS:
+            return {
+                ...state,
+                proyectosPcIslaFinalizados: payload.proyectos_finalizados
+            };
         
         // Fallos
         case UPDATE_ENCARGADOS_SII_FAIL:
@@ -333,6 +341,7 @@ export function institucion_reducer (state=initialState, action){
         case GET_PROYECTOS_FINALIZADOS_FAIL:
         case UPDATE_PROTOCOLO_FAIL:
         case UPDATE_EXTENSION_FAIL:
+        case GET_ALL_PROYECTOS_FINALIZADOS_FAIL:
             return {...state}
 
         default:

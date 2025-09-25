@@ -323,13 +323,18 @@ def obtener_proyectos():
             data.append(institucion_data)
     return data
 
-def obtener_proyectos_finalizados():
-    proyectos_finalizados = Proyecto.objects.filter(
-        estado='finalizado',
-        # Comentar para mostrar todos los proyectos finalizados
-        fecha_termino__gte=timezone.now() - timedelta(weeks=8),
-        protocolo__isnull=False
-    ).select_related('institucion')
+def obtener_proyectos_finalizados(timeframe_weeks=8):
+    # Construir el filtro base
+    filtros = {
+        'estado': 'finalizado',
+        'protocolo__isnull': False
+    }
+    
+    # Solo agregar el filtro de fecha si timeframe_weeks no es None
+    if timeframe_weeks is not None:
+        filtros['fecha_termino__gte'] = timezone.now() - timedelta(weeks=timeframe_weeks)
+    
+    proyectos_finalizados = Proyecto.objects.filter(**filtros).select_related('institucion').order_by('-fecha_termino')
 
     data = []
     for proyecto in proyectos_finalizados:
@@ -1168,3 +1173,15 @@ class UpdateExtension(APIView):
         except Exception as e:
             print(e)
             return Response({'error': str(e)}, status=status.HTTP_501_NOT_IMPLEMENTED)
+        
+
+class ListAllProyectosFinalizados(APIView):
+    permission_classes = (PcIslaPermissions, )
+
+    def get(self, request, format=None):
+        try: 
+            data = obtener_proyectos_finalizados(timeframe_weeks=None)
+            
+            return Response({'proyectos_finalizados': data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
