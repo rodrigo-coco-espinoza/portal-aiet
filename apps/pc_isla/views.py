@@ -1335,7 +1335,8 @@ class AddExtraccion(APIView):
                 gabinete=data["gabinete_electronico"],  # Ahora es CharField, no necesita conversión
                 informe_revision=data["informe_revision"],
                 documento_zip=data["documento_extraccion"],
-                estado="Entregado"
+                estado="Entregado",
+                documento_word=data["documento_word"]
             )
             nueva_extraccion.save()
 
@@ -1372,11 +1373,23 @@ class DownloadExtraccion(APIView):
         extraccion = get_object_or_404(Extraccion, id=extraccion_id)
 
         try:
-            response = FileResponse(extraccion.documento_zip.open("rb"))
+            response = FileResponse(extraccion.extraccion_zip.open("rb"))
             return response
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
         
+
+class DownloadDocumentoWord(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request, extraccion_id):
+        extraccion = get_object_or_404(Extraccion, id=extraccion_id)
+
+        try:
+            response = FileResponse(extraccion.documento_word.open("rb"))
+            return response
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
 class DeleteExtraccion(APIView):
     permission_classes = (PcIslaPermissions,)
@@ -1389,8 +1402,9 @@ class DeleteExtraccion(APIView):
             # Eliminar archivos asociados
             if extraccion.informe_revision and os.path.exists(extraccion.informe_revision.path):
                 os.remove(extraccion.informe_revision.path)
-            if extraccion.documento_zip and os.path.exists(extraccion.documento_zip.path):
-                os.remove(extraccion.documento_zip.path)
+            if extraccion.extraccion_zip and os.path.exists(extraccion.extraccion_zip.path):
+                os.remove(extraccion.extraccion_zip.path)
+                os.remove(extraccion.documento_word.path)
 
             # Eliminar la extracción
             extraccion.delete()

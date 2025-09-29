@@ -33,4 +33,5 @@ urlpatterns = [
     path('download_extraccion/<int:extraccion_id>/', DownloadExtraccion.as_view()),
     path('download_informe_revision/<int:extraccion_id>/', DownloadInformeRevision.as_view()),
     path('delete_extraccion/<int:extraccion_id>/', DeleteExtraccion.as_view()),
+    path('download_documento_word/<int:extraccion_id>/', DownloadDocumentoWord.as_view()),
 ]

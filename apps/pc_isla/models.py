@@ -123,7 +123,7 @@ def informe_revision_upload_path(instance, filename):
     
     return os.path.join(folder_path, new_filename)
 
-def documento_zip_upload_path(instance, filename):
+def extraccion_zip_upload_path(instance, filename):
     sigla = instance.proyecto.institucion.sigla
     id = instance.proyecto.id
     nombre = slugify(instance.proyecto.nombre).replace('-', '_')
@@ -142,6 +142,27 @@ def documento_zip_upload_path(instance, filename):
     new_filename = f"{id}_extraccion_{instance.numero}{file_extension}"
     
     return os.path.join(folder_path, new_filename)
+
+def documento_word_upload_path(instance, filename):
+    sigla = instance.proyecto.institucion.sigla
+    id = instance.proyecto.id
+    nombre = slugify(instance.proyecto.nombre).replace('-', '_')
+    
+    # Folder path
+    folder_path = os.path.join(sigla, nombre, 'extracciones')
+    
+    # Si la carpeta no existe, crear una
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path, exist_ok=True)
+    
+    # Obtener extensión del archivo
+    file_extension = os.path.splitext(filename)[1]
+    
+    # Crear nombre del archivo
+    new_filename = f"{id}_documento_word_extraccion_{instance.numero}{file_extension}"
+    
+    return os.path.join(folder_path, new_filename)
+
 
 # Create your models here.
 class Proyecto(models.Model):
@@ -257,7 +278,9 @@ class Extraccion(models.Model):
     estado = models.CharField(max_length=50, default="Entregado", blank=True)
     gabinete = models.CharField(max_length=50, null=True, blank=True)
     informe_revision = models.FileField(upload_to=informe_revision_upload_path, max_length=500, null=True, blank=True)
-    documento_zip = models.FileField(upload_to=documento_zip_upload_path, max_length=500, null=True, blank=True)
+    extraccion_zip = models.FileField(upload_to=extraccion_zip_upload_path, max_length=500, null=True, blank=True)
+    documento_word = models.FileField(upload_to=documento_word_upload_path, max_length=500, null=True, blank=True)
+
 
     def __str__(self):
         return f"({self.id}) {self.fecha} - {self.proyecto.id}"

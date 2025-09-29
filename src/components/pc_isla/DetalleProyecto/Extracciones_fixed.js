@@ -230,59 +230,59 @@ function Extracciones({
                     {user && (user.is_pc_isla_admin || user.is_pc_isla_editor) && (
                         <>
                             <div className="w-[80px] mr-2 flex justify-center">
-                            <a
-                                href={`${process.env.REACT_APP_API_URL}/api/pc_isla/download_extraccion/${extraccion.id}/`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className={`anchor-descargar-extraccion-${extraccion.id}`}
-                            >
-                                <DocumentArrowDownIcon className="h-6 w-6 text-gris-800 inline hover:text-azul-cobalto-400 cursor-pointer" />
-                            </a>
-                            <Tooltip
-                                anchorSelect={`.anchor-descargar-extraccion-${extraccion.id}`}
-                                place="top"
-                            >
-                                Descargar extracción
-                            </Tooltip>
+                                <a
+                                    href={`${process.env.REACT_APP_API_URL}/api/pc_isla/download_extraccion/${extraccion.id}/`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className={`anchor-descargar-extraccion-${extraccion.id}`}
+                                >
+                                    <DocumentArrowDownIcon className="h-6 w-6 text-gris-800 inline hover:text-azul-cobalto-400 cursor-pointer" />
+                                </a>
+                                <Tooltip
+                                    anchorSelect={`.anchor-descargar-extraccion-${extraccion.id}`}
+                                    place="top"
+                                >
+                                    Descargar extracción
+                                </Tooltip>
                             </div>
                             <div className="flex justify-center w-[80px] mr-2">
-                            <a
-                                href={`${process.env.REACT_APP_API_URL}/api/pc_isla/download_informe_revision/${extraccion.id}/`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className={`anchor-descargar-informe-${extraccion.id}`}
-                            >
-                                <DocumentArrowDownIcon className="h-6 w-6 text-gris-800 inline hover:text-azul-cobalto-400 cursor-pointer" />
-                            </a>
-                            <Tooltip
-                                anchorSelect={`.anchor-descargar-informe-${extraccion.id}`}
-                                place="top"
-                            >
-                                Descargar informe de revisión
-                            </Tooltip>
+                                <a
+                                    href={`${process.env.REACT_APP_API_URL}/api/pc_isla/download_informe_revision/${extraccion.id}/`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className={`anchor-descargar-informe-${extraccion.id}`}
+                                >
+                                    <DocumentArrowDownIcon className="h-6 w-6 text-gris-800 inline hover:text-azul-cobalto-400 cursor-pointer" />
+                                </a>
+                                <Tooltip
+                                    anchorSelect={`.anchor-descargar-informe-${extraccion.id}`}
+                                    place="top"
+                                >
+                                    Descargar informe de revisión
+                                </Tooltip>
                             </div>
                             <div className="flex justify-center w-[80px] mr-2">
-                            <a
-                                href={`${process.env.REACT_APP_API_URL}/api/pc_isla/download_documento_word/${extraccion.id}/`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className={`anchor-descargar-word-${extraccion.id}`}
-                            >
-                                <DocumentArrowDownIcon className="h-6 w-6 text-gris-800 inline hover:text-azul-cobalto-400 cursor-pointer" />
-                            </a>
-                            <Tooltip
-                                anchorSelect={`.anchor-descargar-word-${extraccion.id}`}
-                                place="top"
-                            >
-                                Descargar documento Word
-                            </Tooltip>
+                                <a
+                                    href={`${process.env.REACT_APP_API_URL}/api/pc_isla/download_documento_word/${extraccion.id}/`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className={`anchor-descargar-word-${extraccion.id}`}
+                                >
+                                    <DocumentArrowDownIcon className="h-6 w-6 text-gris-800 inline hover:text-azul-cobalto-400 cursor-pointer" />
+                                </a>
+                                <Tooltip
+                                    anchorSelect={`.anchor-descargar-word-${extraccion.id}`}
+                                    place="top"
+                                >
+                                    Descargar documento Word
+                                </Tooltip>
                             </div>
                             <div className="flex justify-center w-[80px]">
                                 <button
                                     onClick={() => handleDeleteExtraccion(extraccion.id)}
                                     className={`anchor-eliminar-extraccion-${extraccion.id} bg-transparent border-none p-0`}
                                 >
-                                    <TrashIcon className="h-6 w-6 text-gris-800 hover:text-rojo-400 cursor-pointer" />
+                                    <TrashIcon className="h-6 w-6 text-rojo-400 hover:text-rojo-600 cursor-pointer" />
                                 </button>
                                 <Tooltip
                                     anchorSelect={`.anchor-eliminar-extraccion-${extraccion.id}`}
@@ -291,9 +291,7 @@ function Extracciones({
                                     Eliminar extracción
                                 </Tooltip>
                             </div>
-
                         </>
-
                     )}
                   </div>
                 ))}
@@ -435,7 +433,6 @@ function Extracciones({
                     </form>
                 </div>
             )
-            
         }
       </div>
       {loading && <Loading message={'Por favor, espere'}/>}
