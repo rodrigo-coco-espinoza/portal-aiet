@@ -10,7 +10,7 @@ from apps.base.models import Institucion, Persona
 
 
 User = settings.AUTH_USER_MODEL
-MEDIA_FOLDER = 'proyectos_pc_isla'
+# MEDIA_FOLDER removido ya que MEDIA_ROOT apunta directamente a proyectos_pc_isla
 EQUIPO_CHOICES = (
     ('Bora Bora', 'Bora Bora'),
     ('Juan Fernández', 'Juan Fernández'),
@@ -59,7 +59,7 @@ def proyecto_upload_path(instance, filename):
     nombre = slugify(instance.nombre).replace('-', '_')
 
     # Folder path
-    folder_path = os.path.join(MEDIA_FOLDER, sigla, nombre)
+    folder_path = os.path.join(sigla, nombre)
 
     # Si la carpeta no existe, crear una
     if not os.path.exists(folder_path):
@@ -75,7 +75,7 @@ def respuesta_upload_path(instance, filename):
     nombre = slugify(instance.nombre).replace('-', '_')
 
     # Folder path
-    folder_path = os.path.join(MEDIA_FOLDER, sigla, nombre)
+    folder_path = os.path.join(sigla, nombre)
     date = '-'.join(reversed(instance.fecha_oficio_respuesta.split('-')))
     new_filename = f"{sigla}_oficio_respuesta_{date}.pdf"
 
@@ -87,7 +87,7 @@ def protocolo_upload_path(instance, filename):
     nombre = slugify(instance.nombre).replace('-', '_')
 
     # Folder path
-    folder_path = os.path.join(MEDIA_FOLDER, sigla, nombre)
+    folder_path = os.path.join(sigla, nombre)
     new_filename = f"{sigla}_protocolo_de_uso.pdf"
 
     return os.path.join(folder_path, new_filename)
@@ -96,14 +96,52 @@ def documento_extension_upload_path(instance, filename):
     sigla = instance.institucion.sigla
     nombre = slugify(instance.nombre).replace('-', '_')
 
-    folder_path = os.path.join(MEDIA_FOLDER, sigla, nombre)
+    folder_path = os.path.join(sigla, nombre)
 
     date = instance.fecha_extension.strftime('%d-%m-%Y')
     new_filename = f"{sigla}_solicitud_extension_{date}.pdf"
 
     return os.path.join(folder_path, new_filename)
 
+def informe_revision_upload_path(instance, filename):
+    sigla = instance.proyecto.institucion.sigla
+    id = instance.proyecto.id
+    nombre = slugify(instance.proyecto.nombre).replace('-', '_')
+    
+    # Folder path
+    folder_path = os.path.join(sigla, nombre, 'extracciones')
+    
+    # Si la carpeta no existe, crear una
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path, exist_ok=True)
+    
+    # Obtener extensión del archivo
+    file_extension = os.path.splitext(filename)[1]
+    
+    # Crear nombre del archivo
+    new_filename = f"{id}_informe_revision_extraccion_{instance.numero}{file_extension}"
+    
+    return os.path.join(folder_path, new_filename)
 
+def documento_zip_upload_path(instance, filename):
+    sigla = instance.proyecto.institucion.sigla
+    id = instance.proyecto.id
+    nombre = slugify(instance.proyecto.nombre).replace('-', '_')
+    
+    # Folder path
+    folder_path = os.path.join(sigla, nombre, 'extracciones')
+    
+    # Si la carpeta no existe, crear una
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path, exist_ok=True)
+    
+    # Obtener extensión del archivo
+    file_extension = os.path.splitext(filename)[1]
+    
+    # Crear nombre del archivo
+    new_filename = f"{id}_extraccion_{instance.numero}{file_extension}"
+    
+    return os.path.join(folder_path, new_filename)
 
 # Create your models here.
 class Proyecto(models.Model):
@@ -177,25 +215,6 @@ class Rol(models.Model):
     def __str__(self):
         return f"{self.persona.nombre} - {self.proyecto.institucion.sigla} - {self.proyecto.nombre}"
 
-
-# class Jornada(models.Model):
-
-#     class Meta:
-#         verbose_name = "Jornada"
-#         verbose_name_plural = "Jornadas"
-    
-#     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, null=False)
-#     equipo = models.CharField(max_length=50, choices=EQUIPO_CHOICES, null=False)
-#     horario = models.CharField(max_length=50, choices=HORARIO_CHOICES, null=False)
-#     dia = models.CharField(max_length=50, choices=DIAS_CHOICES, null=False)
-#     extra = models.BooleanField(default=0)
-#     fecha = models.DateField(null=True, blank=True)
-#     active = models.BooleanField(default=1)
-
-#     def __str__(self):
-#         return f"({self.id}) Proyecto: {self.proyecto.id} {self.equipo} {self.dia} {self.horario} {'[Extra]' if self.extra else ''}"
-
-
 class Asistencia(models.Model):
 
     class Meta:
@@ -225,4 +244,40 @@ class AsistenciaInvestigador(models.Model):
     
     asistencia = models.ForeignKey(Asistencia, on_delete=models.CASCADE, null=False)
     investigador = models.ForeignKey(Persona, on_delete=models.CASCADE, null=False)
+
+class Extraccion(models.Model):
+
+    class Meta:
+        verbose_name = "Extraccion"
+        verbose_name_plural = "Extracciones"
+    
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, null=False)
+    numero = models.IntegerField(null=False, blank=True)
+    fecha = models.DateField(null=False, blank=True)
+    estado = models.CharField(max_length=50, default="Entregado", blank=True)
+    gabinete = models.CharField(max_length=50, null=True, blank=True)
+    informe_revision = models.FileField(upload_to=informe_revision_upload_path, max_length=500, null=True, blank=True)
+    documento_zip = models.FileField(upload_to=documento_zip_upload_path, max_length=500, null=True, blank=True)
+
+    def __str__(self):
+        return f"({self.id}) {self.fecha} - {self.proyecto.id}"
+    
+
+
+# class Jornada(models.Model):
+
+#     class Meta:
+#         verbose_name = "Jornada"
+#         verbose_name_plural = "Jornadas"
+    
+#     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, null=False)
+#     equipo = models.CharField(max_length=50, choices=EQUIPO_CHOICES, null=False)
+#     horario = models.CharField(max_length=50, choices=HORARIO_CHOICES, null=False)
+#     dia = models.CharField(max_length=50, choices=DIAS_CHOICES, null=False)
+#     extra = models.BooleanField(default=0)
+#     fecha = models.DateField(null=True, blank=True)
+#     active = models.BooleanField(default=1)
+
+#     def __str__(self):
+#         return f"({self.id}) Proyecto: {self.proyecto.id} {self.equipo} {self.dia} {self.horario} {'[Extra]' if self.extra else ''}"
 

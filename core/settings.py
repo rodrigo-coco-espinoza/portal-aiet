@@ -151,7 +151,8 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = os.environ.get("MEDIA_ROOT")
+# Configurar MEDIA_ROOT para que apunte a la carpeta proyectos_pc_isla local
+MEDIA_ROOT = os.path.join(BASE_DIR, 'proyectos_pc_isla')
 MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = [

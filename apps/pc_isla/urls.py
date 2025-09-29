@@ -29,4 +29,8 @@ urlpatterns = [
     path('update_protocolo/', UpdateProtocolo.as_view()),
     path('update_extension/', UpdateExtension.as_view()),
     path('get_all_proyectos_finalizados/', ListAllProyectosFinalizados.as_view()),
+    path('add_extraccion/', AddExtraccion.as_view()),
+    path('download_extraccion/<int:extraccion_id>/', DownloadExtraccion.as_view()),
+    path('download_informe_revision/<int:extraccion_id>/', DownloadInformeRevision.as_view()),
+    path('delete_extraccion/<int:extraccion_id>/', DeleteExtraccion.as_view()),
 ]

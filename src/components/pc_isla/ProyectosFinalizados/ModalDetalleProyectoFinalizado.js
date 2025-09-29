@@ -3,6 +3,7 @@ import SolicitudProyecto from "./SolicitudProyecto";
 import RespuestaSII from "./RespuestaSII";
 import ProtocoloUso from "./ProtocoloUso";
 import RegistroAsistencia from "./RegistroAsistencia";
+import Extracciones from "../DetalleProyecto/Extracciones";
 import { EstadisticasUso } from "../DetalleProyecto";
 
 function ModalDetalleProyectoFinalizado({
@@ -57,8 +58,20 @@ function ModalDetalleProyectoFinalizado({
                         user={user}
                     />
                     </div>
+
+                    {/* Extracciones */}                   
+                    <div className="mb-4 px-6 pb-4 pt-2">
+                      <h1 className="text-xl text-gris-800 cursor-default">
+                        Extracciones
+                      </h1>
+                      <Extracciones 
+                        idProyecto={proyecto.id}
+                        data={proyecto.extracciones}
+                      />
+                    </div>
+                                          
+                    </div>
                   </div>
-                </div>
 
                 {/*footer*/}
                 <div className="flex items-center justify-end p-6 border-t border-solid border-gris-400 rounded-b">

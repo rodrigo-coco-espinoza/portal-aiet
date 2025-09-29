@@ -41,7 +41,11 @@ import {
     UPDATE_EXTENSION_SUCCESS,
     UPDATE_EXTENSION_FAIL,
     GET_ALL_PROYECTOS_FINALIZADOS_SUCCESS,
-    GET_ALL_PROYECTOS_FINALIZADOS_FAIL
+    GET_ALL_PROYECTOS_FINALIZADOS_FAIL,
+    ADD_EXTRACCION_SUCCESS,
+    ADD_EXTRACCION_FAIL,
+    DELETE_EXTRACCION_SUCCESS,
+    DELETE_EXTRACCION_FAIL
 
 } from './types'
 
@@ -647,6 +651,60 @@ export const get_all_proyectos_finalizados = () => async dispatch => {
     } catch(err) {
         dispatch({
             type: GET_ALL_PROYECTOS_FINALIZADOS_FAIL
+        });
+    }
+};
+
+export const add_extraccion = (formData) => async dispatch => {
+    const config = {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `JWT ${localStorage.getItem('access')}`,
+            'Content-Type': 'multipart/form-data',
+        }
+    };
+
+    try {
+        const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/pc_isla/add_extraccion/`, formData, config);
+        if (res.status === 200) {
+            dispatch({
+                type: ADD_EXTRACCION_SUCCESS,
+                payload: res.data
+            });
+        } else {
+            dispatch({
+                type: ADD_EXTRACCION_FAIL
+            });
+        }
+    } catch(err) {
+        dispatch({
+            type: ADD_EXTRACCION_FAIL
+        });
+    }
+};
+
+export const delete_extraccion = (extraccion_id) => async dispatch => {
+    const config = {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `JWT ${localStorage.getItem('access')}`,
+        }
+    };
+    try {
+        const res = await axios.delete(`${process.env.REACT_APP_API_URL}/api/pc_isla/delete_extraccion/${extraccion_id}/`, config);
+        if (res.status === 200) {
+            dispatch({
+                type: DELETE_EXTRACCION_SUCCESS,
+                payload: res.data
+            });
+        } else {
+            dispatch({
+                type: DELETE_EXTRACCION_FAIL
+            });
+        }
+    } catch(err) {
+        dispatch({
+            type: DELETE_EXTRACCION_FAIL
         });
     }
 };

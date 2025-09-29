@@ -26,6 +26,7 @@ import {
   aceptar_proyecto,
   get_bloques_ocupados,
 } from "redux/actions/pc_isla/pc_isla";
+import Extracciones from "./Extracciones";
 
 function ModalDetalleProyecto({
   active,
@@ -883,6 +884,10 @@ function ModalDetalleProyecto({
                         <h1 className="text-xl text-gris-800 cursor-default">
                           Extracciones
                         </h1>
+                        <Extracciones 
+                          idProyecto={proyecto.id}
+                          data={proyecto.extracciones}
+                        />
                       </div>
                     )}
 

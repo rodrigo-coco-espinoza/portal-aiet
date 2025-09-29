@@ -39,7 +39,11 @@ import {
     UPDATE_EXTENSION_SUCCESS,
     UPDATE_EXTENSION_FAIL,
     GET_ALL_PROYECTOS_FINALIZADOS_SUCCESS,
-    GET_ALL_PROYECTOS_FINALIZADOS_FAIL
+    GET_ALL_PROYECTOS_FINALIZADOS_FAIL,
+    ADD_EXTRACCION_SUCCESS,
+    ADD_EXTRACCION_FAIL,
+    DELETE_EXTRACCION_SUCCESS,
+    DELETE_EXTRACCION_FAIL
 } from '../actions/pc_isla/types'
 
 const initialState = {
@@ -132,19 +136,7 @@ export function institucion_reducer (state=initialState, action){
                 proyectosPcIsla: updatedProyectosPcIsla
             }
         case UPDATE_ENCARGADOS_SII_SUCCESS:
-            // const proyectosPcIslaEncargados = [...state.proyectosPcIsla];
-            // // Encontrar institución en el estado
-            // const existingInstitucionIndexEncargados = proyectosPcIslaEncargados.findIndex((inst) => inst.id_institucion === payload.institucion);
-            // // Encontrar proyecto
-            // if (existingInstitucionIndexEncargados !== -1) {
-            //     const proyectoIndex = proyectosPcIslaEncargados[existingInstitucionIndexEncargados].proyectos.findIndex((proyecto) => proyecto.id === payload.proyectoActualizado.id);
-        
-            //     // Verificar si se encontró el proyecto
-            //     if (proyectoIndex !== -1) {
-            //         // Reemplazar el proyecto actualizado
-            //         proyectosPcIslaEncargados[existingInstitucionIndexEncargados].proyectos[proyectoIndex] = payload.proyectoActualizado;
-            //     }
-            // }
+
             proyectosActualizados = reemplazarProyecto([...state.proyectosPcIsla], payload.institucion, payload.proyectoActualizado);
 
             return {
@@ -152,18 +144,6 @@ export function institucion_reducer (state=initialState, action){
                 proyectosPcIsla: proyectosActualizados,
             };
         case RECHAZAR_PROYECTO_SUCCESS:
-            // const proyectosPcIslaRechazado = [...state.proyectosPcIsla];
-            // // Encontrar institución
-            // const existingInstitucionIndexRechazado = proyectosPcIslaRechazado.findIndex((inst) => inst.id_institucion === payload.institucion);
-            // // Encontrar proyecto
-            // if (existingInstitucionIndexRechazado !== -1) {
-            //     const proyectoIndex = proyectosPcIslaRechazado[existingInstitucionIndexRechazado].proyectos.findIndex((proyecto) => proyecto.id === payload.proyectoRechazado.id);
-            //     // Reemplazar el proyecto rechazado
-            //     if (proyectoIndex !== -1) {
-            //         proyectosPcIslaRechazado[existingInstitucionIndexRechazado].proyectos[proyectoIndex] = payload.proyectoRechazado;
-            //     }
-            // }
-
             proyectosActualizados = reemplazarProyecto([...state.proyectosPcIsla], payload.institucion, payload.proyectoRechazado);
 
             return {
@@ -171,18 +151,6 @@ export function institucion_reducer (state=initialState, action){
                 proyectosPcIsla: proyectosActualizados
             };
         case ACEPTAR_PROYECTO_SUCCESS:
-            // const proyectosPcIslaAceptado = [...state.proyectosPcIsla];
-            // // Encontrar institución
-            // const existingInstitucionIndexAceptado = proyectosPcIslaAceptado.findIndex((inst) => inst.id_institucion === payload.institucion);
-            // // Encontrar proyecto
-            // if (existingInstitucionIndexAceptado !== -1) {
-            //     const proyectoIndex = proyectosPcIslaAceptado[existingInstitucionIndexAceptado].proyectos.findIndex((proyecto) => proyecto.id === payload.proyectoAceptado.id);
-            //     // Reemplazar el proyecto rechazado
-            //     if (proyectoIndex !== -1) {
-            //         proyectosPcIslaAceptado[existingInstitucionIndexAceptado].proyectos[proyectoIndex] = payload.proyectoAceptado;
-            //     }
-            // }
-
             proyectosActualizados = reemplazarProyecto([...state.proyectosPcIsla], payload.institucion, payload.proyectoAceptado);
 
             return {
@@ -213,16 +181,6 @@ export function institucion_reducer (state=initialState, action){
                 bloquesOcupados: payload.bloquesOcupados
             };
         case ADD_PROTOCOLO_SUCCESS:
-            // const proyectosPcIslaProtocolo = [...state.proyectosPcIsla];
-            // // Encontrar institución
-            // const institucionIndexProtocolo = proyectosPcIslaProtocolo.findIndex((inst) => inst.id_institucion === payload.id_institucion);
-            // // Encontrar proyecto
-            // if (institucionIndexProtocolo !== -1) {
-            //     const proyectoIndex = proyectosPcIslaProtocolo[institucionIndexProtocolo].proyectos.findIndex((proyecto) => proyecto.id === payload.proyecto_actualizado.id);
-            //     if (proyectoIndex !== -1) {
-            //         proyectosPcIslaProtocolo[institucionIndexProtocolo].proyectos[proyectoIndex] = payload.proyecto_actualizado;
-            //     }           
-            // }
 
             proyectosActualizados = reemplazarProyecto([...state.proyectosPcIsla], payload.id_institucion, payload.proyecto_actualizado);
 
@@ -318,13 +276,23 @@ export function institucion_reducer (state=initialState, action){
                 ...state,
                 proyectosPcIsla: proyectosActualizados,
             };
-
         case GET_ALL_PROYECTOS_FINALIZADOS_SUCCESS:
             return {
                 ...state,
                 proyectosPcIslaFinalizados: payload.proyectos_finalizados
             };
-        
+        case ADD_EXTRACCION_SUCCESS:
+            proyectosActualizados = reemplazarProyecto([...state.proyectosPcIsla], payload.id_institucion, payload.proyecto_actualizado);
+            return {
+                ...state,
+                proyectosPcIsla: proyectosActualizados,
+            };
+        case DELETE_EXTRACCION_SUCCESS:
+            proyectosActualizados = reemplazarProyecto([...state.proyectosPcIsla], payload.id_institucion, payload.proyecto_actualizado);
+            return {
+                ...state,
+                proyectosPcIsla: proyectosActualizados,
+            };
         // Fallos
         case UPDATE_ENCARGADOS_SII_FAIL:
         case ADD_PROTOCOLO_FAIL:
@@ -337,11 +305,12 @@ export function institucion_reducer (state=initialState, action){
         case GET_PROYECTOS_FAIL:       
         case ADD_INSTITUCION_FAIL:
         case ADD_PROYECTO_FAIL:
-        case UPDATE_ENCARGADOS_SII_FAIL:
         case GET_PROYECTOS_FINALIZADOS_FAIL:
         case UPDATE_PROTOCOLO_FAIL:
         case UPDATE_EXTENSION_FAIL:
         case GET_ALL_PROYECTOS_FINALIZADOS_FAIL:
+        case DELETE_EXTRACCION_FAIL:
+        case ADD_EXTRACCION_FAIL:
             return {...state}
 
         default:

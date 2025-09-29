@@ -371,6 +371,20 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
     def get_pronto_a_terminar(self, obj):
         return obj.es_fecha_termino_menor_o_igual_a_2_semanas()
 
+    # Extracciones
+    extracciones = serializers.SerializerMethodField()
+    def get_extracciones(self, obj):
+        extracciones_instance = obj.extraccion_set.all().order_by('numero')
+        data = []
+        for extraccion in extracciones_instance:
+            data.append({
+                'id': extraccion.id,
+                'numero': extraccion.numero,
+                'fecha': extraccion.fecha.strftime('%d-%m-%Y'),
+                'estado': extraccion.estado,
+                'gabinete': extraccion.gabinete,
+            })
+        return data
 
     class Meta:
         model = Proyecto
@@ -398,6 +412,7 @@ class ProyectoActivoSerializer(serializers.ModelSerializer):
             'pronto_a_terminar',
             'formatted_fecha_extension',
             'estadisticas_uso',
+            'extracciones',
         ]
 
     
