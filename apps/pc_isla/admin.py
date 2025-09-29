@@ -55,7 +55,7 @@ class AsistenciaInvestigadorAdmin(admin.ModelAdmin):
 
 class ExtraccionAdmin(admin.ModelAdmin):
 
-    list_display = ("id", "proyecto", "numero", "fecha", "estado", "gabinete", "informe_revision", "documento_zip")
+    list_display = ("id", "proyecto", "numero", "fecha", "estado", "gabinete", "informe_revision", "extraccion_zip", "documento_word")
     list_per_page = 25
 
 admin.site.register(Proyecto, ProyectoAdmin)
