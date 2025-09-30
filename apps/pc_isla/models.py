@@ -10,7 +10,7 @@ from apps.base.models import Institucion, Persona
 
 
 User = settings.AUTH_USER_MODEL
-# MEDIA_FOLDER removido ya que MEDIA_ROOT apunta directamente a proyectos_pc_isla
+# MEDIA_ROOT apunta a media/ y las funciones upload incluyen proyectos_pc_isla en el path
 EQUIPO_CHOICES = (
     ('Bora Bora', 'Bora Bora'),
     ('Juan Fernández', 'Juan Fernández'),
@@ -59,7 +59,7 @@ def proyecto_upload_path(instance, filename):
     nombre = slugify(instance.nombre).replace('-', '_')
 
     # Folder path
-    folder_path = os.path.join(sigla, nombre)
+    folder_path = os.path.join('proyectos_pc_isla', sigla, nombre)
 
     # Si la carpeta no existe, crear una
     if not os.path.exists(folder_path):
@@ -75,7 +75,7 @@ def respuesta_upload_path(instance, filename):
     nombre = slugify(instance.nombre).replace('-', '_')
 
     # Folder path
-    folder_path = os.path.join(sigla, nombre)
+    folder_path = os.path.join('proyectos_pc_isla', sigla, nombre)
     date = '-'.join(reversed(instance.fecha_oficio_respuesta.split('-')))
     new_filename = f"{sigla}_oficio_respuesta_{date}.pdf"
 
@@ -87,7 +87,7 @@ def protocolo_upload_path(instance, filename):
     nombre = slugify(instance.nombre).replace('-', '_')
 
     # Folder path
-    folder_path = os.path.join(sigla, nombre)
+    folder_path = os.path.join('proyectos_pc_isla', sigla, nombre)
     new_filename = f"{sigla}_protocolo_de_uso.pdf"
 
     return os.path.join(folder_path, new_filename)
@@ -96,7 +96,7 @@ def documento_extension_upload_path(instance, filename):
     sigla = instance.institucion.sigla
     nombre = slugify(instance.nombre).replace('-', '_')
 
-    folder_path = os.path.join(sigla, nombre)
+    folder_path = os.path.join('proyectos_pc_isla', sigla, nombre)
 
     date = instance.fecha_extension.strftime('%d-%m-%Y')
     new_filename = f"{sigla}_solicitud_extension_{date}.pdf"
@@ -109,7 +109,7 @@ def informe_revision_upload_path(instance, filename):
     nombre = slugify(instance.proyecto.nombre).replace('-', '_')
     
     # Folder path
-    folder_path = os.path.join(sigla, nombre, 'extracciones')
+    folder_path = os.path.join('proyectos_pc_isla', sigla, nombre, 'extracciones')
     
     # Si la carpeta no existe, crear una
     if not os.path.exists(folder_path):
@@ -129,7 +129,7 @@ def extraccion_zip_upload_path(instance, filename):
     nombre = slugify(instance.proyecto.nombre).replace('-', '_')
     
     # Folder path
-    folder_path = os.path.join(sigla, nombre, 'extracciones')
+    folder_path = os.path.join('proyectos_pc_isla', sigla, nombre, 'extracciones')
     
     # Si la carpeta no existe, crear una
     if not os.path.exists(folder_path):
@@ -149,7 +149,7 @@ def documento_word_upload_path(instance, filename):
     nombre = slugify(instance.proyecto.nombre).replace('-', '_')
     
     # Folder path
-    folder_path = os.path.join(sigla, nombre, 'extracciones')
+    folder_path = os.path.join('proyectos_pc_isla', sigla, nombre, 'extracciones')
     
     # Si la carpeta no existe, crear una
     if not os.path.exists(folder_path):
