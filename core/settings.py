@@ -102,11 +102,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABSE_URL = os.environ.get('DATABASE_URL')
+DATABASE_URL = os.environ.get('DATABASE_URL')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DATABSE_URL,
+        'NAME': DATABASE_URL,
     }
 }
 
@@ -152,7 +152,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
 # Configurar MEDIA_ROOT para que apunte a la carpeta proyectos_pc_isla local
-MEDIA_ROOT = os.path.join(BASE_DIR, 'proyectos_pc_isla')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media', 'proyectos_pc_isla')
 MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = [
