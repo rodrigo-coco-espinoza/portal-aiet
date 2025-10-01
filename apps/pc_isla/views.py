@@ -249,10 +249,13 @@ def get_calendario():
         ] = f"{sigla} ({asistencia.proyecto.id})"
         calendario[indice][equipo][horario]["proyecto"] = nombre
         calendario[indice][equipo][horario]["tipo"] = asistencia.tipo
-        calendario[indice][equipo][horario]["asistencia"] = (
-            True if asistencia.datetime_ingreso else False
-        )
-
+        if asistencia.datetime_ingreso and asistencia.datetime_salida:
+            calendario[indice][equipo][horario]["asistencia"] = "asistencia_completa"
+        elif asistencia.datetime_ingreso and not asistencia.datetime_salida:
+            calendario[indice][equipo][horario]["asistencia"] = "ingreso_sin_salida"
+        else:
+            calendario[indice][equipo][horario]["asistencia"] = "sin_asistencia"
+            
     return calendario
 
 
